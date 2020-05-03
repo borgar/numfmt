@@ -7,4 +7,3 @@ import { runTable } from './utils';
 
 runTable(path.join(__dirname, '/tables/ssf-times.tsv'));
 
-
