@@ -1,4 +1,6 @@
+/* global __dirname */
 const TerserPlugin = require('terser-webpack-plugin');
+const path = require('path');
 
 module.exports = {
   entry: './lib/index.js',
@@ -7,7 +9,8 @@ module.exports = {
     libraryTarget: 'umd',
     libraryExport: 'default',
     filename: './numfmt.js',
-    globalObject: 'typeof self !== \'undefined\' ? self : this'
+    globalObject: 'typeof self !== \'undefined\' ? self : this',
+    path: path.resolve(__dirname)
   },
   optimization: {
     minimize: true,
