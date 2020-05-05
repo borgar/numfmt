@@ -1,4 +1,3 @@
-
 # numFmt
 
 The numFmt library formats numbers according to a specifier string as defined in [ECMA-376][ecma]. The library tries its best to emulate the inns and outs of the Excel spreadsheet software does.
@@ -7,7 +6,7 @@ The library is written in pure JavaScript and has no dependencies. It is compara
 
 #### Features
 
-Why use this rather than the battle tested SSF? You may have no need to but numFmt is fully open source, has equivalent (if not better) formatting capabilities, built in international support, and runs about twice as fast in most cases.
+Why use this rather than the battle tested SSF? You may have no need to but numFmt is fully open source, has equivalent (if not better) formatting capabilities, built in international support, and may run about twice as fast in most cases.
 
 Included languages are:
 
@@ -36,6 +35,8 @@ Included languages are:
 * Swedish (`sv`)
 * Thai (`th`)
 * Turkish (`tr`)
+
+The library is made to work with current generation spreadsheets and so it does not support the [1904 date system](https://docs.microsoft.com/en-us/office/troubleshoot/excel/1900-and-1904-date-system). It does not have built in tables for formats addressable by offsets, you are expected to maintain those yourself.
 
 
 ## Installing
@@ -166,6 +167,8 @@ Register locale data for a language. The full data object looks like this:
   negative: "-",
   percent: "%",
   exponent: "E",
+  nan: "NaN",
+  infinity: "∞",
   ampm: [ "AM", "PM" ],
 
   // gregorian calendar
