@@ -7,6 +7,20 @@ test(t => {
   // default locale
   t.is(fmt('dddd, dd. mmmm yyy')(date), 'Saturday, 02. January 1909');
 
+  // General is localized
+  fmt.addLocale({
+    decimal: '·',
+    positive: 'ᐩ',
+    negative: '÷',
+    percent: '٪',
+    exponent: 'X'
+  }, 'xx');
+  t.is(fmt('General', 'xx')(123456700000000), '1·23457Xᐩ14');
+  t.is(fmt('General', 'xx')(10000000000), '10000000000');
+  t.is(fmt('General', 'xx')(0.000000001), '0·000000001');
+  t.is(fmt('General', 'xx')(1234.56), '1234·56');
+  t.is(fmt('General', 'xx')(0.1), '0·1');
+
   // different locale address modes (is-IS is not supported)
   t.is(fmt('[$-is]dddd, dd. mmmm yyy')(date), 'laugardagur, 02, janúar 1909');
   t.is(fmt('[$-is_IS]dddd, dd. mmmm yyy')(date), 'laugardagur, 02, janúar 1909');
