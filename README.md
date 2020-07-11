@@ -113,9 +113,11 @@ Only the first section is mandatory, the others are filled in as needed. The sec
 
 ## API Reference
 
-<a name="numfmt" href="#numfmt">#</a> **numfmt**(pattern[, locale])
+<a name="numfmt" href="#numfmt">#</a> **numfmt**(pattern[, locale[, suppressErrors]])
 
-Constructs a new _formatter_ with the specified format pattern and locale. Pattern must be a string according to the [ECMA-376][ecma] number format. Locale is expected to be a [BCP 47][bcp] tag but if not specified it defaults to `en-US`.
+Constructs a new _formatter_ with the specified format pattern and locale. Pattern must be a string according to the [ECMA-376][ecma] number format. The locale argument is expected to be a [BCP 47][bcp] string tag but if not specified it defaults to `en-US`.
+
+The suppressError argument will prevent the parser and formatter from throwing errors (which they will normally do). Invalid patterns will produce a formatter that only emits `######`.
 
 <a name="numfmt" href="#formatter">#</a> _formatter_(value)
 
@@ -138,9 +140,9 @@ console.log(color); // "red"
 ```
 
 
-<a name="numfmt.format" href="#numfmt.format">#</a> numfmt.**format**(pattern, value[, locale])
+<a name="numfmt.format" href="#numfmt.format">#</a> numfmt.**format**(pattern, value[, locale[, suppressErrors]])
 
-Parses the format pattern and formats the value according to the pattern, and optionally, locale.
+Parses the format pattern and formats the value according to the pattern, and optionally, locale. See definition [above](#numfmt).
 
 
 <a name="numfmt.round" href="#numfmt.round">#</a> numfmt.**round**(number[, places])

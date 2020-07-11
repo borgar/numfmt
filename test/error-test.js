@@ -51,8 +51,8 @@ test(t => {
   t.throws(() => fmt('mm@'), 'mm@');
 
   // no out of bounds dates
-  t.throws(() => fmt('dddd, dd. mmmm yyy')(-1));
-  t.throws(() => fmt('dddd, dd. mmmm yyy')(2958470));
+  t.equal(fmt('dddd, dd. mmmm yyy')(-1), '#VALUE!');
+  t.equal(fmt('dddd, dd. mmmm yyy')(2958470), '#VALUE!');
 
   t.end();
 });

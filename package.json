@@ -2,11 +2,11 @@
   "name": "numfmt",
   "description": "Full Excel style number formatting",
   "author": "Borgar Þorsteinsson <borgar@borgar.net>",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "scripts": {
     "start": "wp --mode development --watch",
     "build": "wp --mode production",
-    "dev": "wp --mode development --watch",
+    "dev": "nodemon -w test -w lib -x 'SKIPTABLES=1 tape -r @babel/register 'test/*-test.js'|tap-min'",
     "lint": "eslint lib test",
     "test-all": "tape -r @babel/register 'test/*-test.js'",
     "test": "SKIPTABLES=1 tape -r @babel/register 'test/*-test.js'|tap-min"
