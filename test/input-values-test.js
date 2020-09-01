@@ -39,6 +39,10 @@ test('Date object as a value:', t => {
   t.is(fmt('0.######')(new Date(1900, 1 - 1, 0, 0, 0, 59)), '0.000683');
   t.is(fmt('0.######')(new Date(1900, 1 - 1, 0, 23, 59, 59)), '0.999988');
   t.is(fmt('0.######')(new Date(1909, 1 - 1, 2, 3, 4, 5)), '3290.127836');
+
+  // these were yielding "Sep 0, 2020"
+  t.is(fmt('MMM D, YYYY')(new Date(2020, 8 - 1, 31, 13, 3, 0)), 'Aug 31, 2020');
+  t.is(fmt('MMM D, YYYY')(new Date(Date.parse('2020-08-31T02:42:00.1'))), 'Aug 31, 2020');
   t.end();
 });
 
