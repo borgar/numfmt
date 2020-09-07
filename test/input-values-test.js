@@ -43,6 +43,11 @@ test('Date object as a value:', t => {
   // these were yielding "Sep 0, 2020"
   t.is(fmt('MMM D, YYYY')(new Date(2020, 8 - 1, 31, 13, 3, 0)), 'Aug 31, 2020');
   t.is(fmt('MMM D, YYYY')(new Date(Date.parse('2020-08-31T02:42:00.1'))), 'Aug 31, 2020');
+
+  // significant digits truncation
+  t.is(fmt('General')(3300.0000000000005), '3300');
+  t.is(fmt('General')(-33000.000000000001), '-33000');
+
   t.end();
 });
 
