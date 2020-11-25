@@ -54,6 +54,10 @@ test(t => {
   t.equal(fmt('dddd, dd. mmmm yyy')(-1), '#VALUE!');
   t.equal(fmt('dddd, dd. mmmm yyy')(2958470), '#VALUE!');
 
+  // isDate should not throw on malformed input
+  t.equal(fmt.isDate('dddd, dd. mmmm yyy'), true);
+  t.equal(fmt.isDate('0.0M'), false);
+
   t.end();
 });
 
