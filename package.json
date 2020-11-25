@@ -2,7 +2,7 @@
   "name": "numfmt",
   "description": "Full Excel style number formatting",
   "author": "Borgar Þorsteinsson <borgar@borgar.net>",
-  "version": "0.9.6",
+  "version": "0.9.7",
   "scripts": {
     "start": "webpack --mode development --watch",
     "build": "webpack --mode production",
@@ -27,20 +27,21 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "@babel/core": "~7.6.2",
-    "@babel/plugin-proposal-class-properties": "~7.5.5",
-    "@babel/plugin-proposal-export-default-from": "~7.5.2",
-    "@babel/polyfill": "~7.6.0",
-    "@babel/preset-env": "~7.6.2",
-    "@babel/register": "~7.6.2",
-    "@borgar/eslint-config": "~1.0.3",
-    "babel-loader": "~8.0.6",
-    "eslint": "~6.5.1",
-    "eslint-plugin-import": "~2.18.2",
+    "@babel/core": "~7.12.9",
+    "@babel/plugin-proposal-class-properties": "~7.12.1",
+    "@babel/plugin-proposal-export-default-from": "~7.12.1",
+    "@babel/polyfill": "~7.12.1",
+    "@babel/preset-env": "~7.12.7",
+    "@babel/register": "~7.12.1",
+    "@borgar/eslint-config": "~1.1.0",
+    "babel-loader": "~8.2.1",
+    "eslint": "~7.14.0",
+    "eslint-plugin-import": "~2.22.1",
     "tap-min": "~2.0.0",
-    "tape": "~4.11.0",
-    "terser-webpack-plugin": "~2.3.6",
-    "webpack": "~4.41.0",
-    "webpack-cli": "~3.3.12"
-  }
+    "tape": "~5.0.1",
+    "terser-webpack-plugin": "~5.0.3",
+    "webpack": "~5.6.0",
+    "webpack-cli": "~4.2.0"
+  },
+  "dependencies": {}
 }
