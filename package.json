@@ -2,7 +2,7 @@
   "name": "numfmt",
   "description": "Full Excel style number formatting",
   "author": "Borgar Þorsteinsson <borgar@borgar.net>",
-  "version": "0.9.7",
+  "version": "1.0.0",
   "scripts": {
     "start": "webpack --mode development --watch",
     "build": "webpack --mode production",
