@@ -22,17 +22,17 @@ test(t => {
   t.is(fmt('General', 'xx')(0.1), '0·1');
 
   // different locale address modes (is-IS is not supported)
-  t.is(fmt('[$-is]dddd, dd. mmmm yyy')(date), 'laugardagur, 02, janúar 1909');
-  t.is(fmt('[$-is_IS]dddd, dd. mmmm yyy')(date), 'laugardagur, 02, janúar 1909');
-  t.is(fmt('[$-is_IS]dddd, dd. mmmm yyy')(date), 'laugardagur, 02, janúar 1909');
-  t.is(fmt('[$-is_IS]dddd, dd. mmmm yyy')(date), 'laugardagur, 02, janúar 1909');
-  t.is(fmt('[$-040F]dddd, dd. mmmm yyy')(date), 'laugardagur, 02, janúar 1909');
-  t.is(fmt('[$-01040F]dddd, dd. mmmm yyy')(date), 'laugardagur, 02, janúar 1909');
-  t.is(fmt('[$-00040F]dddd, dd. mmmm yyy')(date), 'laugardagur, 02, janúar 1909');
-  t.is(fmt('[$-0000040F]dddd, dd. mmmm yyy')(date), 'laugardagur, 02, janúar 1909');
-  t.is(fmt('[$-0101040F]dddd, dd. mmmm yyy')(date), 'laugardagur, 02, janúar 1909');
-  t.is(fmt('dddd, dd. mmmm yyy', 'is')(date), 'laugardagur, 02, janúar 1909');
-  t.is(fmt.format('dddd, dd. mmmm yyy', date, 'is'), 'laugardagur, 02, janúar 1909');
+  t.is(fmt('[$-is]dddd, dd. mmmm yyy')(date), 'laugardagur, 02. janúar 1909');
+  t.is(fmt('[$-is_IS]dddd, dd. mmmm yyy')(date), 'laugardagur, 02. janúar 1909');
+  t.is(fmt('[$-is_IS]dddd, dd. mmmm yyy')(date), 'laugardagur, 02. janúar 1909');
+  t.is(fmt('[$-is_IS]dddd, dd. mmmm yyy')(date), 'laugardagur, 02. janúar 1909');
+  t.is(fmt('[$-040F]dddd, dd. mmmm yyy')(date), 'laugardagur, 02. janúar 1909');
+  t.is(fmt('[$-01040F]dddd, dd. mmmm yyy')(date), 'laugardagur, 02. janúar 1909');
+  t.is(fmt('[$-00040F]dddd, dd. mmmm yyy')(date), 'laugardagur, 02. janúar 1909');
+  t.is(fmt('[$-0000040F]dddd, dd. mmmm yyy')(date), 'laugardagur, 02. janúar 1909');
+  t.is(fmt('[$-0101040F]dddd, dd. mmmm yyy')(date), 'laugardagur, 02. janúar 1909');
+  t.is(fmt('dddd, dd. mmmm yyy', 'is')(date), 'laugardagur, 02. janúar 1909');
+  t.is(fmt.format('dddd, dd. mmmm yyy', date, 'is'), 'laugardagur, 02. janúar 1909');
 
   // all types are present
   t.is(fmt('d dd ddd dddd ddddd', 'is')(date), '2 02 lau. laugardagur laugardagur');
