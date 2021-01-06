@@ -208,6 +208,11 @@ Returns a true or false depending on if the pattern is a date pattern. The patte
 For compatibility reasons, this function is also available as `numfmt.is_date(format)`.
 
 
+<a name="numfmt.isPercent" href="#numfmt.isPercent">#</a> numfmt.**isPercent**(format)
+
+Returns a true or false depending on if the pattern is a percentage pattern. The pattern is considered a percentage pattern if any of its sections contain a percentage symbol (see table above).
+
+
 
 
 [ecma]: https://www.ecma-international.org/publications/standards/Ecma-376.htm

@@ -12,6 +12,29 @@ test('Misc input:', t => {
   t.end();
 });
 
+test('isDate:', t => {
+  t.is(fmt.isDate('y'), true, 'isDate(y)');
+  t.is(fmt.isDate('#;y'), true, 'isDate(#;y)');
+  t.is(fmt.isDate('"y"'), false, 'isDate("y")');
+  t.is(fmt.isDate('#;"y"'), false, 'isDate(#;"y")');
+  t.is(fmt.isDate('\\y'), false, 'isDate(\\y)');
+  t.is(fmt.isDate('#;\\y'), false, 'isDate(#;\\y)');
+  t.is(fmt.isDate('#'), false, 'isDate(#)');
+  t.is(fmt.isDate(''), false, 'isDate()');
+  t.end();
+});
+
+test('isPercent:', t => {
+  t.is(fmt.isPercent('0%'), true, 'isPercent(0%)');
+  t.is(fmt.isPercent('#%'), true, 'isPercent(#%)');
+  t.is(fmt.isPercent('#;#%'), true, 'isPercent(#;#%)');
+  t.is(fmt.isPercent('%'), true, 'isPercent(%)');
+  t.is(fmt.isPercent('#"%"'), false, 'isPercent(#"%")');
+  t.is(fmt.isPercent('#\\%'), false, 'isPercent(#\\%)');
+  t.is(fmt.isPercent(''), false, 'isPercent()');
+  t.end();
+});
+
 test('Date object as a value:', t => {
   t.is(fmt('0.######')(new Date(1900, 1 - 1, 0)), '0.');
   t.is(fmt('0.######')(new Date(1900, 1 - 1, 1)), '1.');
