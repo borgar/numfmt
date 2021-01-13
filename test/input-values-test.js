@@ -1,6 +1,22 @@
 import test from 'tape';
 import fmt from '../lib';
 
+test('near zero negatives:', t => {
+  t.is(fmt('-0')(-1), '--1');
+  t.is(fmt('-general')(-1), '--1');
+  t.throws(() => fmt('0.0 general'), '0.0 general');
+  t.is(fmt('0.0')(-1), '-1.0');
+  t.is(fmt('0.0')(-0.1), '-0.1');
+  t.is(fmt('-0.0')(-0.01), '-0.0');
+  t.is(fmt('0.0')(-0.01), '0.0');
+  t.is(fmt(' - 0.0')(-0.01), ' - 0.0');
+  t.is(fmt(' - 0.0')(-1), '- - 1.0');
+  t.is(fmt('0.0;-0.0')(-0.01), '-0.0');
+  t.is(fmt('# ?/?')(-0.01), '-0    ');
+  t.is(fmt('\\p\\o\\s 0.0;\\n\\e\\g 0.0;')(-0.01), 'neg 0.0');
+  t.end();
+});
+
 test('scaling should not mess number up:', t => {
   t.is(fmt('0.0%')(0.0295), '3.0%');
   t.is(fmt('0.0,')(2950), '3.0');
