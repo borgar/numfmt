@@ -2,7 +2,6 @@ import test from 'tape';
 import fmt from '../lib';
 
 test(t => {
-
   t.equal(fmt('dddd, dd. mmmm yyy')(-1), '#VALUE!');
 
   // these things should throw

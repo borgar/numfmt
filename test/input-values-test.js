@@ -2,7 +2,7 @@ import test from 'tape';
 import fmt from '../lib';
 
 test('Misc input:', t => {
-  t.is(fmt('0')(undefined), '');
+  t.is(fmt('0')(), '');
   t.is(fmt('0')(null), '');
   t.is(fmt('0')(NaN), 'NaN');
   t.is(fmt('0')(Infinity), '∞');

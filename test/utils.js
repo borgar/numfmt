@@ -13,7 +13,8 @@ export function runTable (filename) {
   const tableFN = path.join(filename) + '.gz';
   const table = zlib.gunzipSync(fs.readFileSync(tableFN))
     .toString('utf8')
-    .replace(/\r/g, '').split('\n')
+    .replace(/\r/g, '')
+    .split('\n')
     .map(d => d.replace(/#{255}/g, '').split('\t'));
 
   const headers = table[0];

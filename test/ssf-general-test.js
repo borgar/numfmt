@@ -500,9 +500,7 @@ test('General format', t => {
   t.is(_f(true), 'TRUE');
   t.is(_f(false), 'FALSE');
   t.is(_f('sheetjs'), 'sheetjs');
-  t.is(_f(undefined), '');
+  t.is(_f(), '');
   t.is(_f(null), '');
   t.end();
 });
-
-
