@@ -7,7 +7,7 @@
     "start": "webpack --mode development --watch",
     "build": "webpack --mode production",
     "dev": "nodemon -w test -w lib -x 'SKIPTABLES=1 tape -r @babel/register 'test/*-test.js'|tap-min'",
-    "lint": "eslint lib test",
+    "lint": "eslint index.js lib test",
     "test-all": "tape -r @babel/register 'test/*-test.js'",
     "test": "SKIPTABLES=1 tape -r @babel/register 'test/*-test.js'|tap-min"
   },
