@@ -142,6 +142,21 @@ test('Date specifiers: month vs. minute', t => {
   t.is(fmt('s-m-h-m')(date), '6-4-3-4', 's-m-h-m');
   t.is(fmt('s-m-m-h')(date), '6-4-1-3', 's-m-m-h');
 
+  t.is(fmt('y-m-d')(date), '09-1-2', 'y-m-d');
+  t.is(fmt('d-m-y')(date), '2-1-09', 'd-m-y');
+  t.is(fmt('yy-mm-dd')(date), '09-01-02', 'yy-mm-dd');
+
+  t.is(fmt('yyyy')(date), '1909', 'yyyy');
+  t.is(fmt('yyyy-mm')(date), '1909-01', 'yyyy-mm');
+  t.is(fmt('yyyy-mm-dd')(date), '1909-01-02', 'yyyy-mm-dd');
+  t.is(fmt('yyyy-mm-dd\\Thh')(date), '1909-01-02T03', 'yyyy-mm-dd\\Thh');
+  t.is(fmt('yyyy-mm-dd\\Thh-mm')(date), '1909-01-02T03-04', 'yyyy-mm-dd\\Thh-mm');
+  t.is(fmt('yyyy-mm-dd\\Thh-mm-ss')(date), '1909-01-02T03-04-06', 'yyyy-mm-dd\\Thh-mm-ss');
+  t.is(fmt('yyyy-mm-dd\\Thh-mm-ss.000')(date), '1909-01-02T03-04-05.678', 'yyyy-mm-dd\\Thh-mm-ss.000');
+
+  t.is(fmt('yyyy-mm-dd\\Thh-mm-ss.000')(60), '1900-02-29T00-00-00.000', 'yyyy-mm-dd\\Thh-mm-ss.000');
+  t.is(fmt('yyyy-mm-dd\\Thh-mm-ss.000')(61), '1900-03-01T00-00-00.000', 'yyyy-mm-dd\\Thh-mm-ss.000');
+
   t.end();
 });
 
