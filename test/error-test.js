@@ -51,8 +51,8 @@ test(t => {
   t.throws(() => fmt('mm@'), 'mm@');
 
   // no out of bounds dates
-  t.equal(fmt('dddd, dd. mmmm yyy')(-1), '#VALUE!');
-  t.equal(fmt('dddd, dd. mmmm yyy')(2958470), '#VALUE!');
+  t.equal(fmt('dddd, dd. mmmm yyy')(-1), '######');
+  t.equal(fmt('dddd, dd. mmmm yyy')(2958470), '######');
 
   // isDate should not throw on malformed input
   t.equal(fmt.isDate('dddd, dd. mmmm yyy'), true);
@@ -60,4 +60,3 @@ test(t => {
 
   t.end();
 });
-
