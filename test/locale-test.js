@@ -15,11 +15,11 @@ test(t => {
     percent: '٪',
     exponent: 'X'
   }, 'xx');
-  t.is(fmt('General', 'xx')(123456700000000), '1·23457Xᐩ14');
-  t.is(fmt('General', 'xx')(10000000000), '10000000000');
-  t.is(fmt('General', 'xx')(0.000000001), '0·000000001');
-  t.is(fmt('General', 'xx')(1234.56), '1234·56');
-  t.is(fmt('General', 'xx')(0.1), '0·1');
+  t.is(fmt('General', { locale: 'xx' })(123456700000000), '1·23457Xᐩ14');
+  t.is(fmt('General', { locale: 'xx' })(10000000000), '10000000000');
+  t.is(fmt('General', { locale: 'xx' })(0.000000001), '0·000000001');
+  t.is(fmt('General', { locale: 'xx' })(1234.56), '1234·56');
+  t.is(fmt('General', { locale: 'xx' })(0.1), '0·1');
 
   // different locale address modes (is-IS is not supported)
   t.is(fmt('[$-is]dddd, dd. mmmm yyy')(date), 'laugardagur, 02. janúar 1909');
@@ -31,24 +31,26 @@ test(t => {
   t.is(fmt('[$-00040F]dddd, dd. mmmm yyy')(date), 'laugardagur, 02. janúar 1909');
   t.is(fmt('[$-0000040F]dddd, dd. mmmm yyy')(date), 'laugardagur, 02. janúar 1909');
   t.is(fmt('[$-0101040F]dddd, dd. mmmm yyy')(date), 'laugardagur, 02. janúar 1909');
-  t.is(fmt('dddd, dd. mmmm yyy', 'is')(date), 'laugardagur, 02. janúar 1909');
+  t.is(fmt('dddd, dd. mmmm yyy', { locale: 'is' })(date), 'laugardagur, 02. janúar 1909');
   t.is(fmt.format('dddd, dd. mmmm yyy', date, 'is'), 'laugardagur, 02. janúar 1909');
+  // setting a locale does not overwrite the format locale
+  t.is(fmt('[$-040F]dddd, dd. mmmm yyy', { locale: 'fr' })(date), 'laugardagur, 02. janúar 1909');
 
   // all types are present
-  t.is(fmt('d dd ddd dddd ddddd', 'is')(date), '2 02 lau. laugardagur laugardagur');
-  t.is(fmt('m mm mmm mmmm mmmmm', 'is')(date), '1 01 jan. janúar j');
-  t.is(fmt('#,##0.000', 'is')(date), '3.290,128');
-  t.is(fmt('h AM/PM', 'is')(date), '3 f.h.');
+  t.is(fmt('d dd ddd dddd ddddd', { locale: 'is' })(date), '2 02 lau. laugardagur laugardagur');
+  t.is(fmt('m mm mmm mmmm mmmmm', { locale: 'is' })(date), '1 01 jan. janúar j');
+  t.is(fmt('#,##0.000', { locale: 'is' })(date), '3.290,128');
+  t.is(fmt('h AM/PM', { locale: 'is' })(date), '3 f.h.');
 
-  t.is(fmt('d dd ddd dddd ddddd', 'zh-CH')(date), '2 02 周六 星期六 星期六');
-  t.is(fmt('m mm mmm mmmm mmmmm', 'zh-CH')(date), '1 01 1月 一月 一');
-  t.is(fmt('#,##0.000', 'zh-CH')(date), '3,290.128');
-  t.is(fmt('h AM/PM', 'zh-CH')(date), '3 上午');
+  t.is(fmt('d dd ddd dddd ddddd', { locale: 'zh-CH' })(date), '2 02 周六 星期六 星期六');
+  t.is(fmt('m mm mmm mmmm mmmmm', { locale: 'zh-CH' })(date), '1 01 1月 一月 一');
+  t.is(fmt('#,##0.000', { locale: 'zh-CH' })(date), '3,290.128');
+  t.is(fmt('h AM/PM', { locale: 'zh-CH' })(date), '3 上午');
 
-  t.is(fmt('d dd ddd dddd ddddd', 0x0419)(date), '2 02 сб суббота суббота');
-  t.is(fmt('m mm mmm mmmm mmmmm', 0x0419)(date), '1 01 янв. января я');
-  t.is(fmt('#,##0.000', 0x0419)(date), '3 290,128');
-  t.is(fmt('h AM/PM', 0x0419)(date), '3 AM');
+  t.is(fmt('d dd ddd dddd ddddd', { locale: 0x0419 })(date), '2 02 сб суббота суббота');
+  t.is(fmt('m mm mmm mmmm mmmmm', { locale: 0x0419 })(date), '1 01 янв. января я');
+  t.is(fmt('#,##0.000', { locale: 0x0419 })(date), '3 290,128');
+  t.is(fmt('h AM/PM', { locale: 0x0419 })(date), '3 AM');
 
   // Currency
   t.is(fmt('[$$-409]#,##0')(1234), '$1,234');

@@ -1,8 +1,30 @@
 import test from 'tape';
 import fmt from '../lib';
 
+test('near zero negatives:', t => {
+  t.is(fmt('-0')(-1), '--1');
+  t.is(fmt('-general')(-1), '--1');
+  t.throws(() => fmt('0.0 general'), '0.0 general');
+  t.is(fmt('0.0')(-1), '-1.0');
+  t.is(fmt('0.0')(-0.1), '-0.1');
+  t.is(fmt('-0.0')(-0.01), '-0.0');
+  t.is(fmt('0.0')(-0.01), '0.0');
+  t.is(fmt(' - 0.0')(-0.01), ' - 0.0');
+  t.is(fmt(' - 0.0')(-1), '- - 1.0');
+  t.is(fmt('0.0;-0.0')(-0.01), '-0.0');
+  t.is(fmt('# ?/?')(-0.01), '-0    ');
+  t.is(fmt('\\p\\o\\s 0.0;\\n\\e\\g 0.0;')(-0.01), 'neg 0.0');
+  t.end();
+});
+
+test('scaling should not mess number up:', t => {
+  t.is(fmt('0.0%')(0.0295), '3.0%');
+  t.is(fmt('0.0,')(2950), '3.0');
+  t.end();
+});
+
 test('Misc input:', t => {
-  t.is(fmt('0')(undefined), '');
+  t.is(fmt('0')(), '');
   t.is(fmt('0')(null), '');
   t.is(fmt('0')(NaN), 'NaN');
   t.is(fmt('0')(Infinity), '∞');
@@ -62,15 +84,16 @@ test('Date object as a value:', t => {
   t.is(fmt('0.######')(new Date(1900, 1 - 1, 0, 0, 0, 59)), '0.000683');
   t.is(fmt('0.######')(new Date(1900, 1 - 1, 0, 23, 59, 59)), '0.999988');
   t.is(fmt('0.######')(new Date(1909, 1 - 1, 2, 3, 4, 5)), '3290.127836');
-
+  t.is(fmt('0.######')(new Date(1909, 1 - 1, 2, 3, 4, 5)), '3290.127836');
   // these were yielding "Sep 0, 2020"
   t.is(fmt('MMM D, YYYY')(new Date(2020, 8 - 1, 31, 13, 3, 0)), 'Aug 31, 2020');
   t.is(fmt('MMM D, YYYY')(new Date(Date.parse('2020-08-31T02:42:00.1'))), 'Aug 31, 2020');
+  t.end();
+});
 
-  // significant digits truncation
+test('Significant digits truncation:', t => {
   t.is(fmt('General')(3300.0000000000005), '3300');
   t.is(fmt('General')(-33000.000000000001), '-33000');
-
   t.end();
 });
 

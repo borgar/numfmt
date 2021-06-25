@@ -1,14 +1,15 @@
-# numFmt
+# numfmt – a spreadsheet number formatter
 
-The numFmt library formats numbers according to a specifier string as defined in [ECMA-376][ecma]. The library tries its best to emulate the inns and outs of the Excel spreadsheet software does.
+The numfmt library formats numbers according to a specifier string as defined in [ECMA-376][ecma]. The library tries its best to emulate the inns and outs of what the Excel spreadsheet software does.
 
 The library is written in pure JavaScript and has no dependencies. It is comparable to the [SSF][ssf] with some minor interface exceptions.
 
+
 #### Features
 
-Why use this rather than the battle tested SSF? You may have no need to but numFmt is fully open source, has equivalent (if not better) formatting capabilities, built in international support, and may run about twice as fast in most cases.
+Why use this rather than the battle tested SSF? You may have no need to but numfmt is fully open source, has equivalent (if not better) formatting capabilities, built in international support, customizability, and may run about twice as fast in most cases.
 
-Included languages are:
+Adding locales <a href="#numfmt.addLocale">is simple</a> but those included are:
 
 * Chinese (Simplified) (`zh-CN` or `zh`)
 * Chinese (Traditional) (`zh-TW`)
@@ -63,6 +64,7 @@ const output = numfmt.format("#,##0.00", 1234.56);
 console.log(output);
 ```
 
+
 ## Format syntax
 
 Microsoft have excellent [documentation on how the format works](https://support.microsoft.com/en-us/office/review-guidelines-for-customizing-a-number-format-c0a1d1fa-d3f4-4018-96b7-9c9354dd99f5). Here are some quick basics:
@@ -110,22 +112,29 @@ Only the first section is mandatory, the others are filled in as needed. The sec
 | `[s]` | Seconds | Elapsed time in seconds
 
 
-
 ## API Reference
 
-<a name="numfmt" href="#numfmt">#</a> **numfmt**(pattern[, locale[, suppressErrors]])
+<a name="numfmt" href="#numfmt">#</a> **numfmt**(pattern[, options]])
 
-Constructs a new _formatter_ with the specified format pattern and locale. Pattern must be a string according to the [ECMA-376][ecma] number format. The locale argument is expected to be a [BCP 47][bcp] string tag but if not specified it defaults to `en-US`.
+Constructs a new _formatter_ function with the specified options.
 
-The suppressError argument will prevent the parser and formatter from throwing errors (which they will normally do). Invalid patterns will produce a formatter that only emits `######`.
+Pattern must be a string according to the [ECMA-376][ecma] number format. <a href="#options">Options</a> should be an object of options. You may change defaults once for all instances using <a href="#numfmt.options">numfmt.options</a>.
 
-<a name="numfmt" href="#formatter">#</a> _formatter_(value)
 
-Returns a formatted string for the argument value.
+<a name="numfmt" href="#formatter">#</a> _formatter_(value[, options])
+
+Returns a formatted string for the argument value. If <a href="#options">options</a> object is provided then it overrides the constructor options of those options provided.
+
 
 <a name="formatter.isDate" href="#formatter.isDate">#</a> _formatter_.isDate()
 
 Returns a true or false depending on if the pattern is a date pattern. The pattern is considered a date pattern if any of its sections contain a date symbol (see table above).  Each section is restricted to  to be _either_ a number or date format.
+
+
+<a name="formatter.isPercent" href="#formatter.isPercent">#</a> _formatter_.isPercent()
+
+Returns a true or false depending on if the pattern is a percentage pattern. The pattern is considered a percentage pattern if any of its sections contain a percentage symbol (see table above).
+
 
 <a name="formatter.color" href="#formatter.color">#</a> _formatter_.color(value)
 
@@ -140,22 +149,25 @@ console.log(color); // "red"
 ```
 
 
-<a name="numfmt.format" href="#numfmt.format">#</a> numfmt.**format**(pattern, value[, locale[, suppressErrors]])
+<a name="numfmt.format" href="#numfmt.format">#</a> numfmt.**format**(pattern, value[, options])
 
-Parses the format pattern and formats the value according to the pattern, and optionally, locale. See definition [above](#numfmt).
+Parses the format pattern and formats the value according to the pattern, and optionally, any <a href="#options">options</a>. See definition [above](#numfmt).
 
 
 <a name="numfmt.round" href="#numfmt.round">#</a> numfmt.**round**(number[, places])
 
 Return a value rounded to the specified amount of places. This is the rounding function used by the formatter (symmetric arithmetic rounding). 
 
+
 <a name="numfmt.parseLocale" href="#numfmt.parseLocale">#</a> numfmt.**parseLocale**(tag)
 
 Parse a BCP 47 locale tag and emit an object of its parts. Intended for internal use.
 
+
 <a name="numfmt.getLocale" href="#numfmt.getLocale">#</a> numfmt.**getLocale**(tag)
 
 Used by the formatter to pull a locate from its registered locales. If subtag isn't available but the base language is, the base language is used. So if `en-CA` is not found, the formatter tries to find `en` else it returns a `null`.
+
 
 <a name="numfmt.addLocale" href="#numfmt.addLocale">#</a> numfmt.**addLocale**(data, tag)
 
@@ -213,8 +225,50 @@ For compatibility reasons, this function is also available as `numfmt.is_date(fo
 Returns a true or false depending on if the pattern is a percentage pattern. The pattern is considered a percentage pattern if any of its sections contain a percentage symbol (see table above).
 
 
+<a name="numfmt.options" href="#numfmt.options">#</a> numfmt.**options**(options)
 
+Set a default option or <a href="#options">options</a> for the formatter. This will affect all formatters unless they have overwritten options at construction time. Calling `numfmt.options(null)` will reset to internal defaults.
+
+```js
+// basic "default" formatter
+const weekdayEN = numfmt("dddd");
+weekdayEN(1234); // "Monday"
+
+// setting a new default
+numfmt.options({ locale: "is" });
+
+// call the same formatter
+weekdayEN(1234); // "mánudagur"
+
+// construct a new formatter with a locale
+weekdayFR = numfmt("dddd", { locale: "fr", });
+weekdayFR(1234); // "lundi"
+
+// override settings at call-time
+weekdayEN(1234, { locale: "pl" }); // "poniedziałek"
+weekdayFR(1234, { locale: "pl" }); // "poniedziałek"
+```
+
+
+<a name="options" href="#options">#</a> The **options**
+
+As well as allowing locale customization, numfmt behaviour can be controlled with a 
+
+| Member | Type | Default | Note
+|-- |-- |-- |--
+| locale | `string` | `""` | A [BCP 47][bcp] string tag. Locale default is english with a `\u00a0` grouping symbol (see <a href="#numfmt.addLocale">numfmt.addLocale</a>). 
+| throws | `boolean` | `true` | Should the formatter throw an error if a provided pattern is invalid. If not, a formatter will be constructed which only ever outputs an error string (see _invalid_ in this table).
+| invalid | `string` | `"######"` | The string emitted when no-throw mode fails to parse a pattern.
+| nbsp | `boolean` | `true` | By default the formatters will emit [non-breaking-space][nbsp] rather than a regular space when emitting the formatted number. Setting this to false will make it use regular spaces instead.
+| leap1900 | `boolean` | `true` | Simulate the Lotus 1-2-3 [1900 leap year bug][bug1900]. It is a requirement in the Ecma OOXML specification so it is on by default.
+| dateErrorThrows | `boolean` | `false` | Should the formatter throw an error when trying to format a date that is out of bounds?
+| dateErrorNumber | `boolean` | `true` | Should the formatter switch to a General number format when trying to format a date that is out of bounds?
+| overflow | `string` | `"######"` | The string emitted when a formatter fails to format a date that is out of bounds.
+| dateSpanLarge | `boolean` | `true` | Extends the allowed range of dates from Excel bounds (1900–9999) to Google Sheet bounds (0–99999).
+| ignoreTimezone | `boolean` | `false` | Normally when date objects are used with the formatter, time zone is taken into account. This makes the formatter ignore the timezone offset.
 
 [ecma]: https://www.ecma-international.org/publications/standards/Ecma-376.htm
 [ssf]: https://www.npmjs.com/package/ssf
 [bcp]: http://www.rfc-editor.org/rfc/bcp/bcp47.txt
+[nbsp]: https://en.wikipedia.org/wiki/Non-breaking_space
+[bug1900]: https://docs.microsoft.com/en-us/office/troubleshoot/excel/wrongly-assumes-1900-is-leap-year

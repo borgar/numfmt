@@ -3,7 +3,6 @@ import test from 'tape';
 import fmt from '../lib';
 
 test(t => {
-
   t.is(fmt('# ?/?')(1), '1    ', '# ?/?');
   t.is(fmt('# ?/?')(-1.2), '-1 1/5', '# ?/?');
   t.is(fmt('# ?/?')(12.3), '12 1/3', '# ?/?');

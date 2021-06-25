@@ -2,7 +2,6 @@ import test from 'tape';
 import fmt from '../lib';
 
 test(t => {
-
   t.ok(typeof fmt('" Excellent"') === 'function', '" Excellent"');
   t.ok(typeof fmt('" Fair"') === 'function', '" Fair"');
   t.ok(typeof fmt('" Good"') === 'function', '" Good"');

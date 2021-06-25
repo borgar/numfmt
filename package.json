@@ -7,7 +7,7 @@
     "start": "webpack --mode development --watch",
     "build": "webpack --mode production",
     "dev": "nodemon -w test -w lib -x 'SKIPTABLES=1 tape -r @babel/register 'test/*-test.js'|tap-min'",
-    "lint": "eslint lib test",
+    "lint": "eslint index.js lib test",
     "test-all": "tape -r @babel/register 'test/*-test.js'",
     "test": "SKIPTABLES=1 tape -r @babel/register 'test/*-test.js'|tap-min"
   },
@@ -27,21 +27,21 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "@babel/core": "~7.12.9",
+    "@babel/core": "~7.12.10",
     "@babel/plugin-proposal-class-properties": "~7.12.1",
     "@babel/plugin-proposal-export-default-from": "~7.12.1",
     "@babel/polyfill": "~7.12.1",
-    "@babel/preset-env": "~7.12.7",
-    "@babel/register": "~7.12.1",
-    "@borgar/eslint-config": "~1.1.0",
-    "babel-loader": "~8.2.1",
-    "eslint": "~7.14.0",
+    "@babel/preset-env": "~7.12.11",
+    "@babel/register": "~7.12.10",
+    "@borgar/eslint-config": "~2.0.2",
+    "babel-loader": "~8.2.2",
+    "eslint": "~7.17.0",
     "eslint-plugin-import": "~2.22.1",
     "tap-min": "~2.0.0",
-    "tape": "~5.0.1",
-    "terser-webpack-plugin": "~5.0.3",
-    "webpack": "~5.6.0",
-    "webpack-cli": "~4.2.0"
+    "tape": "~5.1.1",
+    "terser-webpack-plugin": "~5.1.1",
+    "webpack": "~5.13.0",
+    "webpack-cli": "~4.3.1"
   },
   "dependencies": {}
 }
