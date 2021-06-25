@@ -1,6 +1,8 @@
 import test from 'tape';
 import fmt from '../lib';
 
+const excelOpts = { dateSpanLarge: false, dateErrorNumber: false };
+
 test(t => {
   // no more than 4 sections
   t.throws(() => fmt('a;b;c;d;'), 'a;b;c;d;');
@@ -51,8 +53,8 @@ test(t => {
   t.throws(() => fmt('mm@'), 'mm@');
 
   // no out of bounds dates
-  t.equal(fmt('dddd, dd. mmmm yyy')(-1), '######');
-  t.equal(fmt('dddd, dd. mmmm yyy')(2958470), '######');
+  t.equal(fmt('dddd, dd. mmmm yyy', excelOpts)(-1), '######');
+  t.equal(fmt('dddd, dd. mmmm yyy', excelOpts)(2958470), '######');
 
   // isDate should not throw on malformed input
   t.equal(fmt.isDate('dddd, dd. mmmm yyy'), true);

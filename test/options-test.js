@@ -1,11 +1,13 @@
 import test from 'tape';
 import fmt from '../lib';
 
+const excelOpts = { dateSpanLarge: false, dateErrorNumber: false };
+
 test('options cascade:', t => {
   const initialOptions = fmt.options();
   t.is(typeof initialOptions, 'object');
   // default behaviour
-  fmt.options({ overflow: '⏰' });
+  fmt.options({ ...excelOpts, overflow: '⏰' });
   t.is(fmt('yyyy')(-1), '⏰', 'default option can be set');
   t.is(fmt('yyyy')(-1, { locale: 'fr' }), '⏰', 'default option (with other options)');
   // keep construction time behaviour
@@ -20,16 +22,17 @@ test('options cascade:', t => {
   fmt.options({ overflow: '🐞' });
   t.is(fmt('yyyy')(-1), '🐞', 'default option set again');
   fmt.options(null);
-  t.is(fmt('yyyy')(-1), '######', 'can reset all global options');
+  t.is(fmt('yyyy')(-1, excelOpts), '######', 'can reset all global options');
   t.end();
 });
 
 test('option: overflow', t => {
-  fmt.options({ overflow: '🦆' });
+  const opts = { ...excelOpts, overflow: '🦆' };
+  fmt.options(opts);
   t.is(fmt('yyyy')(-1), '🦆', 'default can be set');
   fmt.options(null);
-  t.is(fmt('yyyy', { overflow: '🦆' })(-1), '🦆', 'option can be set at construction time');
-  t.is(fmt('yyyy')(-1, { overflow: '🦆' }), '🦆', 'option can be set at call time');
+  t.is(fmt('yyyy', opts)(-1), '🦆', 'option can be set at construction time');
+  t.is(fmt('yyyy')(-1, opts), '🦆', 'option can be set at call time');
   t.end();
 });
 
@@ -74,25 +77,27 @@ test('option: leap1900', t => {
 });
 
 test('option: dateErrorThrows', t => {
-  fmt.options({ dateErrorThrows: true });
+  fmt.options({ ...excelOpts, dateErrorThrows: true });
   t.throws(() => fmt('yyyy')(-1), 'default can be set');
-  fmt.options(null);
+  fmt.options(excelOpts);
   t.throws(() => fmt('yyyy', { dateErrorThrows: true })(-1), 'option can be set at construction time');
   t.throws(() => fmt('yyyy')(-1, { dateErrorThrows: true }), 'option can be set at call time');
   t.throws(() => fmt('yyyy', { dateSpanLarge: true, dateErrorThrows: true })(-694325), 'option can be set at construction time');
   t.throws(() => fmt('yyyy')(-694325, { dateSpanLarge: true, dateErrorThrows: true }), 'option can be set at call time');
+  fmt.options(null);
   t.end();
 });
 
 test('option: dateErrorNumber', t => {
-  t.is(fmt('yyyy')(2958465), '9999', 'default');
-  t.is(fmt('yyyy')(2958466), '######', 'default');
-  fmt.options({ dateErrorNumber: true });
+  t.is(fmt('yyyy', excelOpts)(2958465), '9999', 'default');
+  t.is(fmt('yyyy', excelOpts)(2958466), '######', 'default');
+  fmt.options({ ...excelOpts, dateErrorNumber: true });
   t.is(fmt('yyyy')(2958466), '2958466', 'default can be set');
   t.is(fmt('yyyy')(-1), '-1', 'default can be set');
-  fmt.options(null);
+  fmt.options(excelOpts);
   t.is(fmt('yyyy', { dateErrorNumber: true })(2958466.9), '2958466.9', 'option can be set at construction time');
   t.is(fmt('yyyy')(2958466.9, { dateErrorNumber: true }), '2958466.9', 'option can be set at call time');
+  fmt.options(null);
   t.end();
 });
 
@@ -108,7 +113,7 @@ test('option: nbsp', t => {
 });
 
 test('options work for .format too:', t => {
-  t.is(fmt.format('yyyy', -1, { overflow: '🐢' }), '🐢', '.format + overflow');
+  t.is(fmt.format('yyyy', -1, { ...excelOpts, overflow: '🐢' }), '🐢', '.format + overflow');
   t.is(fmt.format('mmmm', 1, { locale: 'fr' }), 'janvier', '.format + locale');
   t.is(fmt.format('mmmm', 1, 'fr'), 'janvier', '.format with old-stlye locale arg');
   t.end();
