@@ -1,3 +1,4 @@
+/* eslint-disable no-loss-of-precision */
 import test from 'tape';
 import fmt from '../lib';
 

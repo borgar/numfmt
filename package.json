@@ -27,21 +27,21 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "@babel/core": "~7.12.10",
-    "@babel/plugin-proposal-class-properties": "~7.12.1",
-    "@babel/plugin-proposal-export-default-from": "~7.12.1",
+    "@babel/core": "~7.14.6",
+    "@babel/plugin-proposal-class-properties": "~7.14.5",
+    "@babel/plugin-proposal-export-default-from": "~7.14.5",
     "@babel/polyfill": "~7.12.1",
-    "@babel/preset-env": "~7.12.11",
-    "@babel/register": "~7.12.10",
-    "@borgar/eslint-config": "~2.0.2",
+    "@babel/preset-env": "~7.14.7",
+    "@babel/register": "~7.14.5",
+    "@borgar/eslint-config": "~2.2.1",
     "babel-loader": "~8.2.2",
-    "eslint": "~7.17.0",
-    "eslint-plugin-import": "~2.22.1",
+    "eslint": "~7.29.0",
+    "eslint-plugin-import": "~2.23.4",
     "tap-min": "~2.0.0",
-    "tape": "~5.1.1",
-    "terser-webpack-plugin": "~5.1.1",
-    "webpack": "~5.13.0",
-    "webpack-cli": "~4.3.1"
+    "tape": "~5.2.2",
+    "terser-webpack-plugin": "~5.1.4",
+    "webpack": "~5.40.0",
+    "webpack-cli": "~4.7.2"
   },
   "dependencies": {}
 }

@@ -1,3 +1,4 @@
+/* eslint-disable no-loss-of-precision */
 // tests converted from SSF
 import test from 'tape';
 import numdec from '../lib/numdec';
