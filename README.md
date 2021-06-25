@@ -264,8 +264,8 @@ As well as allowing locale customization, numfmt behaviour can be controlled wit
 | dateErrorThrows | `boolean` | `false` | Should the formatter throw an error when trying to format a date that is out of bounds?
 | dateErrorNumber | `boolean` | `true` | Should the formatter switch to a General number format when trying to format a date that is out of bounds?
 | overflow | `string` | `"######"` | The string emitted when a formatter fails to format a date that is out of bounds.
-| dateSpanLarge | `boolean` | `true` | Extends the allowed range of dates from Excel bounds (1900–9999) to Google Sheet bounds (0–99999). 
-
+| dateSpanLarge | `boolean` | `true` | Extends the allowed range of dates from Excel bounds (1900–9999) to Google Sheet bounds (0–99999).
+| ignoreTimezone | `boolean` | `false` | Normally when date objects are used with the formatter, time zone is taken into account. This makes the formatter ignore the timezone offset.
 
 [ecma]: https://www.ecma-international.org/publications/standards/Ecma-376.htm
 [ssf]: https://www.npmjs.com/package/ssf

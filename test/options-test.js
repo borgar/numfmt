@@ -118,3 +118,17 @@ test('options work for .format too:', t => {
   t.is(fmt.format('mmmm', 1, 'fr'), 'janvier', '.format with old-stlye locale arg');
   t.end();
 });
+
+test('option: ignoreTimezone', t => {
+  // eslint-disable-next-line
+  process.env.TZ = 'Asia/Calcutta';
+  const baseDate = new Date(2000, 0, 1);
+  t.is(baseDate.toUTCString(), 'Fri, 31 Dec 1999 18:30:00 GMT', 'Date has a timezone');
+
+  const gmtStr = 'ddd, dd mmm yyyy hh:mm:ss "GMT"';
+  t.is(fmt.format(gmtStr, baseDate), 'Sat, 01 Jan 2000 00:00:00 GMT', 'No setting');
+  t.is(fmt.format(gmtStr, baseDate, { ignoreTimezone: true }), 'Fri, 31 Dec 1999 18:30:00 GMT', 'True');
+  t.is(fmt.format(gmtStr, baseDate, { ignoreTimezone: false }), 'Sat, 01 Jan 2000 00:00:00 GMT', 'False');
+
+  t.end();
+});
