@@ -262,9 +262,9 @@ As well as allowing locale customization, numfmt behaviour can be controlled wit
 | nbsp | `boolean` | `true` | By default the formatters will emit [non-breaking-space][nbsp] rather than a regular space when emitting the formatted number. Setting this to false will make it use regular spaces instead.
 | leap1900 | `boolean` | `true` | Simulate the Lotus 1-2-3 [1900 leap year bug][bug1900]. It is a requirement in the Ecma OOXML specification so it is on by default.
 | dateErrorThrows | `boolean` | `false` | Should the formatter throw an error when trying to format a date that is out of bounds?
-| dateErrorNumber | `boolean` | `false` | Should the formatter switch to a General number format when trying to format a date that is out of bounds?
+| dateErrorNumber | `boolean` | `true` | Should the formatter switch to a General number format when trying to format a date that is out of bounds?
 | overflow | `string` | `"######"` | The string emitted when a formatter fails to format a date that is out of bounds.
-| dateSpanLarge | `boolean` | `false` | Extends the allowed range of dates from Excel bounds (1900–9999) to Google Sheet bounds (0-99999). 
+| dateSpanLarge | `boolean` | `true` | Extends the allowed range of dates from Excel bounds (1900–9999) to Google Sheet bounds (0–99999). 
 
 
 [ecma]: https://www.ecma-international.org/publications/standards/Ecma-376.htm

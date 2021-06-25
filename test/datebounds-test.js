@@ -1,14 +1,6 @@
 import test from 'tape';
 import fmt from '../lib';
 
-/*
-const defaultOptions = {
-  dateSpanLarge: false,
-  leap1900bug: true,
-  nbsp: true,
-};
-*/
-
 const ISODATE = 'yyyy-mm-dd';
 const ISODATETIME = 'yyyy-mm-dd\\Thh:mm:ss';
 
