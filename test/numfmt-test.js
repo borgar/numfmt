@@ -32,6 +32,7 @@ test('Misc input:', t => {
   t.is(fmt('0')(-Infinity), '-∞');
   t.is(fmt('0')(true), 'TRUE');
   t.is(fmt('0')(false), 'FALSE');
+  t.is(fmt('0%')(0), '0%');
   t.end();
 });
 
