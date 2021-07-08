@@ -21,6 +21,7 @@ test('near zero negatives:', t => {
 test('scaling should not mess number up:', t => {
   t.is(fmt('0.0%')(0.0295), '3.0%');
   t.is(fmt('0.0,')(2950), '3.0');
+  t.is(fmt('0%')(0), '0%');
   t.end();
 });
 
@@ -32,7 +33,6 @@ test('Misc input:', t => {
   t.is(fmt('0')(-Infinity), '-∞');
   t.is(fmt('0')(true), 'TRUE');
   t.is(fmt('0')(false), 'FALSE');
-  t.is(fmt('0%')(0), '0%');
   t.end();
 });
 
