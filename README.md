@@ -136,6 +136,11 @@ Returns a true or false depending on if the pattern is a date pattern. The patte
 Returns a true or false depending on if the pattern is a percentage pattern. The pattern is considered a percentage pattern if any of its sections contain a percentage symbol (see table above).
 
 
+<a name="formatter.isText" href="#formatter.isText">#</a> _formatter_.isText()
+
+Returns a true or false depending on if the pattern is a text percentage pattern if its definition is composed of a single section that includes that text symbol (see table above). For example `@` or `@" USD"` are text patterns but `#;@` is not.
+
+
 <a name="formatter.color" href="#formatter.color">#</a> _formatter_.color(value)
 
 If the pattern defines colors this function will emit the color appropriate to the value. If no colors were specified this function returns `"black"`.
@@ -223,6 +228,11 @@ For compatibility reasons, this function is also available as `numfmt.is_date(fo
 <a name="numfmt.isPercent" href="#numfmt.isPercent">#</a> numfmt.**isPercent**(format)
 
 Returns a true or false depending on if the pattern is a percentage pattern. The pattern is considered a percentage pattern if any of its sections contain a percentage symbol (see table above).
+
+
+<a name="numfmt.isText" href="#numfmt.isText">#</a> numfmt.**isText**(format)
+
+Returns a true or false depending on if the pattern is a text percentage pattern if its definition is composed of a single section that includes that text symbol (see table above). For example `@` or `@" USD"` are text patterns but `#;@` is not.
 
 
 <a name="numfmt.options" href="#numfmt.options">#</a> numfmt.**options**(options)

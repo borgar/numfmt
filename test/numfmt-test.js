@@ -44,6 +44,7 @@ test('isDate:', t => {
   t.is(fmt.isDate('\\y'), false, 'isDate(\\y)');
   t.is(fmt.isDate('#;\\y'), false, 'isDate(#;\\y)');
   t.is(fmt.isDate('#'), false, 'isDate(#)');
+  t.is(fmt.isDate('@'), false, 'isDate(@)');
   t.is(fmt.isDate(''), false, 'isDate()');
   t.end();
 });
@@ -55,7 +56,24 @@ test('isPercent:', t => {
   t.is(fmt.isPercent('%'), true, 'isPercent(%)');
   t.is(fmt.isPercent('#"%"'), false, 'isPercent(#"%")');
   t.is(fmt.isPercent('#\\%'), false, 'isPercent(#\\%)');
+  t.is(fmt.isPercent('@'), false, 'isPercent(@)');
   t.is(fmt.isPercent(''), false, 'isPercent()');
+  t.end();
+});
+
+test('isText:', t => {
+  t.is(fmt.isText('0%'), false, 'isText(0%)');
+  t.is(fmt.isText('#%'), false, 'isText(#%)');
+  t.is(fmt.isText('#;#%'), false, 'isText(#;#%)');
+  t.is(fmt.isText('%'), false, 'isText(%)');
+  t.is(fmt.isText('#"%"'), false, 'isText(#"%")');
+  t.is(fmt.isText('#\\%'), false, 'isText(#\\%)');
+  t.is(fmt.isText(''), false, 'isText()');
+  t.is(fmt.isText('@'), true, 'isText(@)');
+  t.is(fmt.isText('[blue]@'), true, 'isText([blue]@)');
+  t.is(fmt.isText('#;@'), false, 'isText(#;@)');
+  t.is(fmt.isText('#;#;@'), false, 'isText(#;#;@)');
+  t.is(fmt.isText('#;#;#;@'), false, 'isText(#;#;#;@)');
   t.end();
 });
 

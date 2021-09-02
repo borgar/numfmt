@@ -6,6 +6,7 @@ const excelOpts = { dateSpanLarge: false, dateErrorNumber: false };
 test(t => {
   // no more than 4 sections
   t.throws(() => fmt('a;b;c;d;'), 'a;b;c;d;');
+  t.throws(() => fmt('#;#;#;#;#'), '#;#;#;#;');
 
   // no more than 2 conditional sections
   t.throws(() => fmt('[<-2]a;[<-1]b;[>2]c;d;'), '[<-2]a;[<-1]b;[>2]c;d');
