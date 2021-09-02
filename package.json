@@ -2,7 +2,7 @@
   "name": "numfmt",
   "description": "Full Excel style number formatting",
   "author": "Borgar Þorsteinsson <borgar@borgar.net>",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "scripts": {
     "start": "webpack --mode development --watch",
     "build": "webpack --mode production",
@@ -27,21 +27,21 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "@babel/core": "~7.14.6",
+    "@babel/core": "~7.15.0",
     "@babel/plugin-proposal-class-properties": "~7.14.5",
     "@babel/plugin-proposal-export-default-from": "~7.14.5",
     "@babel/polyfill": "~7.12.1",
-    "@babel/preset-env": "~7.14.7",
-    "@babel/register": "~7.14.5",
+    "@babel/preset-env": "~7.15.0",
+    "@babel/register": "~7.15.3",
     "@borgar/eslint-config": "~2.2.1",
     "babel-loader": "~8.2.2",
-    "eslint": "~7.29.0",
-    "eslint-plugin-import": "~2.23.4",
+    "eslint": "~7.32.0",
+    "eslint-plugin-import": "~2.24.2",
     "tap-min": "~2.0.0",
-    "tape": "~5.2.2",
-    "terser-webpack-plugin": "~5.1.4",
-    "webpack": "~5.40.0",
-    "webpack-cli": "~4.7.2"
+    "tape": "~5.3.1",
+    "terser-webpack-plugin": "~5.2.1",
+    "webpack": "~5.51.1",
+    "webpack-cli": "~4.8.0"
   },
   "dependencies": {}
 }
