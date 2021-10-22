@@ -56,7 +56,7 @@ import numfmt from "numfmt";
 
 // reusable function
 const formatter = numfmt("#,##0.00");
-const output = formatter(1234.56)
+const output = formatter(1234.56);
 console.log(output);
 
 // ... or just 
@@ -149,7 +149,7 @@ If the pattern defines colors this function will emit the color appropriate to t
 import numfmt from "numfmt";
 
 const formatter = numfmt("[green]#,##0;[red]-#,##0");
-const color = formatter.color(-10)
+const color = formatter.color(-10);
 console.log(color); // "red"
 ```
 
@@ -194,7 +194,7 @@ Register locale data for a language. The full data object looks like this:
   mmmm: [ "January", "February", … ],
   mmm: [ "Jan", "Feb", … ],
   dddd: [ "Sunday", "Monday", … ],
-  ddd: [ "Sun", "Mon", … ]
+  ddd: [ "Sun", "Mon", … ],
 
   // islamic calendar
   mmmm6: [ "Muharram", "Safar", … ],
@@ -251,7 +251,7 @@ numfmt.options({ locale: "is" });
 weekdayEN(1234); // "mánudagur"
 
 // construct a new formatter with a locale
-weekdayFR = numfmt("dddd", { locale: "fr", });
+const weekdayFR = numfmt("dddd", { locale: "fr", });
 weekdayFR(1234); // "lundi"
 
 // override settings at call-time
