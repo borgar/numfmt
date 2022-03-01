@@ -108,6 +108,19 @@ test('Date object as a value:', t => {
   // these were yielding "Sep 0, 2020"
   t.equal(fmt('MMM D, YYYY')(new Date(2020, 8 - 1, 31, 13, 3, 0)), 'Aug 31, 2020');
   t.equal(fmt('MMM D, YYYY')(new Date(Date.parse('2020-08-31T02:42:00.1'))), 'Aug 31, 2020');
+
+  // test ignoreTimezone
+  const testYMD = (y, m, d) => {
+    const dt = new Date(y, m, d);
+    const tzSkew = dt.getTimezoneOffset() / (60 * 24);
+    const output = fmt('General')(dt, { ignoreTimezone: true });
+    const diff = (output.replace(/^\d*(\.\d*)?$/, '0$1')) - tzSkew;
+    return Math.abs(diff);
+  };
+  t.ok(testYMD(1900, 1 - 1, 0) < 0.00001, '1900 [ignoreTimezone]');
+  t.ok(testYMD(1950, 1 - 1, 0) < 0.00001, '1950 [ignoreTimezone]');
+  t.ok(testYMD(2000, 1 - 1, 0) < 0.00001, '2000 [ignoreTimezone]');
+
   t.end();
 });
 

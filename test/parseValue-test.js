@@ -437,6 +437,11 @@ tape(t => {
     null,
     'numfmt.parseDate does not parse non-dates'
   );
+  t.deepLooseEqual(
+    numfmt.parseDate('1999-10-01 12:00:00', { nativeDate: true }),
+    { v: new Date(1999, 9, 1, 17, 30), z: 'yyyy-mm-dd hh:mm:ss' },
+    'numfmt.parseDate parses and emits native dates'
+  );
 
   t.deepLooseEqual(
     numfmt.parseTime('09:18 PM'),
@@ -469,6 +474,12 @@ tape(t => {
     numfmt.parseBool('-123'),
     null,
     'numfmt.parseBool does not parse non-booleans'
+  );
+
+  t.deepLooseEqual(
+    numfmt.parseValue('1999-10-01 12:00:00', { nativeDate: true }),
+    { v: new Date(1999, 9, 1, 17, 30), z: 'yyyy-mm-dd hh:mm:ss' },
+    'numfmt.parseValue parses and emits native dates'
   );
 
   // test value parsing
