@@ -21,7 +21,11 @@ export function runTable (filename) {
   const startPos = 1;
   const endPos = table.length;
   headers.slice(1).forEach((code, hi) => {
-    const _f = fmt(code);
+    const _f = fmt(code, {
+      dateSpanLarge: false,
+      dateErrorNumber: false,
+      dateErrorThrows: true
+    });
     test('Times: ' + code, t => {
       let failCount = 0;
       for (let i = startPos; i < endPos; i++) {
