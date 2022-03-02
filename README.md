@@ -7,9 +7,9 @@ The library is written in pure JavaScript and has no dependencies. It is compara
 
 #### Features
 
-Why use this rather than the battle tested SSF? You may have no need to but numfmt is fully open source, has equivalent (if not better) formatting capabilities, built in international support, customizability, and may run about twice as fast in most cases.
+Why use this rather than the battle tested SSF? You may have no need to but numfmt is fully open source, has equivalent (if not better) formatting capabilities, built in international support, customizability, input parsing, and may run about twice as fast in most cases.
 
-Adding locales <a href="#numfmt.addLocale">is simple</a> but those included are:
+Adding locales <a href="#numfmt-addlocale-data-tag">is simple</a> but those included are:
 
 * Chinese (Simplified) (`zh-CN` or `zh`)
 * Chinese (Traditional) (`zh-TW`)
@@ -59,7 +59,7 @@ const formatter = numfmt("#,##0.00");
 const output = formatter(1234.56);
 console.log(output);
 
-// ... or just 
+// ... or just
 const output = numfmt.format("#,##0.00", 1234.56);
 console.log(output);
 ```
@@ -78,7 +78,7 @@ Only the first section is mandatory, the others are filled in as needed. The sec
 | `0`   | Digit or Zero   | `7` formatted with `00` will emit `"07"`
 | `#`   | Digit if needed   | `7` formatted with `##` will emit `"7"`
 | `?`   | Digit or Space  | `7` formatted with `??` will emit `" 7"`
-| `.`   | Decimal point   | 
+| `.`   | Decimal point   |
 | `,`   | Thousands separator   |  `1234` formatted with `#,##0` will emit `"1,234"`. The emitted grouping character depends on the locale used.
 | `%`   | Percentage  | Number is multiplied by 100 before it is shown.  `.7` formatted with `0%` will emit `"70%"`
 | `e-`, `e+` | Exponential format | `12200000` formatted with `0.00E+00` will emit `"1.22E+07"`
@@ -114,34 +114,34 @@ Only the first section is mandatory, the others are filled in as needed. The sec
 
 ## API Reference
 
-<a name="numfmt" href="#numfmt">#</a> **numfmt**(pattern[, options]])
+### **numfmt**(pattern[, options]])
 
 Constructs a new _formatter_ function with the specified options.
 
-Pattern must be a string according to the [ECMA-376][ecma] number format. <a href="#options">Options</a> should be an object of options. You may change defaults once for all instances using <a href="#numfmt.options">numfmt.options</a>.
+Pattern must be a string according to the [ECMA-376][ecma] number format. <a href="#the-options">Options</a> should be an object of options. You may change defaults once for all instances using <a href="#numfmt-options-options">numfmt.options</a>.
 
 
-<a name="numfmt" href="#formatter">#</a> _formatter_(value[, options])
+#### _formatter_(value[, options])
 
-Returns a formatted string for the argument value. If <a href="#options">options</a> object is provided then it overrides the constructor options of those options provided.
+Returns a formatted string for the argument value. If <a href="#the-options">options</a> object is provided then it overrides the constructor options of those options provided.
 
 
-<a name="formatter.isDate" href="#formatter.isDate">#</a> _formatter_.isDate()
+#### _formatter_.isDate()
 
 Returns a true or false depending on if the pattern is a date pattern. The pattern is considered a date pattern if any of its sections contain a date symbol (see table above).  Each section is restricted to  to be _either_ a number or date format.
 
 
-<a name="formatter.isPercent" href="#formatter.isPercent">#</a> _formatter_.isPercent()
+#### _formatter_.isPercent()
 
 Returns a true or false depending on if the pattern is a percentage pattern. The pattern is considered a percentage pattern if any of its sections contain a percentage symbol (see table above).
 
 
-<a name="formatter.isText" href="#formatter.isText">#</a> _formatter_.isText()
+#### _formatter_.isText()
 
 Returns a true or false depending on if the pattern is a text percentage pattern if its definition is composed of a single section that includes that text symbol (see table above). For example `@` or `@" USD"` are text patterns but `#;@` is not.
 
 
-<a name="formatter.color" href="#formatter.color">#</a> _formatter_.color(value)
+#### _formatter_.color(value)
 
 If the pattern defines colors this function will emit the color appropriate to the value. If no colors were specified this function returns `"black"`.
 
@@ -154,27 +154,27 @@ console.log(color); // "red"
 ```
 
 
-<a name="numfmt.format" href="#numfmt.format">#</a> numfmt.**format**(pattern, value[, options])
+### numfmt.**format**(pattern, value[, options])
 
-Parses the format pattern and formats the value according to the pattern, and optionally, any <a href="#options">options</a>. See definition [above](#numfmt).
-
-
-<a name="numfmt.round" href="#numfmt.round">#</a> numfmt.**round**(number[, places])
-
-Return a value rounded to the specified amount of places. This is the rounding function used by the formatter (symmetric arithmetic rounding). 
+Parses the format pattern and formats the value according to the pattern, and optionally, any <a href="#the-options">options</a>. See definition [above](#numfmt).
 
 
-<a name="numfmt.parseLocale" href="#numfmt.parseLocale">#</a> numfmt.**parseLocale**(tag)
+### numfmt.**round**(number[, places])
+
+Return a value rounded to the specified amount of places. This is the rounding function used by the formatter (symmetric arithmetic rounding).
+
+
+### numfmt.**parseLocale**(tag)
 
 Parse a BCP 47 locale tag and emit an object of its parts. Intended for internal use.
 
 
-<a name="numfmt.getLocale" href="#numfmt.getLocale">#</a> numfmt.**getLocale**(tag)
+### numfmt.**getLocale**(tag)
 
 Used by the formatter to pull a locate from its registered locales. If subtag isn't available but the base language is, the base language is used. So if `en-CA` is not found, the formatter tries to find `en` else it returns a `null`.
 
 
-<a name="numfmt.addLocale" href="#numfmt.addLocale">#</a> numfmt.**addLocale**(data, tag)
+### numfmt.**addLocale**(data, tag)
 
 Register locale data for a language. The full data object looks like this:
 
@@ -215,29 +215,141 @@ numfmt.addLocale({
 }, "fo-FO");
 ```
 
-If the language tag provided has a subtag and a base language does not exit, the locale is register to both. In the Faroese example above both `fo` and `fo-FO` will be created. 
+If the language tag provided has a subtag and a base language does not exit, the locale is register to both. In the Faroese example above both `fo` and `fo-FO` will be created.
 
 
-<a name="numfmt.isDate" href="#numfmt.isDate">#</a> numfmt.**isDate**(format)
+### numfmt.**isDate**(format)
 
 Returns a true or false depending on if the pattern is a date pattern. The pattern is considered a date pattern if any of its sections contain a date symbol (see table above).  Each section is restricted to  to be _either_ a number or date format.
 
 For compatibility reasons, this function is also available as `numfmt.is_date(format)`.
 
 
-<a name="numfmt.isPercent" href="#numfmt.isPercent">#</a> numfmt.**isPercent**(format)
+### numfmt.**isPercent**(format)
 
 Returns a true or false depending on if the pattern is a percentage pattern. The pattern is considered a percentage pattern if any of its sections contain a percentage symbol (see table above).
 
 
-<a name="numfmt.isText" href="#numfmt.isText">#</a> numfmt.**isText**(format)
+### numfmt.**isText**(format)
 
 Returns a true or false depending on if the pattern is a text percentage pattern if its definition is composed of a single section that includes that text symbol (see table above). For example `@` or `@" USD"` are text patterns but `#;@` is not.
 
 
-<a name="numfmt.options" href="#numfmt.options">#</a> numfmt.**options**(options)
+### numfmt.**parseValue**(value[, options])
 
-Set a default option or <a href="#options">options</a> for the formatter. This will affect all formatters unless they have overwritten options at construction time. Calling `numfmt.options(null)` will reset to internal defaults.
+Attempt to parse a "spreadsheet input" string input and return its value and format. If the input was not recognized or valid, the function returns a `null`, for valid input it returns an object with two properties:
+
+* `v`: The parsed value. For dates, this will be an Excel style serial date unless the `nativeDate` option is used.
+* `z`: (Optionally) the number format string of the input. This property will not be present if it amounts to the `General` format.
+
+`numfmt.parseValue()` recognizes a wide range of dates and date-times, times, numbers, and booleans. Some examples:
+
+```js
+// basic number
+numfmt.parseValue("-123"); // { v: -123 }
+// formatted number
+numfmt.parseValue("$1,234"); // { v: 1234, z: "$#,##0" }
+
+// a percent
+numfmt.parseValue("12.3%"); // { v: 0.123, z: "0.00%" }
+
+// a date
+numfmt.parseValue("07 October 1984"); // { v: 30962, z: 'dd mmmm yyyy' }
+// an ISO formatted date-time
+numfmt.parseValue("1984-09-10 11:12:13.1234"); // { v: 30935.46681855787, z: "yyyy-mm-dd hh:mm:ss" }
+
+// a boolean
+numfmt.parseValue("false"); // { v: false }
+```
+
+The formatting string outputted may not correspond exactly to the input. Rather, is it composed of certain elements which the input controls. This is comparable to how Microsoft Excel and Google Sheets parse pasted input. Some things you may expect:
+
+* Whitespace is ignored.
+* Decimal fractions are always represented by `.00` regardless of how many digits were shown in the input.
+* Negatives denoted by parentheses [`(1,234)`] will not include the parentheses in the format string (the value will still by negative.)
+* All "scientific notation" returns the same format: `0.00E+00`.
+
+Internally the parser calls, `numfmt.parseNumber`, `numfmt.parseDate`, `numfmt.parseTime` and `numfmt.parseBool`. They work in the same way exept with a more limited scope. If you do not want to be this liberal then use those functions.
+
+Be warned that the parser do not (yet) take locale into account so all input is assumed to be in "en-US". This means that `1,234.5` will parse, but `1.234,5` will not. Similarily, the order of date parts will be US centeric. This may change in the future so be careful what options you pass the functions.
+
+The parser does not listen to globally set default options (as set with [numfmt.options](#numfmt-options-options)).
+
+
+### numfmt.**parseNumber**(value[, options])
+
+Parse a numeric string input and return its value and format. If the input was not recognized or valid, the function returns a `null`, for valid input it returns an object with two properties:
+
+* `v`: the parsed value.
+* `z`: the number format of the input (if applicable).
+
+See [numfmt.parseValue](#numfmt-parsevalue-value-options) for more details.
+
+
+### numfmt.**parseDate**(value[, options])
+
+Parse a date or datetime string input and return its value and format. If the input was not recognized or valid, the function returns a `null`, for valid input it returns an object with two properties:
+
+* `v`: the parsed value (in Excel serial time).
+* `z`: the number format of the input.
+
+See [numfmt.parseValue](#numfmt-parsevalue-value-options) for more details.
+
+
+### numfmt.**parseTime**(value[, options])
+
+Parse a time string input and return its value and format. If the input was not recognized or valid, the function returns a `null`, for valid input it returns an object with two properties:
+
+* `v`: the parsed value (in Excel serial time).
+* `z`: the number format of the input.
+
+See [numfmt.parseValue](#numfmt-parsevalue-value-options) for more details.
+
+
+### numfmt.**parseBool**(value[, options])
+
+Parse a string input and return its boolean value. If the input was not recognized or valid, the function returns a `null`, for valid input it returns an object with one property:
+
+* `v`: the parsed value.
+
+See [numfmt.parseValue](#numfmt-parsevalue-value-options) for more details.
+
+
+### numfmt.**dateToSerial**(date[, options])
+
+Convert a native JavaScript Date, or array to an spreadsheet serial date. Can be set to ignore timezone information with `{ ignoreTimezone: true }` if you are passing in Date objects.
+
+Returns a serial date number if input was a Date object or an array, otherwise it will pass the input through untouched.
+
+```js
+// input as Date
+numfmt.dateToSerial(new Date(1978, 5, 17)); // 28627
+// input as [ Y, M, D, h, m, s ]
+numfmt.dateToSerial([ 1978, 5, 17 ]); // 28627
+// other input
+numfmt.dateToSerial("something else"); // "something else"
+````
+
+This function does not listen to globally set default options (as set with [numfmt.options](#numfmt-options-options)).
+
+
+### numfmt.**dateFromSerial**(value[, options])
+
+Convert a spreadsheet style serial date value to an Array of date parts (`[ Y, M, D, h, m, s ]`) or, if the `nativeDate` option is used, a native JavaScript Date.
+
+```js
+// output as [ Y, M, D, h, m, s ]
+numfmt.dateToSerial(28627); // [ 1978, 5, 17, 0, 0 ,0 ]
+// output as Date
+numfmt.dateFromSerial(28627, { nativeDate: true }); // new Date(1978, 5, 17)
+````
+
+This function does not listen to globally set default options (as set with [numfmt.options](#numfmt-options-options)).
+
+
+### numfmt.**options**(options)
+
+Set a default option or <a href="#the-options">options</a> for the formatter. This will affect all formatters unless they have overwritten options at construction time. Calling `numfmt.options(null)` will reset to internal defaults.
 
 ```js
 // basic "default" formatter
@@ -260,13 +372,13 @@ weekdayFR(1234, { locale: "pl" }); // "poniedziałek"
 ```
 
 
-<a name="options" href="#options">#</a> The **options**
+#### The **options**
 
-As well as allowing locale customization, numfmt behaviour can be controlled with a 
+As well as allowing locale customization, numfmt behaviour can be controlled with other options:
 
 | Member | Type | Default | Note
 |-- |-- |-- |--
-| locale | `string` | `""` | A [BCP 47][bcp] string tag. Locale default is english with a `\u00a0` grouping symbol (see <a href="#numfmt.addLocale">numfmt.addLocale</a>). 
+| locale | `string` | `""` | A [BCP 47][bcp] string tag. Locale default is english with a `\u00a0` grouping symbol (see <a href="#numfmt-addlocale-data-tag">numfmt.addLocale</a>).
 | throws | `boolean` | `true` | Should the formatter throw an error if a provided pattern is invalid. If not, a formatter will be constructed which only ever outputs an error string (see _invalid_ in this table).
 | invalid | `string` | `"######"` | The string emitted when no-throw mode fails to parse a pattern.
 | nbsp | `boolean` | `true` | By default the formatters will emit [non-breaking-space][nbsp] rather than a regular space when emitting the formatted number. Setting this to false will make it use regular spaces instead.
@@ -276,6 +388,8 @@ As well as allowing locale customization, numfmt behaviour can be controlled wit
 | overflow | `string` | `"######"` | The string emitted when a formatter fails to format a date that is out of bounds.
 | dateSpanLarge | `boolean` | `true` | Extends the allowed range of dates from Excel bounds (1900–9999) to Google Sheet bounds (0–99999).
 | ignoreTimezone | `boolean` | `false` | Normally when date objects are used with the formatter, time zone is taken into account. This makes the formatter ignore the timezone offset.
+| nativeDate | `boolean` | `false` | when using the [numfmt.parseDate](#numfmt-parsedate-value), [numfmt.parseValue](#numfmt-parsevalue-value-options) and [numfmt.dateFromSerial](#numfmt-datefromserial-value) functions, the output will be a Date object.
+
 
 [ecma]: https://www.ecma-international.org/publications/standards/Ecma-376.htm
 [ssf]: https://www.npmjs.com/package/ssf
