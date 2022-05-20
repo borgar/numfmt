@@ -129,3 +129,22 @@ test('Significant digits truncation:', t => {
   t.equal(fmt('General')(-33000.000000000001), '-33000');
   t.end();
 });
+
+test('Exponential 0E+00', t => {
+  const _f = fmt('0E+00');
+  t.equal(_f(1000000000000), '1E+12');
+  t.equal(_f(100000000000), '1E+11');
+  t.equal(_f(10000000000), '1E+10');
+  t.equal(_f(1000000000), '1E+09');
+  t.equal(_f(100000000), '1E+08');
+  t.equal(_f(10000000), '1E+07');
+  t.equal(_f(100000), '1E+05');
+  t.equal(_f(100000), '1E+05');
+  t.equal(_f(10000), '1E+04');
+  t.equal(_f(1000), '1E+03');
+  t.equal(_f(100), '1E+02');
+  t.equal(_f(10), '1E+01');
+  t.equal(_f(1), '1E+00');
+  t.end();
+});
+
