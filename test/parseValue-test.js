@@ -304,6 +304,66 @@ const tests = [
   [ '1 Mar 1900', 61, 'd mmm yyyy' ],
   [ '2 Mar 1900', 62, 'd mmm yyyy' ],
 
+  // weekdays
+  [ 'Sunday 12 April 1984', 30784, 'dddd d mmmm yyyy' ],
+  [ 'Monday 12 April 1984', 30784, 'dddd d mmmm yyyy' ],
+  [ 'Tuesday 12 April 1984', 30784, 'dddd d mmmm yyyy' ],
+  [ 'Wednesday 12 April 1984', 30784, 'dddd d mmmm yyyy' ],
+  [ 'Thursday 12 April 1984', 30784, 'dddd d mmmm yyyy' ],
+  [ 'Friday 12 April 1984', 30784, 'dddd d mmmm yyyy' ],
+  [ 'Saturday 12 April 1984', 30784, 'dddd d mmmm yyyy' ],
+  [ 'Sun 12 April 1984', 30784, 'ddd d mmmm yyyy' ],
+  [ 'Mon 12 April 1984', 30784, 'ddd d mmmm yyyy' ],
+  [ 'Tue 12 April 1984', 30784, 'ddd d mmmm yyyy' ],
+  [ 'Wed 12 April 1984', 30784, 'ddd d mmmm yyyy' ],
+  [ 'Thu 12 April 1984', 30784, 'ddd d mmmm yyyy' ],
+  [ 'Fri 12 April 1984', 30784, 'ddd d mmmm yyyy' ],
+  [ 'Sat 12 April 1984', 30784, 'ddd d mmmm yyyy' ],
+  [ 'Sunday 12 April 1984', 30784, 'dddd d mmmm yyyy' ],
+  [ '12 Sunday April 1984', null, null ],
+  [ '12 April Sunday 1984', null, null ],
+  [ '12 April 1984 Sunday', 30784, 'd mmmm yyyy dddd' ],
+  [ 'Thursday 12 April 1984', 30784, 'dddd d mmmm yyyy' ],
+  [ '12 Thursday April 1984', null, null ],
+  [ '12 April Thursday 1984', null, null ],
+  [ '12 April 1984 Thursday', 30784, 'd mmmm yyyy dddd' ],
+  [ 'Sun 12 April 1984', 30784, 'ddd d mmmm yyyy' ],
+  [ '12 Sun April 1984', null, null ],
+  [ '12 April Sun 1984', null, null ],
+  [ '12 April 1984 Sun', 30784, 'd mmmm yyyy ddd' ],
+  [ 'Thu 12 April 1984', 30784, 'ddd d mmmm yyyy' ],
+  [ '12 Thu April 1984', null, null ],
+  [ '12 April Thu 1984', null, null ],
+  [ '12 April 1984 Thu', 30784, 'd mmmm yyyy ddd' ],
+  [ 'Sun 82/October/6', 30230, 'ddd yy/mmmm/d' ],
+  [ 'Sun/82/October/6', null, null ],
+  [ '82/October/6 Sun', 30230, 'yy/mmmm/d ddd' ],
+  [ '82/Sun/October/6', null, null ],
+  [ 'Sunday, 12 April 1984', 30784, 'dddd, d mmmm yyyy' ],
+  [ '12. April, 1984, Sunday', 30784, 'd. mmmm, yyyy, dddd' ],
+  [ '12. April, 1984 Sunday', 30784, 'd. mmmm, yyyy dddd' ],
+  [ 'Sunday, 12 April 1984 10:45', 30784.447916666668, 'dddd, d mmmm yyyy hh:mm' ],
+  [ '12 April 1984 Sunday 10:45', 30784.447916666668, 'd mmmm yyyy dddd hh:mm' ],
+  [ '12 April 1984, Sunday 10:45', 30784.447916666668, 'd mmmm yyyy, dddd hh:mm' ],
+  [ '12. April 1984', 30784, 'd. mmmm yyyy' ],
+  [ '12. Apr. 1984', 30784, 'd. mmm. yyyy' ],
+  [ '12, Apr, 1984', 30784, 'd, mmm, yyyy' ],
+  [ '12- Apr- 1984', 30784, 'd- mmm- yyyy' ],
+  [ '12 - Apr - 1984', 30784, 'd - mmm - yyyy' ],
+  [ '12  -  Apr  -  1984', 30784, 'd - mmm - yyyy' ],
+
+  // period as seprator
+  [ '12.Apr.1984', 30784, 'd.mmm.yyyy' ],
+  [ '12.4.1984', 31020, 'm.d.yyyy' ],
+  [ '12. 1984', 31017, 'm. yyyy' ],
+  [ '12.1984', 12.1984, null ], // value parsing has priority (see text below)
+
+  // comma is not a "real" seprator, it demands a space following it
+  [ '12,Apr,1984', null, null ],
+  [ '12,4,1984', 1241984, '#,##0' ], // value parsing has priority
+  [ '12, 1984', 31017, 'm, yyyy' ],
+  [ '12,1984', 121984, '#,##0' ], // value parsing has priority
+
   // time
   [ '1 AM', 0.041666666666666664, 'h:mm AM/PM' ],
   [ '01 AM', 0.041666666666666664, 'hh:mm AM/PM' ],
@@ -422,6 +482,11 @@ tape(t => {
     'numfmt.parseNumber parses numbers'
   );
   t.deepLooseEqual(
+    numfmt.parseNumber('1999.10.01'),
+    null,
+    'numfmt.parseNumber does not parse invalid numbers'
+  );
+  t.deepLooseEqual(
     numfmt.parseNumber('1999-10-01'),
     null,
     'numfmt.parseNumber does not parse non-numbers'
@@ -474,6 +539,12 @@ tape(t => {
     numfmt.parseBool('-123'),
     null,
     'numfmt.parseBool does not parse non-booleans'
+  );
+
+  t.deepLooseEqual(
+    numfmt.parseDate('5.2022'),
+    null,
+    'numfmt.parseDate does not parse "decimals"'
   );
 
   t.deepLooseEqual(
