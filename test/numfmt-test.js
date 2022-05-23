@@ -1,4 +1,4 @@
-/* eslint-disable no-loss-of-precision */
+/* eslint-disable no-loss-of-precision, no-irregular-whitespace */
 import test from 'tape';
 import fmt from '../lib';
 
@@ -148,3 +148,47 @@ test('Exponential 0E+00', t => {
   t.end();
 });
 
+test('Order of operators in fractions doesn\'t matter:', t => {
+  // 0 after #
+  t.equal(fmt('#.##0')(-10.29), '-10.290');
+  t.equal(fmt('#.###0')(-10.29), '-10.290');
+  t.equal(fmt('#.####0')(-10.29), '-10.290');
+  t.equal(fmt('#.###000')(-10.29), '-10.29000');
+  t.equal(fmt('#.#0#0#0')(-10.29), '-10.2900');
+  t.equal(fmt('#.#00')(1), '1.00');
+  t.equal(fmt('#.####0')(1), '1.0');
+  t.equal(fmt('#.###000')(1), '1.000');
+  t.equal(fmt('#.#0#0#0')(1), '1.000');
+  t.equal(fmt('#.##0')(0.01), '.010');
+  t.equal(fmt('#.###0')(0.01), '.010');
+  t.equal(fmt('#.#00')(0.01), '.010');
+  t.equal(fmt('#.####0')(0.0001), '.00010');
+  t.equal(fmt('#.#00')(0.0001), '.00');
+  t.equal(fmt('#.#0')(0.1), '.10');
+  t.equal(fmt('#.##0')(0.1), '.10');
+  t.equal(fmt('#.###0')(0.1), '.10');
+  // 0 after ?
+  t.equal(fmt('#.?00')(1), '1. 00');
+  t.equal(fmt('#.?0')(0.0001), '. 0');
+  t.equal(fmt('#.????0')(-10.29), '-10.29  0');
+  t.equal(fmt('#.????0')(0.01), '.01  0');
+  // split pattern
+  t.equal(fmt('#.#x#0')(1), '1.x0');
+  t.equal(fmt('#.#x#0')(0.1), '.1x0');
+  t.equal(fmt('#.??x?0')(0.01), '.01x 0');
+  t.end();
+});
+
+test('Order of operators in integers doesn\'t matter:', t => {
+  t.equal(fmt('0#')(0), '0');
+  t.equal(fmt('0?')(0), '0 ');
+  t.equal(fmt('0#0#')(0), '00');
+  t.equal(fmt('0?0?')(0), '0 0 ');
+  t.end();
+});
+
+// Some more work needs to be done with how digits are emitted (see https://github.com/borgar/numfmt/issues/18)
+// test('Order of operators in exponential notation doesn\'t matter:', t => {
+//   t.equal(fmt('0?.?0E+1')(0), '00. 0E+1');
+//   t.end();
+// });
