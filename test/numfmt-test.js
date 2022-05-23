@@ -159,6 +159,7 @@ test('Exponential 0E+00', t => {
   t.equal(_f(9.5), '1E+01');
   t.equal(_f(1.4999999), '1E+00');
   t.equal(_f(1), '1E+00');
+  t.equal(_f(0.95), '1E+00');
   t.equal(_f(0.14999999), '1E-01');
   t.equal(_f(0.1), '1E-01');
   t.equal(_f(0.014999999), '1E-02');
