@@ -1,9 +1,6 @@
-/* global __dirname */
-import path from 'path';
-import { runTable } from './utils';
+import { runTable } from './utils.js';
 
 // -- running the full table takes a while
-// runTable(path.join(__dirname, '/tables/ssf-times-full.tsv'));
-
-runTable(path.join(__dirname, '/tables/ssf-times.tsv'));
+// runTable('tables/ssf-times-full.tsv');
+runTable('tables/ssf-times.tsv');
 

@@ -1,5 +1,5 @@
 import test from 'tape';
-import fmt from '../lib';
+import fmt from '../lib/index.js';
 
 const ISODATE = 'yyyy-mm-dd';
 const ISODATETIME = 'yyyy-mm-dd\\Thh:mm:ss';

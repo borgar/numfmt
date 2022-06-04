@@ -8,7 +8,7 @@ module.exports = {
     library: 'numfmt',
     libraryTarget: 'umd',
     libraryExport: 'default',
-    filename: './numfmt.js',
+    filename: './dist/numfmt.js',
     globalObject: 'typeof self !== \'undefined\' ? self : this',
     path: path.resolve(__dirname)
   },

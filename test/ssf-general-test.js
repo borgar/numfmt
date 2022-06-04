@@ -1,6 +1,6 @@
 // tests converted from SSF
 import test from 'tape';
-import fmt from '../lib';
+import fmt from '../lib/index.js';
 
 test('General format', t => {
   const _f = fmt('General');
