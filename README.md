@@ -153,6 +153,38 @@ const color = formatter.color(-10);
 console.log(color); // "red"
 ```
 
+#### _formatter_.info
+
+Stores information and internals of the parsed format string.
+
+```js
+import numfmt from "numfmt";
+
+console.log(numfmt("#,##0.00").info);
+// will emit...
+{
+  type: 'number',
+  isDate: false,
+  isText: false,
+  isPercent: false,
+  maxDecimals: 0,
+  color: 0,
+  parentheses: 0,
+  grouped: 1,
+  code: ',2',
+  level: 4,
+};
+```
+* `type` is a string identifier for the type of the number formatter. The possible values are:
+  * `currency`, `date`, `datetime`, `fraction`, `general`, `grouped`, `number`, `percent`, `scientific`, `text`, `time`
+* `isDate`, `isText`, and `isPercent` correspond to the output from same named functions found on the formatters.
+* `maxDecimals` is the maximum number of decimals this format will emit.
+* `color` is 1 if the format uses color on the negative portion of the string, else a 0. This replicates Excel's `CELL("color")` functionality.
+* `parentheses` is 1 if the positive portion of the number format contains an open parenthesis, else a 0. This is replicates Excel's `CELL("parentheses")` functionality.
+* `grouped` is 1 if the positive portion of the format uses a thousands separator, else a 0.
+* `code` corresponds to Excel's `CELL("format")` functionality. It is should match Excel's quirky behaviour fairly well. [See, Microsoft's documentation.](https://support.microsoft.com/en-us/office/cell-function-51bd39a5-f338-4dbe-a33f-955d67c2b2cf)
+* `level` is an arbirarty number that represents the format's specificity if you want to compare one to another. Integer comparisons roughly match Excel's resolutions when it determines which format wins out.
+
 
 ### numfmt.**format**(pattern, value[, options])
 
@@ -234,6 +266,9 @@ Returns a true or false depending on if the pattern is a percentage pattern. The
 
 Returns a true or false depending on if the pattern is a text percentage pattern if its definition is composed of a single section that includes that text symbol (see table above). For example `@` or `@" USD"` are text patterns but `#;@` is not.
 
+### numfmt.**info**(format)
+
+Returns an object detailing the properties and internals of the format. See [formatter.info](#formatter-info) for details.
 
 ### numfmt.**parseValue**(value[, options])
 
