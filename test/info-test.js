@@ -9,6 +9,7 @@ const commonProps = {
   grouped: 0,
   parentheses: 0,
   color: 0,
+  scale: 1,
   level: 0
 };
 
@@ -19,7 +20,7 @@ function alphabetizeProps (obj) {
 
 Test.prototype.assertInfo = function (fmtString, expectProps) {
   const output = { ...fmt(fmtString).info };
-  delete output.partitions;
+  delete output._partitions;
   this.deepEqual(
     alphabetizeProps(output),
     alphabetizeProps({ ...commonProps, ...expectProps }),
@@ -31,8 +32,8 @@ test('numfmt.info', t => {
   t.equal(typeof fmt.info, 'function', 'numfmt.info exists');
   const i1 = { ...fmt.info('0') };
   t.equal(typeof i1, 'object', 'numfmt.info emits object');
-  t.equal(Array.isArray(i1.partitions), true, 'numfmt.info object has partitions');
-  i1.partitions = null;
+  t.equal(Array.isArray(i1._partitions), true, 'numfmt.info object has partitions');
+  i1._partitions = null;
   t.deepEqual(i1, {
     type: 'number',
     isDate: false,
@@ -40,29 +41,31 @@ test('numfmt.info', t => {
     isPercent: false,
     maxDecimals: 0,
     color: 0,
+    scale: 1,
     parentheses: 0,
     grouped: 0,
     code: 'F0',
     level: 4,
-    partitions: null
+    _partitions: null
   }, 'numfmt.info object is what we expect');
 
   const i2 = { ...fmt('0').info };
   t.equal(typeof i2, 'object', 'formatters have info objects');
-  t.equal(Array.isArray(i2.partitions), true, 'formatters info has partitions');
-  i2.partitions = null;
+  t.equal(Array.isArray(i2._partitions), true, 'formatters info has partitions');
+  i2._partitions = null;
   t.deepEqual(i2, {
     type: 'number',
     isDate: false,
     isText: false,
     isPercent: false,
     maxDecimals: 0,
+    scale: 1,
     color: 0,
     parentheses: 0,
     grouped: 0,
     code: 'F0',
     level: 4,
-    partitions: null
+    _partitions: null
   }, 'formatters info is what we expect');
   t.end();
 });
@@ -141,6 +144,21 @@ test('Numbers', t => {
     parentheses: 1,
     grouped: 1,
     level: 10.2
+  });
+
+  t.assertInfo('0.00,"K"', {
+    type: 'number',
+    maxDecimals: 2,
+    code: 'F2',
+    scale: 0.001,
+    level: 4
+  });
+  t.assertInfo('0.00,,"K"', {
+    type: 'number',
+    maxDecimals: 2,
+    code: 'F2',
+    scale: 0.000001,
+    level: 4
   });
 
   t.end();
@@ -276,12 +294,14 @@ test('Percentages', t => {
   t.assertInfo('0%', {
     type: 'percent',
     isPercent: true,
+    scale: 100,
     code: 'P0',
     level: 10.6
   });
   t.assertInfo('0.00%;[red]0.00%', {
     type: 'percent',
     isPercent: true,
+    scale: 100,
     code: 'P2-',
     color: 1,
     maxDecimals: 2,

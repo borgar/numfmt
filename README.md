@@ -172,9 +172,11 @@ console.log(numfmt("#,##0.00").info);
   parentheses: 0,
   grouped: 1,
   code: ',2',
+  scale: 1,
   level: 4,
 };
 ```
+
 * `type` is a string identifier for the type of the number formatter. The possible values are:
   * `currency`, `date`, `datetime`, `fraction`, `general`, `grouped`, `number`, `percent`, `scientific`, `text`, `time`
 * `isDate`, `isText`, and `isPercent` correspond to the output from same named functions found on the formatters.
@@ -184,6 +186,7 @@ console.log(numfmt("#,##0.00").info);
 * `grouped` is 1 if the positive portion of the format uses a thousands separator, else a 0.
 * `code` corresponds to Excel's `CELL("format")` functionality. It is should match Excel's quirky behaviour fairly well. [See, Microsoft's documentation.](https://support.microsoft.com/en-us/office/cell-function-51bd39a5-f338-4dbe-a33f-955d67c2b2cf)
 * `level` is an arbirarty number that represents the format's specificity if you want to compare one to another. Integer comparisons roughly match Excel's resolutions when it determines which format wins out.
+* `scale` is the multiplier used when formatting the number (100 for percentages)
 
 
 ### numfmt.**format**(pattern, value[, options])
