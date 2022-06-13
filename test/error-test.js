@@ -61,5 +61,10 @@ test(t => {
   t.equal(fmt.isDate('dddd, dd. mmmm yyy'), true);
   t.equal(fmt.isDate('0.0M'), false);
 
+  // utility functions exist and work on error formatters
+  t.equal(fmt('y 0', { throws: false }).isDate(), false);
+  t.equal(fmt('y 0', { throws: false }).isPercent(), false);
+  t.equal(fmt('y 0', { throws: false }).isText(), false);
+
   t.end();
 });

@@ -28,9 +28,29 @@ Test.prototype.assertInfo = function (fmtString, expectProps) {
   );
 };
 
+const commonDateProps = {
+  year: false,
+  month: false,
+  day: false,
+  hours: false,
+  minutes: false,
+  seconds: false,
+  clockType: 24
+};
+
+Test.prototype.assertDateInfo = function (fmtString, expectProps) {
+  const output = fmt(fmtString).dateInfo;
+  delete output._partitions;
+  this.deepEqual(
+    alphabetizeProps(output),
+    alphabetizeProps({ ...commonDateProps, ...expectProps }),
+    fmtString
+  );
+};
+
 test('numfmt.info', t => {
-  t.equal(typeof fmt.info, 'function', 'numfmt.info exists');
-  const i1 = { ...fmt.info('0') };
+  t.equal(typeof fmt.getInfo, 'function', 'numfmt.info exists');
+  const i1 = { ...fmt.getInfo('0') };
   t.equal(typeof i1, 'object', 'numfmt.info emits object');
   t.equal(Array.isArray(i1._partitions), true, 'numfmt.info object has partitions');
   i1._partitions = null;
@@ -67,6 +87,23 @@ test('numfmt.info', t => {
     level: 4,
     _partitions: null
   }, 'formatters info is what we expect');
+
+  const borked = { ...fmt('y 0', { throws: false }).info, _partitions: null };
+  t.deepEqual(borked, {
+    type: 'error',
+    isDate: false,
+    isText: false,
+    isPercent: false,
+    maxDecimals: 0,
+    scale: 1,
+    color: 0,
+    parentheses: 0,
+    grouped: 0,
+    code: 'G',
+    level: 0,
+    _partitions: null
+  }, 'info makes sense even when pattern is bogus');
+
   t.end();
 });
 
@@ -401,5 +438,47 @@ test('Dates', t => {
   t.assertInfo('yyyy-mm-dd', { ...dt, code: 'G' });
   t.assertInfo('yyyy-mm-dd"T"hh:mm:ss', { ...dt, code: 'G', type: 'datetime' });
   t.assertInfo('dddd h:mm:ss', { ...dt, code: 'G', type: 'datetime' });
+  t.end();
+});
+
+test('dateInfo', t => {
+  t.equal(typeof fmt.getDateInfo, 'function', 'numfmt.getDateInfo exists on main');
+  t.deepEqual(fmt.getDateInfo('0'), commonDateProps, 'numfmt.getDateInfo returns "all off" for non dates');
+  t.equal(typeof fmt('0').dateInfo, 'object', 'dateInfo exists on formatters');
+  t.deepEqual(fmt('0').dateInfo, commonDateProps, 'dateInfo is "all off" in formatters for non dates');
+
+  const borked = { ...fmt('y 0', { throws: false }).dateInfo };
+  t.deepEqual(borked, commonDateProps, 'dateInfo makes sense even when pattern is bogus');
+
+  t.assertDateInfo('yyyy', { year: true });
+  t.assertDateInfo('yyy', { year: true });
+  t.assertDateInfo('yy', { year: true });
+  t.assertDateInfo('y', { year: true });
+  t.assertDateInfo('mmmm', { month: true });
+  t.assertDateInfo('mmm', { month: true });
+  t.assertDateInfo('mm', { month: true });
+  t.assertDateInfo('m', { month: true });
+  t.assertDateInfo('dddd', { day: true });
+  t.assertDateInfo('ddd', { day: true });
+  t.assertDateInfo('dd', { day: true });
+  t.assertDateInfo('d', { day: true });
+  t.assertDateInfo('hh', { hours: true });
+  t.assertDateInfo('h', { hours: true });
+  t.assertDateInfo('h:mm', { hours: true, minutes: true });
+  t.assertDateInfo('h:m', { hours: true, minutes: true });
+  t.assertDateInfo('ss', { seconds: true });
+  t.assertDateInfo('s', { seconds: true });
+  t.assertDateInfo('hh am/pm', { hours: true, clockType: 12 });
+  t.assertDateInfo('hh A/P', { hours: true, clockType: 12 });
+
+  t.assertDateInfo('yyyy-mm', { year: true, month: true });
+  t.assertDateInfo('yyyy-mm-dd', { year: true, month: true, day: true });
+  t.assertDateInfo('yyyy-mm-ddThh', { year: true, month: true, day: true, hours: true });
+  t.assertDateInfo('yyyy-mm-ddThh:mm', { year: true, month: true, day: true, hours: true, minutes: true });
+  t.assertDateInfo('yyyy-mm-ddThh:mm:ss', { year: true, month: true, day: true, hours: true, minutes: true, seconds: true });
+  t.assertDateInfo('yyyy-mm-ddThh:mm:ss AM/PM', { year: true, month: true, day: true, hours: true, minutes: true, seconds: true, clockType: 12 });
+
+  t.assertDateInfo('yy dd mm:ss', { year: true, day: true, month: true, seconds: true });
+
   t.end();
 });
