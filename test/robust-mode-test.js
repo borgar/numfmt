@@ -1,5 +1,5 @@
 import test from 'tape';
-import fmt from '../lib';
+import fmt from '../lib/index.js';
 
 const excelOpts = { dateSpanLarge: false, dateErrorNumber: false };
 

@@ -1,6 +1,6 @@
 /* eslint-disable no-loss-of-precision */
 import test from 'tape';
-import fmt from '../lib';
+import fmt from '../lib/index.js';
 
 function round (n) {
   return Math.round(n * 1e10) / 1e10;

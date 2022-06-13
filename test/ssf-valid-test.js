@@ -1,5 +1,5 @@
 import test from 'tape';
-import fmt from '../lib';
+import fmt from '../lib/index.js';
 
 test(t => {
   t.ok(typeof fmt('" Excellent"') === 'function', '" Excellent"');

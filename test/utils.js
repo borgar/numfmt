@@ -1,13 +1,15 @@
 // tests converted from SSF
 import test from 'tape';
-import fmt from '../lib';
+import numfmt from '../lib/index.js';
 import fs from 'fs';
 import path from 'path';
 import zlib from 'zlib';
+import { URL, fileURLToPath } from 'url';
 
 const VALUE_ERROR = '#VALUE!';
 
-export function runTable (filename) {
+export function runTable (pathToTable) {
+  const filename = fileURLToPath(new URL(pathToTable, import.meta.url));
   // eslint-disable-next-line
   if (process.env.SKIPTABLES) { return; }
   const tableFN = path.join(filename) + '.gz';
@@ -21,7 +23,7 @@ export function runTable (filename) {
   const startPos = 1;
   const endPos = table.length;
   headers.slice(1).forEach((code, hi) => {
-    const _f = fmt(code, {
+    const _f = numfmt(code, {
       dateSpanLarge: false,
       dateErrorNumber: false,
       dateErrorThrows: true
@@ -45,7 +47,7 @@ export function runTable (filename) {
         }
         if (res !== exp) {
           failCount++;
-          t.fail(`${i - 1}: fmt('${code}', ${d[0]}) => ${res} !== ${exp}`);
+          t.fail(`${i - 1}: numfmt('${code}', ${d[0]}) => ${res} !== ${exp}`);
         }
       }
       if (!failCount) {

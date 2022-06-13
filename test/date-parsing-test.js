@@ -1,5 +1,5 @@
 import test from 'tape';
-import fmt from '../lib';
+import fmt from '../lib/index.js';
 
 const date = 3290.1278435; // 1909-01-02 03:04:05.678
 
