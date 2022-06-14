@@ -1,6 +1,6 @@
 // tests converted from SSF
 import test from 'tape';
-import fmt from '../lib';
+import fmt from '../lib/index.js';
 
 test('Exponential: #0.0E+0', t => {
   const _f = fmt('#0.0E+0');

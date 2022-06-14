@@ -1,5 +1,4 @@
-/* global __dirname */
 import path from 'path';
-import { runTable } from './utils';
+import { runTable } from './utils.js';
 
-runTable(path.join(__dirname, '/tables/cal-updated.tsv'));
+runTable(path.join('tables/cal-updated.tsv'));

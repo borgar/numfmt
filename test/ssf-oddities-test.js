@@ -2,7 +2,7 @@
 // Tests originally converted from SSF but have been reviewed
 // and corrected and conformed to Excel for Mac version 16.35
 import test from 'tape';
-import fmt from '../lib';
+import fmt from '../lib/index.js';
 
 test('Oddity: "foo";"bar";"baz";"qux"', t => {
   const _f = fmt('"foo";"bar";"baz";"qux"');

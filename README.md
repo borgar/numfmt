@@ -153,6 +153,71 @@ const color = formatter.color(-10);
 console.log(color); // "red"
 ```
 
+#### _formatter_.info
+
+Stores information and internals of the parsed format string.
+
+```js
+import numfmt from "numfmt";
+
+console.log(numfmt("#,##0.00").info);
+// will emit...
+{
+  type: 'number',
+  isDate: false,
+  isText: false,
+  isPercent: false,
+  maxDecimals: 0,
+  color: 0,
+  parentheses: 0,
+  grouped: 1,
+  code: ',2',
+  scale: 1,
+  level: 4,
+};
+```
+
+| Member | Note
+|-- |--
+| `type` | A string identifier for the type of the number formatter. The possible values are: `currency` , `date`, `datetime`, `error`, `fraction`, `general`, `grouped`, `number`, `percent`, `scientific`, `text`, `time`
+| `isDate` , `isText`, `isPercent` | Correspond to the output from same named functions found on the formatters.
+| `maxDecimals` | The maximum number of decimals this format will emit.
+| `color` | 1 if the format uses color on the negative portion of the string, else a 0. This replicates Excel's `CELL("color")` functionality.
+| `parentheses` | 1 if the positive portion of the number format contains an open parenthesis, else a 0. This is replicates Excel's `CELL("parentheses")` functionality.
+| `grouped` | 1 if the positive portion of the format uses a thousands separator, else a 0.
+| `code` | Corresponds to Excel's `CELL("format")` functionality. It is should match Excel's quirky behaviour fairly well. [See, Microsoft's documentation.](https://support.microsoft.com/en-us/office/cell-function-51bd39a5-f338-4dbe-a33f-955d67c2b2cf)
+| `level` | An arbirarty number that represents the format's specificity if you want to compare one to another. Integer comparisons roughly match Excel's resolutions when it determines which format wins out.
+| `scale` | The multiplier used when formatting the number (100 for percentages).
+
+#### _formatter_.dateInfo
+
+Stores information about date code use in the format string.
+
+```js
+import numfmt from "numfmt";
+
+console.log(numfmt("dd/mm/yyyy").dateInfo);
+// will emit...
+{
+  year: true,
+  month: true,
+  day: true,
+  hours: false,
+  minutes: false,
+  seconds: false,
+  clockType: 24
+};
+```
+
+| Member | Note
+|-- |--
+| year | If any `y` or `b` operator was found in the pattern.
+| month | If any `m` operator was found in the pattern.
+| day | If any `d` operator was found in the pattern (including ones that emit weekday).
+| hours | If any `h` operator was found in the pattern.
+| minutes | If any `:m` operator was found in the pattern.
+| seconds | If any `s` operator was found in the pattern.
+| clockType | Will be set to `12` if `AM/PM` operators are being used in the formatting string, else it will be set to `24`.
 
 ### numfmt.**format**(pattern, value[, options])
 
@@ -234,6 +299,9 @@ Returns a true or false depending on if the pattern is a percentage pattern. The
 
 Returns a true or false depending on if the pattern is a text percentage pattern if its definition is composed of a single section that includes that text symbol (see table above). For example `@` or `@" USD"` are text patterns but `#;@` is not.
 
+### numfmt.**getInfo**(format)
+
+Returns an object detailing the properties and internals of the format. See [formatter.info](#formatter-info) for details.
 
 ### numfmt.**parseValue**(value[, options])
 

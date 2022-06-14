@@ -1,6 +1,6 @@
 /* eslint-disable no-irregular-whitespace */
 import test from 'tape';
-import fmt from '../lib';
+import fmt from '../lib/index.js';
 
 test(t => {
   t.equal(fmt('# ?/?')(1), '1    ', '# ?/?');

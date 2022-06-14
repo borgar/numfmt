@@ -1,6 +1,6 @@
 /* eslint-disable no-loss-of-precision, no-irregular-whitespace */
 import test from 'tape';
-import fmt from '../lib';
+import fmt from '../lib/index.js';
 
 test('near zero negatives:', t => {
   t.equal(fmt('-0')(-1), '--1');

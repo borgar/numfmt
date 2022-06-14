@@ -1,5 +1,5 @@
 import tape from 'tape';
-import numfmt from '../lib';
+import numfmt from '../lib/index.js';
 
 const tests = [
   // general

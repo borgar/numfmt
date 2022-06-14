@@ -1,5 +1,5 @@
 import test from 'tape';
-import fmt from '../lib';
+import fmt from '../lib/index.js';
 
 const excelOpts = { dateSpanLarge: false, dateErrorNumber: false };
 
@@ -60,6 +60,11 @@ test(t => {
   // isDate should not throw on malformed input
   t.equal(fmt.isDate('dddd, dd. mmmm yyy'), true);
   t.equal(fmt.isDate('0.0M'), false);
+
+  // utility functions exist and work on error formatters
+  t.equal(fmt('y 0', { throws: false }).isDate(), false);
+  t.equal(fmt('y 0', { throws: false }).isPercent(), false);
+  t.equal(fmt('y 0', { throws: false }).isText(), false);
 
   t.end();
 });
