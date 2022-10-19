@@ -226,6 +226,14 @@ test('Order of operators in integers doesn\'t matter:', t => {
   t.end();
 });
 
+test('Automatic minus injection for the third condition:', t => { // issue #27
+  t.equal(fmt('[>=100]#,##0;[<=-100]-#,##0;#,##0.00')(-3.96), '-3.96');
+  t.equal(fmt('[>=100]#,##0;[<=-100]-#,##0;-#,##0.00')(-3.96), '--3.96');
+  t.equal(fmt('[>=100]0;[<=-100]-0;"xx"0')(-10), '-xx10');
+  t.equal(fmt('[<=-100]-0;"xx"0')(-10), 'xx10');
+  t.end();
+});
+
 // Some more work needs to be done with how digits are emitted (see https://github.com/borgar/numfmt/issues/18)
 // test('Order of operators in exponential notation doesn\'t matter:', t => {
 //   t.equal(fmt('0?.?0E+1')(0), '00. 0E+1');
