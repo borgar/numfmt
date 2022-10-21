@@ -234,6 +234,12 @@ test('Automatic minus injection for the third condition:', t => { // issue #27
   t.end();
 });
 
+test('Excel ignores extra , in fractions:', t => { // issue #22
+  t.equal(fmt('#.##0,00')(0), '.000');
+  t.equal(fmt('#.##0,0,0')(0), '.000');
+  t.end();
+});
+
 // Some more work needs to be done with how digits are emitted (see https://github.com/borgar/numfmt/issues/18)
 // test('Order of operators in exponential notation doesn\'t matter:', t => {
 //   t.equal(fmt('0?.?0E+1')(0), '00. 0E+1');
