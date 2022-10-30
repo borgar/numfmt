@@ -1,4 +1,6 @@
-import path from 'path';
-import { runTable } from './utils.js';
+import test from './utils.js';
 
-runTable(path.join('tables/cal-updated.tsv'));
+test('SSF table: tables/cal-updated.tsv', t => {
+  t.runTable('tables/cal-updated.tsv');
+  t.end();
+});

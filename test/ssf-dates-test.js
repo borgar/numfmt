@@ -1,5 +1,6 @@
-import path from 'path';
-import { runTable } from './utils.js';
+import test from './utils.js';
 
-runTable(path.join('tables/ssf-dates.tsv'));
-
+test('SSF table: tables/ssf-dates.tsv', t => {
+  t.runTable('tables/ssf-dates.tsv');
+  t.end();
+});

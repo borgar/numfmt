@@ -1,8 +1,13 @@
-import path from 'path';
-import { runTable } from './utils.js';
+import test from './utils.js';
 
 // -- running the full table takes a while
-// runTable(path.join('tables/ssf-times-full.tsv'));
+const FULL = false;
 
-runTable(path.join('tables/ssf-times.tsv'));
-
+test('SSF table: tables/ssf-times.tsv', t => {
+  t.runTable(
+    FULL
+      ? 'tables/ssf-times-full.tsv'
+      : 'tables/ssf-times.tsv'
+  );
+  t.end();
+});

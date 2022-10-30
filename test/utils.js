@@ -1,5 +1,5 @@
 // tests converted from SSF
-import test from 'tape';
+import test, { Test } from 'tape';
 import numfmt from '../lib/index.js';
 import fs from 'fs';
 import path from 'path';
@@ -8,7 +8,7 @@ import { URL, fileURLToPath } from 'url';
 
 const VALUE_ERROR = '#VALUE!';
 
-export function runTable (pathToTable) {
+Test.prototype.runTable = function runSSFTable (pathToTable) {
   const filename = fileURLToPath(new URL(pathToTable, import.meta.url));
   // eslint-disable-next-line
   if (process.env.SKIPTABLES) { return; }
@@ -28,7 +28,7 @@ export function runTable (pathToTable) {
       dateErrorNumber: false,
       dateErrorThrows: true
     });
-    test('Times: ' + code, t => {
+    this.test('Pattern: ' + code, t => {
       let failCount = 0;
       for (let i = startPos; i < endPos; i++) {
         const d = table[i];
@@ -57,3 +57,19 @@ export function runTable (pathToTable) {
     });
   });
 }
+
+// extend tape to be able to omit descriptions
+Test.prototype.format = function assertFormat (pattern, value, expected, options = {}) {
+  const output = numfmt.format(pattern, value, options);
+  let message = pattern;
+  const o = JSON.stringify(options);
+  message += '\x1b[36m <=> ' + value + '';
+  if (o !== '{}') {
+    message += '\x1b[2m\x1b[33m [ OPTIONS=' + o + ' ]';
+  }
+  message += '\x1b[0m';
+  this.is(output, expected, message);
+};
+
+export { test, Test };
+export default test;
