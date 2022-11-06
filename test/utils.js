@@ -56,19 +56,41 @@ Test.prototype.runTable = function runSSFTable (pathToTable) {
       t.end();
     });
   });
-}
+};
 
-// extend tape to be able to omit descriptions
-Test.prototype.format = function assertFormat (pattern, value, expected, options = {}) {
-  const output = numfmt.format(pattern, value, options);
+function formatMessage (pattern, value, options) {
   let message = pattern;
-  const o = JSON.stringify(options);
   message += '\x1b[36m <=> ' + value + '';
+  const o = JSON.stringify(options);
   if (o !== '{}') {
     message += '\x1b[2m\x1b[33m [ OPTIONS=' + o + ' ]';
   }
   message += '\x1b[0m';
-  this.is(output, expected, message);
+  return message;
+}
+
+// extend tape to be able to omit descriptions
+
+Test.prototype.format = function assertFormat (pattern, value, expected, options = {}) {
+  const output = numfmt.format(pattern, value, options);
+  this.is(output, expected, formatMessage(pattern, value, options));
+};
+
+Test.prototype.formatInvalid = function assertFormatThrows (pattern, options = {}) {
+  this.throws(
+    () => numfmt(pattern, options),
+    null,
+    formatMessage(pattern, null, options)
+  );
+};
+
+Test.prototype.formatThrows = function assertFormatThrows (pattern, value, expected, options = {}) {
+  const f = numfmt(pattern, options);
+  this.throws(
+    () => f(value, options),
+    expected,
+    formatMessage(pattern, value, options)
+  );
 };
 
 export { test, Test };

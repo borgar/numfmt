@@ -1,27 +1,27 @@
 /* eslint-disable no-loss-of-precision, no-irregular-whitespace */
-import test from 'tape';
+import test from './utils.js';
 import fmt from '../lib/index.js';
 
 test('near zero negatives:', t => {
-  t.equal(fmt('-0')(-1), '--1');
-  t.equal(fmt('-general')(-1), '--1');
+  t.format('-0', -1, '--1');
+  t.format('-general', -1, '--1');
   t.throws(() => fmt('0.0 general'), '0.0 general');
-  t.equal(fmt('0.0')(-1), '-1.0');
-  t.equal(fmt('0.0')(-0.1), '-0.1');
-  t.equal(fmt('-0.0')(-0.01), '-0.0');
-  t.equal(fmt('0.0')(-0.01), '0.0');
-  t.equal(fmt(' - 0.0')(-0.01), ' - 0.0');
-  t.equal(fmt(' - 0.0')(-1), '- - 1.0');
-  t.equal(fmt('0.0;-0.0')(-0.01), '-0.0');
-  t.equal(fmt('# ?/?')(-0.01), '-0    ');
-  t.equal(fmt('\\p\\o\\s 0.0;\\n\\e\\g 0.0;')(-0.01), 'neg 0.0');
+  t.format('0.0', -1, '-1.0');
+  t.format('0.0', -0.1, '-0.1');
+  t.format('-0.0', -0.01, '-0.0');
+  t.format('0.0', -0.01, '0.0');
+  t.format(' - 0.0', -0.01, ' - 0.0');
+  t.format(' - 0.0', -1, '- - 1.0');
+  t.format('0.0;-0.0', -0.01, '-0.0');
+  t.format('# ?/?', -0.01, '-0    ');
+  t.format('\\p\\o\\s 0.0;\\n\\e\\g 0.0;', -0.01, 'neg 0.0');
   t.end();
 });
 
 test('scaling should not mess number up:', t => {
-  t.equal(fmt('0.0%')(0.0295), '3.0%');
-  t.equal(fmt('0.0,')(2950), '3.0');
-  t.equal(fmt('0%')(0), '0%');
+  t.format('0.0%', 0.0295, '3.0%');
+  t.format('0.0,', 2950, '3.0');
+  t.format('0%', 0, '0%');
   t.end();
 });
 
@@ -78,36 +78,36 @@ test('isText:', t => {
 });
 
 test('Date object as a value:', t => {
-  t.equal(fmt('0.######')(new Date(1900, 1 - 1, 0)), '0.');
-  t.equal(fmt('0.######')(new Date(1900, 1 - 1, 1)), '1.');
-  t.equal(fmt('0.######')(new Date(1900, 1 - 1, 2)), '2.');
-  t.equal(fmt('0.######')(new Date(1900, 1 - 1, 3)), '3.');
-  t.equal(fmt('0.######')(new Date(1900, 1 - 1, 4)), '4.');
-  t.equal(fmt('0.######')(new Date(1900, 1 - 1, 5)), '5.');
-  t.equal(fmt('0.######')(new Date(1900, 1 - 1, 20)), '20.');
-  t.equal(fmt('0.######')(new Date(1900, 2 - 1, 1)), '32.');
+  t.format('0.######', new Date(1900, 1 - 1, 0), '0.');
+  t.format('0.######', new Date(1900, 1 - 1, 1), '1.');
+  t.format('0.######', new Date(1900, 1 - 1, 2), '2.');
+  t.format('0.######', new Date(1900, 1 - 1, 3), '3.');
+  t.format('0.######', new Date(1900, 1 - 1, 4), '4.');
+  t.format('0.######', new Date(1900, 1 - 1, 5), '5.');
+  t.format('0.######', new Date(1900, 1 - 1, 20), '20.');
+  t.format('0.######', new Date(1900, 2 - 1, 1), '32.');
   t.equal(fmt('0.######')(new Date(1900, 2 - 1, 28)), '59.', 'new Date(1900, 2 - 1, 28, 0, 0, 0)');
   // 1900-02-29 (serial number 60) is a date that only exists in Excel
   t.equal(fmt('0.######')(new Date(1900, 3 - 1, 1)), '61.', 'new Date(1900, 3 - 1, 1, 0, 0, 0)');
   t.equal(fmt('0.######')(new Date(1900, 3 - 1, 2)), '62.', 'new Date(1900, 3 - 1, 2, 0, 0, 0)');
   t.equal(fmt('0.######')(new Date(1900, 3 - 1, 3)), '63.', 'new Date(1900, 3 - 1, 3, 0, 0, 0)');
-  t.equal(fmt('0.######')(new Date(2000, 10 - 1, 10)), '36809.');
-  t.equal(fmt('0.######')(new Date(2100, 10 - 1, 30)), '73353.');
-  t.equal(fmt('0.######')(new Date(2004, 2 - 1, 29)), '38046.');
-  t.equal(fmt('0.######')(new Date(2020, 2 - 1, 29)), '43890.');
-  t.equal(fmt('0.######')(new Date(2000, 5 - 1, 9, 1, 0, 0)), '36655.041667');
-  t.equal(fmt('0.######')(new Date(1900, 1 - 1, 0, 1, 0, 0)), '0.041667');
-  t.equal(fmt('0.######')(new Date(1900, 1 - 1, 0, 0, 1, 0)), '0.000694');
-  t.equal(fmt('0.######')(new Date(1900, 1 - 1, 0, 0, 0, 1)), '0.000012');
-  t.equal(fmt('0.######')(new Date(1900, 1 - 1, 0, 23, 0, 0)), '0.958333');
-  t.equal(fmt('0.######')(new Date(1900, 1 - 1, 0, 0, 59, 0)), '0.040972');
-  t.equal(fmt('0.######')(new Date(1900, 1 - 1, 0, 0, 0, 59)), '0.000683');
-  t.equal(fmt('0.######')(new Date(1900, 1 - 1, 0, 23, 59, 59)), '0.999988');
-  t.equal(fmt('0.######')(new Date(1909, 1 - 1, 2, 3, 4, 5)), '3290.127836');
-  t.equal(fmt('0.######')(new Date(1909, 1 - 1, 2, 3, 4, 5)), '3290.127836');
+  t.format('0.######', new Date(2000, 10 - 1, 10), '36809.');
+  t.format('0.######', new Date(2100, 10 - 1, 30), '73353.');
+  t.format('0.######', new Date(2004, 2 - 1, 29), '38046.');
+  t.format('0.######', new Date(2020, 2 - 1, 29), '43890.');
+  t.format('0.######', new Date(2000, 5 - 1, 9, 1, 0, 0), '36655.041667');
+  t.format('0.######', new Date(1900, 1 - 1, 0, 1, 0, 0), '0.041667');
+  t.format('0.######', new Date(1900, 1 - 1, 0, 0, 1, 0), '0.000694');
+  t.format('0.######', new Date(1900, 1 - 1, 0, 0, 0, 1), '0.000012');
+  t.format('0.######', new Date(1900, 1 - 1, 0, 23, 0, 0), '0.958333');
+  t.format('0.######', new Date(1900, 1 - 1, 0, 0, 59, 0), '0.040972');
+  t.format('0.######', new Date(1900, 1 - 1, 0, 0, 0, 59), '0.000683');
+  t.format('0.######', new Date(1900, 1 - 1, 0, 23, 59, 59), '0.999988');
+  t.format('0.######', new Date(1909, 1 - 1, 2, 3, 4, 5), '3290.127836');
+  t.format('0.######', new Date(1909, 1 - 1, 2, 3, 4, 5), '3290.127836');
   // these were yielding "Sep 0, 2020"
-  t.equal(fmt('MMM D, YYYY')(new Date(2020, 8 - 1, 31, 13, 3, 0)), 'Aug 31, 2020');
-  t.equal(fmt('MMM D, YYYY')(new Date(Date.parse('2020-08-31T02:42:00.1'))), 'Aug 31, 2020');
+  t.format('MMM D, YYYY', new Date(2020, 8 - 1, 31, 13, 3, 0), 'Aug 31, 2020');
+  t.format('MMM D, YYYY', new Date(Date.parse('2020-08-31T02:42:00.1')), 'Aug 31, 2020');
 
   // test ignoreTimezone
   const testYMD = (y, m, d) => {
@@ -125,8 +125,8 @@ test('Date object as a value:', t => {
 });
 
 test('Significant digits truncation:', t => {
-  t.equal(fmt('General')(3300.0000000000005), '3300');
-  t.equal(fmt('General')(-33000.000000000001), '-33000');
+  t.format('General', 3300.0000000000005, '3300');
+  t.format('General', -33000.000000000001, '-33000');
   t.end();
 });
 
@@ -189,54 +189,54 @@ test('Exponential 0E+00', t => {
 
 test('Order of operators in fractions doesn\'t matter:', t => {
   // 0 after #
-  t.equal(fmt('#.##0')(-10.29), '-10.290');
-  t.equal(fmt('#.###0')(-10.29), '-10.290');
-  t.equal(fmt('#.####0')(-10.29), '-10.290');
-  t.equal(fmt('#.###000')(-10.29), '-10.29000');
-  t.equal(fmt('#.#0#0#0')(-10.29), '-10.2900');
-  t.equal(fmt('#.#00')(1), '1.00');
-  t.equal(fmt('#.####0')(1), '1.0');
-  t.equal(fmt('#.###000')(1), '1.000');
-  t.equal(fmt('#.#0#0#0')(1), '1.000');
-  t.equal(fmt('#.##0')(0.01), '.010');
-  t.equal(fmt('#.###0')(0.01), '.010');
-  t.equal(fmt('#.#00')(0.01), '.010');
-  t.equal(fmt('#.####0')(0.0001), '.00010');
-  t.equal(fmt('#.#00')(0.0001), '.00');
-  t.equal(fmt('#.#0')(0.1), '.10');
-  t.equal(fmt('#.##0')(0.1), '.10');
-  t.equal(fmt('#.###0')(0.1), '.10');
+  t.format('#.##0', -10.29, '-10.290');
+  t.format('#.###0', -10.29, '-10.290');
+  t.format('#.####0', -10.29, '-10.290');
+  t.format('#.###000', -10.29, '-10.29000');
+  t.format('#.#0#0#0', -10.29, '-10.2900');
+  t.format('#.#00', 1, '1.00');
+  t.format('#.####0', 1, '1.0');
+  t.format('#.###000', 1, '1.000');
+  t.format('#.#0#0#0', 1, '1.000');
+  t.format('#.##0', 0.01, '.010');
+  t.format('#.###0', 0.01, '.010');
+  t.format('#.#00', 0.01, '.010');
+  t.format('#.####0', 0.0001, '.00010');
+  t.format('#.#00', 0.0001, '.00');
+  t.format('#.#0', 0.1, '.10');
+  t.format('#.##0', 0.1, '.10');
+  t.format('#.###0', 0.1, '.10');
   // 0 after ?
-  t.equal(fmt('#.?00')(1), '1. 00');
-  t.equal(fmt('#.?0')(0.0001), '. 0');
-  t.equal(fmt('#.????0')(-10.29), '-10.29  0');
-  t.equal(fmt('#.????0')(0.01), '.01  0');
+  t.format('#.?00', 1, '1. 00');
+  t.format('#.?0', 0.0001, '. 0');
+  t.format('#.????0', -10.29, '-10.29  0');
+  t.format('#.????0', 0.01, '.01  0');
   // split pattern
-  t.equal(fmt('#.#x#0')(1), '1.x0');
-  t.equal(fmt('#.#x#0')(0.1), '.1x0');
-  t.equal(fmt('#.??x?0')(0.01), '.01x 0');
+  t.format('#.#x#0', 1, '1.x0');
+  t.format('#.#x#0', 0.1, '.1x0');
+  t.format('#.??x?0', 0.01, '.01x 0');
   t.end();
 });
 
 test('Order of operators in integers doesn\'t matter:', t => {
-  t.equal(fmt('0#')(0), '0');
-  t.equal(fmt('0?')(0), '0 ');
-  t.equal(fmt('0#0#')(0), '00');
-  t.equal(fmt('0?0?')(0), '0 0 ');
+  t.format('0#', 0, '0');
+  t.format('0?', 0, '0 ');
+  t.format('0#0#', 0, '00');
+  t.format('0?0?', 0, '0 0 ');
   t.end();
 });
 
 test('Automatic minus injection for the third condition:', t => { // issue #27
-  t.equal(fmt('[>=100]#,##0;[<=-100]-#,##0;#,##0.00')(-3.96), '-3.96');
-  t.equal(fmt('[>=100]#,##0;[<=-100]-#,##0;-#,##0.00')(-3.96), '--3.96');
-  t.equal(fmt('[>=100]0;[<=-100]-0;"xx"0')(-10), '-xx10');
-  t.equal(fmt('[<=-100]-0;"xx"0')(-10), 'xx10');
+  t.format('[>=100]#,##0;[<=-100]-#,##0;#,##0.00', -3.96, '-3.96');
+  t.format('[>=100]#,##0;[<=-100]-#,##0;-#,##0.00', -3.96, '--3.96');
+  t.format('[>=100]0;[<=-100]-0;"xx"0', -10, '-xx10');
+  t.format('[<=-100]-0;"xx"0', -10, 'xx10');
   t.end();
 });
 
 test('Excel ignores extra , in fractions:', t => { // issue #22
-  t.equal(fmt('#.##0,00')(0), '.000');
-  t.equal(fmt('#.##0,0,0')(0), '.000');
+  t.format('#.##0,00', 0, '.000');
+  t.format('#.##0,0,0', 0, '.000');
   t.end();
 });
 
