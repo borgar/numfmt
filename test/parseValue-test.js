@@ -1,6 +1,10 @@
 import tape from 'tape';
 import numfmt from '../lib/index.js';
 
+const _y = new Date().getUTCFullYear();
+const currentYear = numfmt.dateToSerial([ _y, 1, 1 ]);
+const leapDay = (!(_y % 4) && _y % 100) || !(_y % 400) ? 1 : 0;
+
 const tests = [
   // general
   [ '1234', 1234, null ],
@@ -218,26 +222,26 @@ const tests = [
   [ '1984/October/6', 30961, 'yyyy/mmmm/d' ],
   [ '82/Nov/6', 30261, 'yy/mmm/d' ],
   [ '1984/Nov/6', 30992, 'yyyy/mmm/d' ],
-  [ '07/05', 44747, 'mm/dd' ],
-  [ '07/4', 44746, 'mm/dd' ],
-  [ '07/October', 44841, 'dd/mmmm' ],
-  [ '07/Nov', 44872, 'dd/mmm' ],
-  [ '6/05', 44717, 'mm/dd' ],
-  [ '6/4', 44716, 'm/d' ],
-  [ '6/October', 44840, 'd/mmmm' ],
-  [ '6/Nov', 44871, 'd/mmm' ],
+  [ '07/05', currentYear + leapDay + 185, 'mm/dd' ],
+  [ '07/4', currentYear + leapDay + 184, 'mm/dd' ],
+  [ '07/October', currentYear + leapDay + 279, 'dd/mmmm' ],
+  [ '07/Nov', currentYear + leapDay + 310, 'dd/mmm' ],
+  [ '6/05', currentYear + leapDay + 155, 'mm/dd' ],
+  [ '6/4', currentYear + leapDay + 154, 'm/d' ],
+  [ '6/October', currentYear + leapDay + 278, 'd/mmmm' ],
+  [ '6/Nov', currentYear + leapDay + 309, 'd/mmm' ],
   [ '07/82', null, null ],
   [ '07/1984', 30864, 'mm/yyyy' ],
   [ '6/82', null, null ],
   [ '6/1984', 30834, 'm/yyyy' ],
-  [ '05/07', 44688, 'mm/dd' ],
-  [ '4/07', 44658, 'mm/dd' ],
-  [ 'October/07', 44841, 'mmmm/dd' ],
-  [ 'Nov/07', 44872, 'mmm/dd' ],
-  [ '05/6', 44687, 'mm/dd' ],
-  [ '4/6', 44657, 'm/d' ],
-  [ 'October/6', 44840, 'mmmm/d' ],
-  [ 'Nov/6', 44871, 'mmm/d' ],
+  [ '05/07', currentYear + leapDay + 126, 'mm/dd' ],
+  [ '4/07', currentYear + leapDay + 96, 'mm/dd' ],
+  [ 'October/07', currentYear + leapDay + 279, 'mmmm/dd' ],
+  [ 'Nov/07', currentYear + leapDay + 310, 'mmm/dd' ],
+  [ '05/6', currentYear + leapDay + 125, 'mm/dd' ],
+  [ '4/6', currentYear + leapDay + 95, 'm/d' ],
+  [ 'October/6', currentYear + leapDay + 278, 'mmmm/d' ],
+  [ 'Nov/6', currentYear + leapDay + 309, 'mmm/d' ],
   [ '05/82', null, null ],
   [ '05/1984', 30803, 'mm/yyyy' ],
   [ '4/82', null, null ],
@@ -579,4 +583,3 @@ tape(t => {
 
   t.end();
 });
-
