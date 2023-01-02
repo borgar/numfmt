@@ -8,6 +8,31 @@ import { URL, fileURLToPath } from 'url';
 
 const VALUE_ERROR = '#VALUE!';
 
+function getTimeZoneName () {
+  const ds = new Date().toString();
+  return ds.replace(/^.*GMT\+\d{4} \((.*?)\)$/, '$1');
+}
+
+function getTimeZoneOffset (d) {
+  const temp = new Date();
+  temp.setUTCFullYear(
+    d.getFullYear(),
+    d.getMonth(),
+    d.getDate()
+  );
+  temp.setUTCHours(
+    d.getHours(),
+    d.getMinutes(),
+    d.getSeconds(),
+    d.getMilliseconds()
+  );
+  return (d - temp) / 60000;
+}
+
+function isLeapYear (year) {
+  return !!(!(year % 4) && year % 100) || !(year % 400);
+}
+
 Test.prototype.runTable = function runSSFTable (pathToTable) {
   const filename = fileURLToPath(new URL(pathToTable, import.meta.url));
   // eslint-disable-next-line
@@ -93,5 +118,5 @@ Test.prototype.formatThrows = function assertFormatThrows (pattern, value, expec
   );
 };
 
-export { test, Test };
+export { test, Test, getTimeZoneName, getTimeZoneOffset, isLeapYear };
 export default test;

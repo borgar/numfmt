@@ -1,5 +1,5 @@
 /* eslint-disable no-loss-of-precision, no-irregular-whitespace */
-import test from './utils.js';
+import test, { getTimeZoneName, getTimeZoneOffset } from './utils.js';
 import fmt from '../lib/index.js';
 
 test('near zero negatives:', t => {
@@ -78,6 +78,9 @@ test('isText:', t => {
 });
 
 test('Date object as a value:', t => {
+  process.env.TZ = 'Etc/UTC';
+  t.equal(getTimeZoneName(), 'Coordinated Universal Time');
+
   t.format('0.######', new Date(1900, 1 - 1, 0), '0.');
   t.format('0.######', new Date(1900, 1 - 1, 1), '1.');
   t.format('0.######', new Date(1900, 1 - 1, 2), '2.');
@@ -112,14 +115,15 @@ test('Date object as a value:', t => {
   // test ignoreTimezone
   const testYMD = (y, m, d) => {
     const dt = new Date(y, m, d);
-    const tzSkew = dt.getTimezoneOffset() / (60 * 24);
+    const tzSkew = getTimeZoneOffset(dt) / (60 * 24);
     const output = fmt('General')(dt, { ignoreTimezone: true });
     const diff = (output.replace(/^\d*(\.\d*)?$/, '0$1')) - tzSkew;
     return Math.abs(diff);
   };
-  t.ok(testYMD(1900, 1 - 1, 0) < 0.00001, '1900 [ignoreTimezone]');
-  t.ok(testYMD(1950, 1 - 1, 0) < 0.00001, '1950 [ignoreTimezone]');
-  t.ok(testYMD(2000, 1 - 1, 0) < 0.00001, '2000 [ignoreTimezone]');
+
+  t.ok(testYMD(1900, 0, 0) < 0.00001, '1900 [ignoreTimezone]');
+  t.ok(testYMD(1950, 0, 0) < 0.00001, '1950 [ignoreTimezone]');
+  t.ok(testYMD(2000, 0, 0) < 0.00001, '2000 [ignoreTimezone]');
 
   t.end();
 });

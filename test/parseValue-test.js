@@ -1,9 +1,9 @@
-import tape from 'tape';
+/* globals process */
+import tape, { getTimeZoneName, isLeapYear } from './utils.js';
 import numfmt from '../lib/index.js';
 
-const _y = new Date().getUTCFullYear();
-const currentYear = numfmt.dateToSerial([ _y, 1, 1 ]);
-const leapDay = (!(_y % 4) && _y % 100) || !(_y % 400) ? 1 : 0;
+const currentYear = numfmt.dateToSerial([ new Date().getUTCFullYear(), 1, 1 ]);
+const leapDay = isLeapYear(new Date().getUTCFullYear()) ? 1 : 0;
 
 const tests = [
   // general
@@ -479,7 +479,10 @@ const tests = [
   [ ' FALSE ', false, null ]
 ];
 
-tape(t => {
+tape('numfmt.parseNumber', t => {
+  process.env.TZ = 'Asia/Calcutta';
+  t.equal(getTimeZoneName(), 'India Standard Time', 'Timezone is IST');
+
   t.deepLooseEqual(
     numfmt.parseNumber('-123'),
     { v: -123 },

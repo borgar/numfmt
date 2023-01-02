@@ -118,7 +118,7 @@ Only the first section is mandatory, the others are filled in as needed. The sec
 
 Constructs a new _formatter_ function with the specified options.
 
-Pattern must be a string according to the [ECMA-376][ecma] number format. <a href="#the-options">Options</a> should be an object of options. You may change defaults once for all instances using <a href="#numfmt-options-options">numfmt.options</a>.
+Pattern must be a string according to the [ECMA-376][ecma] number format. <a href="#the-options">Options</a> should be an object of options. You may change defaults once for all instances using <a href="#numfmtoptionsoptions">numfmt.options</a>.
 
 
 #### _formatter_(value[, options])
@@ -341,7 +341,7 @@ Internally the parser calls, `numfmt.parseNumber`, `numfmt.parseDate`, `numfmt.p
 
 Be warned that the parser do not (yet) take locale into account so all input is assumed to be in "en-US". This means that `1,234.5` will parse, but `1.234,5` will not. Similarily, the order of date parts will be US centeric. This may change in the future so be careful what options you pass the functions.
 
-The parser does not listen to globally set default options (as set with [numfmt.options](#numfmt-options-options)).
+The parser does not listen to globally set default options (as set with [numfmt.options](#numfmtoptionsoptions)).
 
 
 ### numfmt.**parseNumber**(value[, options])
@@ -398,7 +398,7 @@ numfmt.dateToSerial([ 1978, 5, 17 ]); // 28627
 numfmt.dateToSerial("something else"); // "something else"
 ````
 
-This function does not listen to globally set default options (as set with [numfmt.options](#numfmt-options-options)).
+This function does not listen to globally set default options (as set with [numfmt.options](#numfmtoptionsoptions)).
 
 
 ### numfmt.**dateFromSerial**(value[, options])
@@ -412,7 +412,7 @@ numfmt.dateToSerial(28627); // [ 1978, 5, 17, 0, 0 ,0 ]
 numfmt.dateFromSerial(28627, { nativeDate: true }); // new Date(1978, 5, 17)
 ````
 
-This function does not listen to globally set default options (as set with [numfmt.options](#numfmt-options-options)).
+This function does not listen to globally set default options (as set with [numfmt.options](#numfmtoptionsoptions)).
 
 
 ### numfmt.**options**(options)

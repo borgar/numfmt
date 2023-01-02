@@ -1,5 +1,5 @@
 /* global process */
-import test from 'tape';
+import test, { getTimeZoneName } from './utils.js';
 import fmt from '../lib/index.js';
 
 const excelOpts = { dateSpanLarge: false, dateErrorNumber: false };
@@ -124,12 +124,13 @@ test('options work for .format too:', t => {
 if (parseInt(process.version.replace(/^v/, ''), 10) >= 14) {
   test('option: ignoreTimezone', t => {
     process.env.TZ = 'Asia/Calcutta';
+    t.equal(getTimeZoneName(), 'India Standard Time', 'Timezone is IST');
     const baseDate = new Date(2000, 0, 1);
     t.equal(baseDate.toUTCString(), 'Fri, 31 Dec 1999 18:30:00 GMT', 'Date has a timezone');
     const gmtStr = 'ddd, dd mmm yyyy hh:mm:ss "GMT"';
-    t.equal(fmt.format(gmtStr, baseDate), 'Sat, 01 Jan 2000 00:00:00 GMT', 'No setting');
-    t.equal(fmt.format(gmtStr, baseDate, { ignoreTimezone: true }), 'Fri, 31 Dec 1999 18:30:00 GMT', 'True');
-    t.equal(fmt.format(gmtStr, baseDate, { ignoreTimezone: false }), 'Sat, 01 Jan 2000 00:00:00 GMT', 'False');
+    t.equal(fmt.format(gmtStr, baseDate, { nbsp: 0 }), 'Sat, 01 Jan 2000 00:00:00 GMT', 'No setting');
+    t.equal(fmt.format(gmtStr, baseDate, { nbsp: 0, ignoreTimezone: true }), 'Fri, 31 Dec 1999 18:30:00 GMT', 'True');
+    t.equal(fmt.format(gmtStr, baseDate, { nbsp: 0, ignoreTimezone: false }), 'Sat, 01 Jan 2000 00:00:00 GMT', 'False');
     t.end();
   });
 }
