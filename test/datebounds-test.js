@@ -67,7 +67,8 @@ test('dateSpanLarge: ON', t => {
   t.equal(fmt(ISODATETIME)(35830291, { leap1900: false, dateSpanLarge: true, dateErrorNumber: false }), '######', 'out of bounds [MAX]');
   t.equal(fmt(ISODATETIME)(35830291, { leap1900: false, dateSpanLarge: true, dateErrorNumber: true }), '35830291', 'out of bounds [MAX] (number mode)');
 
-  // Google Sheets emits "00-1-01-02" for TEXT(-694324, ISODATE) which is clearly not useful to anyone
+  // Google Sheets emits "00-1-01-02" for TEXT(-694324, ISODATE)
+  // this is does not seem all that useful to anyone
   t.equal(fmt(ISODATE)(-694323, { leap1900: false, dateSpanLarge: true, dateErrorNumber: false }), '-0001-01-02', '-0001-01-02');
   t.equal(fmt(ISODATE)(-694324, { leap1900: false, dateSpanLarge: true, dateErrorNumber: false }), '-0001-01-01', '-0001-01-01');
   t.equal(fmt(ISODATETIME)(-694324.1, { leap1900: false, dateSpanLarge: true, dateErrorNumber: false }), '######', 'out of bounds [MIN]');

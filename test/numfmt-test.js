@@ -1,3 +1,4 @@
+/* globals process */
 /* eslint-disable no-loss-of-precision, no-irregular-whitespace */
 import test, { getTimeZoneName, getTimeZoneOffset } from './utils.js';
 import fmt from '../lib/index.js';
