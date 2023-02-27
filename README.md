@@ -111,6 +111,12 @@ Only the first section is mandatory, the others are filled in as needed. The sec
 | `[m]` | Minutes | Elapsed time in minutes
 | `[s]` | Seconds | Elapsed time in seconds
 
+The <POSITIVE> and <NEGATIVE> sections may optionally have conditionals. A condition is set by a comparison operator followed by a number, followed by the regular format symbols, surrounded by square brackets: `[>=-2.5]#,##0.0`. The supported set of operators is: `=` `>` `<` `>=` `<=` `<>`
+  
+* There must not be more than 4 sections.
+* There must not be more than 2 conditional sections.
+* There must not be numerical or date emitting symbol in the (4th) text part.
+
 
 ## API Reference
 
