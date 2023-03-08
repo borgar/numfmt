@@ -169,11 +169,11 @@ const tests = [
   [ '(1234.56$)', -1234.56, '#,##0.00$' ],
   [ '( 1234.56 $ )', -1234.56, '#,##0.00$' ],
   [ '((1234.56$))', null, null ],
-  
+
   // multiple currency symbols in input
-  [ '$$1234', null, '$#,##0' ],
-  [ '$€1234', null, '$#,##0' ],
-  [ '€$1234', null, '€#,##0' ],
+  [ '$$1234', null, null ],
+  [ '$€1234', null, null ],
+  [ '€$1234', null, null ],
 
   // some rejects
   [ '%12e+1', null, null ],
@@ -627,12 +627,13 @@ tape('numfmt.parseNumber', t => {
       t.equal(p.v, value, `valueOf("${input}")`);
     }
   });
+
   // test format selection
   tests.forEach(ts => {
-    const [ input, value, format ] = ts;
+    const [ input, , format ] = ts;
     const p = numfmt.parseValue(input);
     if (p == null) {
-      t.equal(null, value, input);
+      t.equal(null, format, input);
     }
     else {
       t.equal(p.z ?? null, format, `formatOf("${input}")`);
