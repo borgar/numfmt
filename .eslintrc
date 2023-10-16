@@ -1,20 +1,23 @@
 {
-  extends: [ '@borgar/eslint-config' ],
-  parserOptions: {
-    ecmaVersion: 2020,
-    sourceType: 'module',
+  "extends": [ "@borgar/eslint-config", "@borgar/eslint-config/jsdoc" ],
+  "parserOptions": {
+    "ecmaVersion": 2021,
+    "sourceType": "module",
+    "requireConfigFile": false,
   },
-  rules: {
-    'import/export': 'error',
-    'import/no-unresolved': 'error'
+  "rules": {
+    "import/export": "error",
+    "import/no-unresolved": "error",
+    "no-mixed-operators": "off",
+    "jsdoc/no-undefined-types": "off",
   },
-  globals: {
-    console,
-    Set,
-    require,
-    module
+  "globals": {
+    "console": true,
+    "Set": true,
+    "require": true,
+    "module": true,
   },
-  plugins: [
-    'import'
+  "plugins": [
+    "import"
   ]
 }

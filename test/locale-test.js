@@ -1,5 +1,5 @@
 import test from './utils.js';
-import fmt from '../lib/index.js';
+import { addLocale } from '../lib/index.js';
 
 const date = 3290.1278435; // 1909-01-02 03:04:05.678
 
@@ -8,7 +8,7 @@ test('locale options', t => {
   t.format('dddd, dd. mmmm yyy', date, 'Saturday, 02. January 1909');
 
   // General is localized
-  fmt.addLocale({
+  addLocale({
     decimal: '·',
     positive: 'ᐩ',
     negative: '÷',
@@ -21,7 +21,7 @@ test('locale options', t => {
   t.format('General', 1234.56, '1234·56', { locale: 'xx' });
   t.format('General', 0.1, '0·1', { locale: 'xx' });
 
-  // different locale address modes (is-IS is not supported)
+  // different locale address modes (is-IS is not supported, while is_IS is)
   t.format('[$-is]dddd, dd. mmmm yyy', date, 'laugardagur, 02. janúar 1909');
   t.format('[$-is_IS]dddd, dd. mmmm yyy', date, 'laugardagur, 02. janúar 1909');
   t.format('[$-is_IS]dddd, dd. mmmm yyy', date, 'laugardagur, 02. janúar 1909');
@@ -32,7 +32,6 @@ test('locale options', t => {
   t.format('[$-0000040F]dddd, dd. mmmm yyy', date, 'laugardagur, 02. janúar 1909');
   t.format('[$-0101040F]dddd, dd. mmmm yyy', date, 'laugardagur, 02. janúar 1909');
   t.format('dddd, dd. mmmm yyy', date, 'laugardagur, 02. janúar 1909', { locale: 'is' });
-  t.format('dddd, dd. mmmm yyy', date, 'laugardagur, 02. janúar 1909', 'is');
   // setting a locale does not overwrite the format locale
   t.format('[$-040F]dddd, dd. mmmm yyy', date, 'laugardagur, 02. janúar 1909', { locale: 'fr' });
 

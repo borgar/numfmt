@@ -1,7 +1,7 @@
 /* globals process */
 /* eslint-disable no-loss-of-precision */
 import test, { getTimeZoneName } from './utils.js';
-import fmt from '../lib/index.js';
+import { dateToSerial, dateFromSerial } from '../lib/index.js';
 
 function round (n) {
   return Math.round(n * 1e10) / 1e10;
@@ -13,7 +13,7 @@ test('dateToSerial (Date):', t => {
 
   const testYMD = (y, m, d, hh, mm, ss, tz = false) => {
     const dt = new Date(y, m - 1, d, hh, mm, ss);
-    return round(fmt.dateToSerial(dt, { ignoreTimezone: tz }));
+    return round(dateToSerial(dt, { ignoreTimezone: tz }));
   };
 
   t.equal(testYMD(1978, 5, 17, 10, 25, 30, true), 28627.2052083333, '[1978, 5, 17, 10, 25, 30] ignoreTimezone');
@@ -36,7 +36,7 @@ test('dateToSerial (Date):', t => {
 
 test('dateToSerial (Array):', t => {
   const testYMD = (y, m, d, hh, mm, ss, tz = false) => {
-    return round(fmt.dateToSerial(
+    return round(dateToSerial(
       [ y, m, d, hh, mm, ss ],
       { ignoreTimezone: tz }
     ));
@@ -56,39 +56,43 @@ test('dateToSerial (Array):', t => {
 
 test('dateFromSerial:', t => {
   process.env.TZ = 'Europe/Amsterdam';
-  t.equal(getTimeZoneName(), 'Central European Standard Time', 'Timezone is Central European Standard Time');
+  const timeZoneName = getTimeZoneName();
+  t.ok(
+    /^Central European (Standard|Summer) Time$/.test(timeZoneName),
+    'Timezone is Central European Standard Time'
+  );
 
   t.deepLooseEqual(
-    fmt.dateFromSerial(1234),
+    dateFromSerial(1234),
     [ 1903, 5, 18, 0, 0, 0 ],
     'dateFromSerial(1234)'
   );
   t.deepLooseEqual(
-    fmt.dateFromSerial(1234.567),
+    dateFromSerial(1234.567),
     [ 1903, 5, 18, 13, 36, 28 ],
     'dateFromSerial(1234)'
   );
   t.deepLooseEqual(
-    fmt.dateFromSerial(12),
+    dateFromSerial(12),
     [ 1900, 1, 12, 0, 0, 0 ],
     'dateFromSerial(12)'
   );
   t.deepLooseEqual(
-    fmt.dateFromSerial(24052.8361),
+    dateFromSerial(24052.8361),
     [ 1965, 11, 6, 20, 3, 59 ],
     'dateFromSerial(24052.8361)'
   );
   t.deepLooseEqual(
-    fmt.dateFromSerial(42341),
+    dateFromSerial(42341),
     [ 2015, 12, 3, 0, 0, 0 ],
     'dateFromSerial(42341)'
   );
 
   // as native dates
-  const d1 = fmt.dateFromSerial(1234, { nativeDate: true });
+  const d1 = dateFromSerial(1234, { nativeDate: true });
   t.ok(d1 instanceof Date, 'is date');
   t.equal(d1.toISOString(), '1903-05-18T00:00:00.000Z', '[native] dateFromSerial(1234)');
-  const d2 = fmt.dateFromSerial(1234.567, { nativeDate: true });
+  const d2 = dateFromSerial(1234.567, { nativeDate: true });
   t.ok(d2 instanceof Date, 'is date');
   t.equal(d2.toISOString(), '1903-05-18T13:36:28.000Z', '[native] dateFromSerial(1234.567)');
   t.end();

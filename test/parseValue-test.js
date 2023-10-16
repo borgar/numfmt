@@ -1,8 +1,8 @@
 /* globals process */
 import tape, { getTimeZoneName, isLeapYear } from './utils.js';
-import numfmt from '../lib/index.js';
+import { dateToSerial, parseBool, parseDate, parseNumber, parseTime, parseValue } from '../lib/index.js';
 
-const currentYear = numfmt.dateToSerial([ new Date().getUTCFullYear(), 1, 1 ]);
+const currentYear = dateToSerial([ new Date().getUTCFullYear(), 1, 1 ]);
 const leapDay = isLeapYear(new Date().getUTCFullYear()) ? 1 : 0;
 
 const tests = [
@@ -535,91 +535,91 @@ const tests = [
   [ ' FALSE ', false, null ]
 ];
 
-tape('numfmt.parseNumber', t => {
+tape('parseNumber', t => {
   process.env.TZ = 'Asia/Calcutta';
   t.equal(getTimeZoneName(), 'India Standard Time', 'Timezone is IST');
 
   t.deepLooseEqual(
-    numfmt.parseNumber('-123'),
+    parseNumber('-123'),
     { v: -123 },
-    'numfmt.parseNumber parses numbers'
+    'parseNumber parses numbers'
   );
   t.deepLooseEqual(
-    numfmt.parseNumber('1999.10.01'),
+    parseNumber('1999.10.01'),
     null,
-    'numfmt.parseNumber does not parse invalid numbers'
+    'parseNumber does not parse invalid numbers'
   );
   t.deepLooseEqual(
-    numfmt.parseNumber('1999-10-01'),
+    parseNumber('1999-10-01'),
     null,
-    'numfmt.parseNumber does not parse non-numbers'
+    'parseNumber does not parse non-numbers'
   );
 
   t.deepLooseEqual(
-    numfmt.parseDate('1999-10-01 12:00:00'),
+    parseDate('1999-10-01 12:00:00'),
     { v: 36434.5, z: 'yyyy-mm-dd hh:mm:ss' },
-    'numfmt.parseDate parses dates'
+    'parseDate parses dates'
   );
   t.deepLooseEqual(
-    numfmt.parseDate('-123'),
+    parseDate('-123'),
     null,
-    'numfmt.parseDate does not parse non-dates'
+    'parseDate does not parse non-dates'
   );
   t.deepLooseEqual(
-    numfmt.parseDate('1999-10-01 12:00:00', { nativeDate: true }),
+    parseDate('1999-10-01 12:00:00', { nativeDate: true }),
     { v: new Date(1999, 9, 1, 17, 30), z: 'yyyy-mm-dd hh:mm:ss' },
-    'numfmt.parseDate parses and emits native dates'
+    'parseDate parses and emits native dates'
   );
 
   t.deepLooseEqual(
-    numfmt.parseTime('09:18 PM'),
+    parseTime('09:18 PM'),
     { v: 0.8875, z: 'hh:mm AM/PM' },
-    'numfmt.parseTime parses time'
+    'parseTime parses time'
   );
   t.deepLooseEqual(
-    numfmt.parseTime('-123'),
+    parseTime('-123'),
     null,
-    'numfmt.parseTime does not parse non-time'
+    'parseTime does not parse non-time'
   );
 
   t.deepLooseEqual(
-    numfmt.parseBool('False'),
+    parseBool('False'),
     { v: false },
-    'numfmt.parseBool parses booleans'
+    'parseBool parses booleans'
   );
   t.deepLooseEqual(
-    numfmt.parseBool('-123'),
+    parseBool('-123'),
     null,
-    'numfmt.parseBool does not parse non-booleans'
+    'parseBool does not parse non-booleans'
   );
 
   t.deepLooseEqual(
-    numfmt.parseBool('False'),
+    parseBool('False'),
     { v: false },
-    'numfmt.parseBool parses booleans'
+    'parseBool parses booleans'
   );
   t.deepLooseEqual(
-    numfmt.parseBool('-123'),
+    parseBool('-123'),
     null,
-    'numfmt.parseBool does not parse non-booleans'
+    'parseBool does not parse non-booleans'
   );
 
   t.deepLooseEqual(
-    numfmt.parseDate('5.2022'),
+    parseDate('5.2022'),
     null,
-    'numfmt.parseDate does not parse "decimals"'
+    'parseDate does not parse "decimals"'
   );
 
   t.deepLooseEqual(
-    numfmt.parseValue('1999-10-01 12:00:00', { nativeDate: true }),
+    parseValue('1999-10-01 12:00:00', { nativeDate: true }),
     { v: new Date(1999, 9, 1, 17, 30), z: 'yyyy-mm-dd hh:mm:ss' },
-    'numfmt.parseValue parses and emits native dates'
+    'parseValue parses and emits native dates'
   );
 
   // test value parsing
   tests.forEach(ts => {
     const [ input, value ] = ts;
-    const p = numfmt.parseValue(input);
+    const p = parseValue(input);
     if (p == null) {
       t.equal(null, value, input);
     }
@@ -631,7 +631,7 @@ tape('numfmt.parseNumber', t => {
   // test format selection
   tests.forEach(ts => {
     const [ input, , format ] = ts;
-    const p = numfmt.parseValue(input);
+    const p = parseValue(input);
     if (p == null) {
       t.equal(null, format, input);
     }
