@@ -504,3 +504,19 @@ test('General format', t => {
   t.equal(_f(null), '');
   t.end();
 });
+
+test('No decimal point', t => {
+  const _f = fmt('General');
+  t.equal(_f(0.9999999999999999), '1');
+  t.equal(_f(0.999999999999999), '1');
+  t.equal(_f(0.99999999999999), '1');
+  t.equal(_f(0.9999999999999), '1');
+  t.equal(_f(0.999999999999), '1');
+  t.equal(_f(0.99999999999), '1');
+  t.equal(_f(0.9999999999), '1'); // Sheets emits "0.9999999999" here which is not by spec
+  t.equal(_f(0.999999999), '0.999999999'); // Excel yeilds a "1" here, but this is not by spec
+  t.equal(_f(0.99999999), '0.99999999');
+  t.equal(_f(0.9999999), '0.9999999');
+  t.equal(_f(0.999999), '0.999999');
+  t.end();
+});
