@@ -1,8 +1,42 @@
-import test from 'tape';
+import test from './utils.js';
 import fmt from '../lib/index.js';
 
 const ISODATE = 'yyyy-mm-dd';
 const ISODATETIME = 'yyyy-mm-dd\\Thh:mm:ss';
+
+test('dateSpanLarge: OFF', t => {
+  const opts = { leap1900: false, dateSpanLarge: false, dateErrorThrows: true };
+
+  t.throws(() => fmt(ISODATE, opts)(-0.1), '-0.1');
+  t.throws(() => fmt(ISODATE, opts)(-0.01), '-0.01');
+  t.throws(() => fmt(ISODATE, opts)(-0.001), '-0.001');
+  t.throws(() => fmt(ISODATE, opts)(-0.0001), '-0.0001');
+  t.throws(() => fmt(ISODATE, opts)(-0.00001), '-0.00001');
+  t.throws(() => fmt(ISODATE, opts)(-0.000001), '-0.000001');
+  t.equal(fmt(ISODATE, opts)(0), '1899-12-30', '0');
+
+  t.throws(() => fmt(ISODATE, opts)(2958465.99999422), '2958465.99999422');
+  t.equal(fmt(ISODATE, opts)(2958465.99999421), '9999-12-31', '2958465.99999421');
+
+  const dt = 'yyyy-mm-dd/hh:mm:ss';
+  t.throws(() => fmt(dt, opts)(2958465.99999422), '2958465.99999422');
+  t.equal(fmt(dt, opts)(2958465.99999421), '9999-12-31/23:59:59', '2958465.99999421');
+
+  const dt0 = 'yyyy-mm-dd/hh:mm:ss.0';
+  t.throws(() => fmt(dt0, opts)(2958465.99999943), '2958465.99999943');
+  t.equal(fmt(dt0, opts)(2958465.99999942), '9999-12-31/23:59:59.9', '2958465.99999942');
+
+  const dt00 = ISODATE + '/hh:mm:ss.00';
+  t.throws(() => fmt(dt00, opts)(2958465.99999995), '2958465.99999995');
+  t.equal(fmt(dt00, opts)(2958465.99999994), '9999-12-31/23:59:59.99', '2958465.99999994');
+
+  const dt000 = ISODATE + '/hh:mm:ss.000';
+  // Excel can't really represent 2958465.999999995 so this never happens, but:
+  t.throws(() => fmt(dt000, opts)(2958465.999999995), '2958465.99999999');
+  t.equal(fmt(dt000, opts)(2958465.99999999), '9999-12-31/23:59:59.999', '2958465.99999999');
+
+  t.end();
+});
 
 test('dateSpanLarge: ON', t => {
   t.equal(fmt(ISODATETIME)(0.1, { leap1900: false, dateSpanLarge: true }), '1899-12-30T02:24:00', '1899-12-30T02:24:00');
@@ -208,4 +242,3 @@ test('Excel 1900 bug: OFF', t => {
   t.equal(fmt(ISODATE)(0, { leap1900: false }), '1899-12-30', '1899-12-30');
   t.end();
 });
-
