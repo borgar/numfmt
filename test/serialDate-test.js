@@ -56,7 +56,10 @@ test('dateToSerial (Array):', t => {
 
 test('dateFromSerial:', t => {
   process.env.TZ = 'Europe/Amsterdam';
-  t.equal(getTimeZoneName(), 'Central European Standard Time', 'Timezone is Central European Standard Time');
+  t.ok(
+    /^Central European (Standard|Summer) Time$/.test(getTimeZoneName()),
+    'Timezone is Central European Standard Time'
+  );
 
   t.deepLooseEqual(
     fmt.dateFromSerial(1234),
