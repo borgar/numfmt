@@ -1,59 +1,9 @@
-import test, { Test } from 'tape';
-import fmt from '../lib/index.js';
-
-const commonProps = {
-  isDate: false,
-  isText: false,
-  isPercent: false,
-  maxDecimals: 0,
-  grouped: 0,
-  parentheses: 0,
-  color: 0,
-  scale: 1,
-  level: 0
-};
-
-function alphabetizeProps (obj) {
-  const keys = Object.keys(obj).sort();
-  return keys.reduce((a, c) => { a[c] = obj[c]; return a; }, {});
-}
-
-Test.prototype.assertInfo = function (fmtString, expectProps) {
-  const output = { ...fmt(fmtString).info };
-  delete output._partitions;
-  this.deepEqual(
-    alphabetizeProps(output),
-    alphabetizeProps({ ...commonProps, ...expectProps }),
-    fmtString
-  );
-};
-
-const commonDateProps = {
-  year: false,
-  month: false,
-  day: false,
-  hours: false,
-  minutes: false,
-  seconds: false,
-  clockType: 24
-};
-
-Test.prototype.assertDateInfo = function (fmtString, expectProps) {
-  const output = fmt(fmtString).dateInfo;
-  delete output._partitions;
-  this.deepEqual(
-    alphabetizeProps(output),
-    alphabetizeProps({ ...commonDateProps, ...expectProps }),
-    fmtString
-  );
-};
+import { getFormatInfo } from '../lib/index.js';
+import test from './utils.js';
 
 test('numfmt.info', t => {
-  t.equal(typeof fmt.getInfo, 'function', 'numfmt.info exists');
-  const i1 = { ...fmt.getInfo('0') };
-  t.equal(typeof i1, 'object', 'numfmt.info emits object');
-  t.equal(Array.isArray(i1._partitions), true, 'numfmt.info object has partitions');
-  i1._partitions = null;
+  const i1 = { ...getFormatInfo('0') };
+  t.equal(typeof i1, 'object', 'getFormatInfo emits object');
   t.deepEqual(i1, {
     type: 'number',
     isDate: false,
@@ -65,14 +15,11 @@ test('numfmt.info', t => {
     parentheses: 0,
     grouped: 0,
     code: 'F0',
-    level: 4,
-    _partitions: null
+    level: 4
   }, 'numfmt.info object is what we expect');
 
-  const i2 = { ...fmt('0').info };
+  const i2 = { ...getFormatInfo('0') };
   t.equal(typeof i2, 'object', 'formatters have info objects');
-  t.equal(Array.isArray(i2._partitions), true, 'formatters info has partitions');
-  i2._partitions = null;
   t.deepEqual(i2, {
     type: 'number',
     isDate: false,
@@ -84,11 +31,10 @@ test('numfmt.info', t => {
     parentheses: 0,
     grouped: 0,
     code: 'F0',
-    level: 4,
-    _partitions: null
+    level: 4
   }, 'formatters info is what we expect');
 
-  const borked = { ...fmt('y 0', { throws: false }).info, _partitions: null };
+  const borked = { ...getFormatInfo('y 0') };
   t.deepEqual(borked, {
     type: 'error',
     isDate: false,
@@ -100,8 +46,7 @@ test('numfmt.info', t => {
     parentheses: 0,
     grouped: 0,
     code: 'G',
-    level: 0,
-    _partitions: null
+    level: 0
   }, 'info makes sense even when pattern is bogus');
 
   t.end();
@@ -309,7 +254,7 @@ test('Currency', t => {
 
   // can pass in own currency
   const testCurrency = (str, identifier, code) => {
-    const info = fmt(str, { currency: identifier }).info;
+    const info = getFormatInfo(str, { currency: identifier });
     t.equal(info.code, code, str);
   };
   // Excel doesn't really have a great solution to this:
@@ -442,13 +387,11 @@ test('Dates', t => {
 });
 
 test('dateInfo', t => {
-  t.equal(typeof fmt.getDateInfo, 'function', 'numfmt.getDateInfo exists on main');
-  t.deepEqual(fmt.getDateInfo('0'), commonDateProps, 'numfmt.getDateInfo returns "all off" for non dates');
-  t.equal(typeof fmt('0').dateInfo, 'object', 'dateInfo exists on formatters');
-  t.deepEqual(fmt('0').dateInfo, commonDateProps, 'dateInfo is "all off" in formatters for non dates');
+  // numfmt.getDateInfo returns "all off" for non dates
+  t.assertDateInfo('0', {});
 
-  const borked = { ...fmt('y 0', { throws: false }).dateInfo };
-  t.deepEqual(borked, commonDateProps, 'dateInfo makes sense even when pattern is bogus');
+  // dateInfo makes sense even when pattern is bogus
+  t.assertDateInfo('y 0', {});
 
   t.assertDateInfo('yyyy', { year: true });
   t.assertDateInfo('yyy', { year: true });
@@ -479,6 +422,12 @@ test('dateInfo', t => {
   t.assertDateInfo('yyyy-mm-ddThh:mm:ss AM/PM', { year: true, month: true, day: true, hours: true, minutes: true, seconds: true, clockType: 12 });
 
   t.assertDateInfo('yy dd mm:ss', { year: true, day: true, month: true, seconds: true });
+
+  t.assertDateInfo('dd', { year: false, month: false, day: true });
+
+  t.assertDateInfo('yyyy-mm-dd', { year: true, month: true, day: true });
+  t.assertDateInfo('dd-mm-yyyy', { year: true, month: true, day: true });
+  t.assertDateInfo('dd yyyy', { year: true, day: true });
 
   t.end();
 });
