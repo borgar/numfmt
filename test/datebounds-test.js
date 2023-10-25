@@ -1,9 +1,43 @@
 import test from './utils.js';
+import { format } from '../lib/index.js';
 
 const ISODATE = 'yyyy-mm-dd';
 const ISODATETIME = 'yyyy-mm-dd\\Thh:mm:ss';
 
-// pattern, value, expected, options
+test('dateSpanLarge: OFF', t => {
+  const opts = { leap1900: false, dateSpanLarge: false, dateErrorThrows: true };
+
+  t.throws(() => format(ISODATE, -0.1, opts), '-0.1');
+  t.throws(() => format(ISODATE, -0.01, opts), '-0.01');
+  t.throws(() => format(ISODATE, -0.001, opts), '-0.001');
+  t.throws(() => format(ISODATE, -0.0001, opts), '-0.0001');
+  t.throws(() => format(ISODATE, -0.00001, opts), '-0.00001');
+  t.throws(() => format(ISODATE, -0.000001, opts), '-0.000001');
+  t.equal(format(ISODATE, 0, opts), '1899-12-30', '0');
+
+  t.throws(() => format(ISODATE, 2958465.99999422, opts), '2958465.99999422');
+  t.equal(format(ISODATE, 2958465.99999421, opts), '9999-12-31', '2958465.99999421');
+
+  const dt = 'yyyy-mm-dd/hh:mm:ss';
+  t.throws(() => format(dt, 2958465.99999422, opts), '2958465.99999422');
+  t.equal(format(dt, 2958465.99999421, opts), '9999-12-31/23:59:59', '2958465.99999421');
+
+  const dt0 = 'yyyy-mm-dd/hh:mm:ss.0';
+  t.throws(() => format(dt0, 2958465.99999943, opts), '2958465.99999943');
+  t.equal(format(dt0, 2958465.99999942, opts), '9999-12-31/23:59:59.9', '2958465.99999942');
+
+  const dt00 = ISODATE + '/hh:mm:ss.00';
+  t.throws(() => format(dt00, 2958465.99999995, opts), '2958465.99999995');
+  t.equal(format(dt00, 2958465.99999994, opts), '9999-12-31/23:59:59.99', '2958465.99999994');
+
+  const dt000 = ISODATE + '/hh:mm:ss.000';
+  // Excel can't really represent 2958465.999999995 so this never happens, but:
+  t.throws(() => format(dt000, 2958465.999999995, opts), '2958465.99999999');
+  t.equal(format(dt000, 2958465.99999999, opts), '9999-12-31/23:59:59.999', '2958465.99999999');
+
+  t.end();
+});
+
 test('dateSpanLarge: ON', t => {
   t.format(ISODATETIME, 0.1, '1899-12-30T02:24:00', { leap1900: false, dateSpanLarge: true });
   t.format(ISODATETIME, -0.00001157407, '1899-12-29T23:59:59', { leap1900: false, dateSpanLarge: true });
@@ -207,4 +241,3 @@ test('Excel 1900 bug: OFF', t => {
   t.format(ISODATE, 0, '1899-12-30', { leap1900: false });
   t.end();
 });
-

@@ -56,10 +56,9 @@ test('dateToSerial (Array):', t => {
 
 test('dateFromSerial:', t => {
   process.env.TZ = 'Europe/Amsterdam';
-  const timeZoneName = getTimeZoneName();
   t.ok(
-    /^Central European (Standard|Summer) Time$/.test(timeZoneName),
-    'Timezone is Central European Standard Time'
+    /^Central European (Standard|Summer) Time$/.test(getTimeZoneName()),
+    'Timezone is what we think it is'
   );
 
   t.deepLooseEqual(
