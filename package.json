@@ -12,6 +12,7 @@
     "test": "SKIPTABLES=1 tape 'test/*-test.js'|tap-min"
   },
   "main": "./index.js",
+  "types": "numfmt.d.ts",
   "preferGlobal": false,
   "repository": "git://github.com/borgar/numfmt.git",
   "homepage": "https://github.com/borgar/numfmt",
