@@ -107,7 +107,6 @@ Test.prototype.validFormat = function assertFormatParses (pattern, options = {})
     this.pass(message);
   }
   catch (err) {
-    console.log(err.message);
     this.fail(message);
   }
 };
@@ -116,7 +115,6 @@ Test.prototype.formatInvalid = function assertFormatThrows (pattern, options = {
   this.throws(
     () => {
       format(pattern, '', options);
-      console.log('xxxx');
     },
     null,
     formatMessage(pattern, null, options)

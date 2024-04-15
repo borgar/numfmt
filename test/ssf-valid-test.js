@@ -1,6 +1,3 @@
-// import test from 'tape';
-// import { format } from '../lib/index.js';
-// import { isDateFormat, isPercentFormat, isTextFormat } from '../lib/index.js';
 import test from './utils.js';
 
 test(t => {
