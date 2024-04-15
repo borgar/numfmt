@@ -77,7 +77,7 @@ Only the first section is mandatory, the others are filled in as needed. The sec
 | `.`   | Decimal point   |
 | `,`   | Thousands separator   |  `1234` formatted with `#,##0` will emit `"1,234"`. The emitted grouping character depends on the locale used.
 | `%`   | Percentage  | Number is multiplied by 100 before it is shown.  `.7` formatted with `0%` will emit `"70%"`
-| `e-`, `e+` | Exponential format | `12200000` formatted with `0.00E+00` will emit `"1.22E+07"`
+| `E-`, `E+` | Exponential format | `12200000` formatted with `0.00E+00` will emit `"1.22E+07"`
 | `$`, `-`, `+`, `/`, `(`, `)`,  ` ` | Pass-through | The symbol is printed as-is.
 | `\` | Escape | Pass the the next character through as-is.
 | `*` | Fill | Repeat the next character in the format enough times to fill the column to its current width. *Like Excel's TEXT function, numFmt emits nothing when this is used.*

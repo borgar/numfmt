@@ -100,9 +100,24 @@ Test.prototype.format = function assertFormat (pattern, value, expected, options
   this.is(output, expected, formatMessage(pattern, value, options));
 };
 
+Test.prototype.validFormat = function assertFormatParses (pattern, options = {}) {
+  const message = formatMessage(pattern, null, options);
+  try {
+    format(pattern, 1);
+    this.pass(message);
+  }
+  catch (err) {
+    console.log(err.message);
+    this.fail(message);
+  }
+};
+
 Test.prototype.formatInvalid = function assertFormatThrows (pattern, options = {}) {
   this.throws(
-    () => format(pattern, '', options),
+    () => {
+      format(pattern, '', options);
+      console.log('xxxx');
+    },
     null,
     formatMessage(pattern, null, options)
   );

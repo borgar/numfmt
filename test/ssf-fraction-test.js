@@ -114,3 +114,38 @@ test(t => {
   t.end();
 });
 
+test(t => {
+  t.formatInvalid('0/');
+  t.formatInvalid('/0');
+  t.formatInvalid('/');
+
+  t.format('0/0', 0, '0/1');
+  t.format('0/0', 1, '1/1');
+  t.format('0/0', 123, '123/1');
+  t.format('0/0', 12.345, '37/3');
+  t.format('0 0/0', 0, '0\xa00/1');
+  t.format('0 0/0', 1, '1\xa00/1');
+  t.format('0 0/0', 123, '123\xa00/1');
+  t.format('0 0/0', 12.345, '12\xa01/3');
+
+  t.format('?/?', 0, '0/1');
+  t.format('?/?', 1, '1/1');
+  t.format('?/?', 123, '123/1');
+  t.format('?/?', 12.345, '37/3');
+  t.format('? ?/?', 0, '0\xa0\xa0\xa0\xa0');
+  t.format('? ?/?', 1, '1\xa0\xa0\xa0\xa0');
+  t.format('? ?/?', 123, '123\xa0\xa0\xa0\xa0');
+  t.format('? ?/?', 12.345, '12\xa01/3');
+
+  t.format('#/#', 0, '0/1');
+  t.format('#/#', 1, '1/1');
+  t.format('#/#', 123, '123/1');
+  t.format('#/#', 12.345, '37/3');
+  t.format('# #/#', 0, '0');
+  t.format('# #/#', 1, '1');
+  t.format('# #/#', 123, '123');
+  t.format('# #/#', 12.345, '12\xa01/3');
+
+  t.end();
+});
+
