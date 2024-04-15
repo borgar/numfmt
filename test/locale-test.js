@@ -26,6 +26,7 @@ test('locale options', t => {
   t.format('[$-is_IS]dddd, dd. mmmm yyy', date, 'laugardagur, 02. janúar 1909');
   t.format('[$-is_IS]dddd, dd. mmmm yyy', date, 'laugardagur, 02. janúar 1909');
   t.format('[$-is_IS]dddd, dd. mmmm yyy', date, 'laugardagur, 02. janúar 1909');
+  t.format('[$-is-IS]dddd, dd. mmmm yyy', date, 'laugardagur, 02. janúar 1909');
   t.format('[$-040F]dddd, dd. mmmm yyy', date, 'laugardagur, 02. janúar 1909');
   t.format('[$-01040F]dddd, dd. mmmm yyy', date, 'laugardagur, 02. janúar 1909');
   t.format('[$-00040F]dddd, dd. mmmm yyy', date, 'laugardagur, 02. janúar 1909');
