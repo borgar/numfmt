@@ -189,8 +189,75 @@ test('Excel ignores extra , in fractions:', t => { // issue #22
   t.end();
 });
 
-// Some more work needs to be done with how digits are emitted (see https://github.com/borgar/numfmt/issues/18)
-// test('Order of operators in exponential notation doesn\'t matter:', t => {
-//   t.equal(fmt('0?.?0E+1')(0), '00. 0E+1');
-//   t.end();
-// });
+// FIXME: Some more work needs to be done with how digits are emitted (see https://github.com/borgar/numfmt/issues/18)
+test.skip('Order of operators in exponential notation doesn\'t matter:', t => {
+  // this pattern works in Excel but fails here because mantissa part is missing
+  t.format('0?.?0E+1', 0, '00. 0E+1');
+  t.format('0?.?0E+0', 0, '00. 0E+0');
+  t.end();
+});
+
+// FIXME: Tthis is pretty deep in the weeds and Google sheets fairs no better...
+test.skip('Digits following denominator are padding', t => {
+  t.format('00 00/0z0', 12345.67, '12345 02/3z0');
+  t.format('00 00/0 0', 12345.67, '12345 02/3 0');
+  t.format('00 00/? ?', 12345.67, '12345 02/3  ');
+  t.format('00 00/# #', 12345.67, '12345 02/3 0');
+  t.end();
+});
+
+test('Integer gets injected if not present:', t => {
+  t.format('.0', 1234, '1234.0');
+  t.format(' .0', 1234, ' 1234.0');
+  t.format('x.0', 1234, 'x1234.0');
+  t.format(' . 0', 1234, ' 1234. 0');
+  t.format('0 0/0', 1234, '1234 0/1');
+  t.format('0/0', 1234, '1234/1');
+  // t.format('/0', 1234, undefined);
+  t.end();
+});
+
+test.skip('Padding:', t => {
+  t.format('0', 1, '1');
+  t.format('0?', 1, '01');
+  t.format('0??', 1, '0 1');
+  t.format('0???', 1, '0  1');
+  t.format('0????', 1, '0   1');
+  t.format('0', 0, '0');
+  t.format('0?', 0, '0 ');
+  t.format('0??', 0, '0  ');
+  t.format('0???', 0, '0   ');
+  t.format('0????', 0, '0    ');
+  t.format('0', 1, '1');
+  t.format('0#', 1, '01');
+  t.format('0##', 1, '01');
+  t.format('0###', 1, '01');
+  t.format('0####', 1, '01');
+  t.format('0', 0, '0');
+  t.format('0#', 0, '0');
+  t.format('0##', 0, '0');
+  t.format('0###', 0, '0');
+  t.format('0####', 0, '0');
+
+  t.format('.0', 1, '1.0');
+  t.format('.?0', 1, '1. 0');
+  t.format('.??0', 1, '1.  0');
+  t.format('.???0', 1, '1.   0');
+  t.format('.????0', 1, '1.    0');
+  t.format('.0', 0, '.0');
+  t.format('.?0', 0, '. 0');
+  t.format('.??0', 0, '.  0');
+  t.format('.???0', 0, '.   0');
+  t.format('.????0', 0, '.    0');
+  t.format('.0', 1, '1.0');
+  t.format('.#0', 1, '1.0');
+  t.format('.##0', 1, '1.0');
+  t.format('.###0', 1, '1.0');
+  t.format('.####0', 1, '1.0');
+  t.format('.0', 0, '.0');
+  t.format('.#0', 0, '.0');
+  t.format('.##0', 0, '.0');
+  t.format('.###0', 0, '.0');
+  t.format('.####0', 0, '.0');
+  t.end();
+});

@@ -374,3 +374,30 @@ test('Exponential 0.00E+00', t => {
   t.format('0.00E+00', 90000000, '9.00E+07');
   t.end();
 });
+
+test('Sign is grouped with digit in output', t => {
+  t.format('0 E+ 0', 10000000, '1 E +7');
+  t.format('0 E+ 00', 10000000, '1 E +07');
+  t.format('0 E- 0', 10000000, '1 E 7');
+  t.format('0 E- 0', 0.0000001, '1 E -7');
+  t.format('0 E- 00', 0.0000001, '1 E -07');
+  t.end();
+});
+
+test('Exponent is shifted when integer part is omitted:', t => {
+  t.format('.0E+0', 0, '.0E+0');
+  t.format('.0E+0', 1, '.1E+1');
+  t.format('.0E+0', 10, '.1E+2');
+  t.format('.0E+0', 100, '.1E+3');
+  t.format('.0E+0', 1000, '.1E+4');
+  t.format('.0E+0', 10000, '.1E+5');
+  t.format('.0E+0', 100000, '.1E+6');
+  t.format('.0E+0', 123456789, '.1E+9');
+  t.format('.0E+0', 0.1, '.1E+0');
+  t.format('.0E+0', 0.01, '.1E-1');
+  t.format('.0E+0', 0.001, '.1E-2');
+  t.format('.0E+0', 0.0001, '.1E-3');
+  t.format('.0E+0', 0.12345, '.1E+0');
+  t.format('.0E+0', 0.012345, '.1E-1');
+  t.end();
+});
