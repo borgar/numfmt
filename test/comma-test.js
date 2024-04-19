@@ -1,7 +1,7 @@
 import test from './utils.js';
 import { format } from '../lib/index.js';
 
-test('Exponential: #.0000,,,', t => {
+test('Correct handling of the comma operator', t => {
   t.format('0,', 1234567.89, '1235');
   t.format('0,,', 1234567.89, '1');
   t.format('0,,,', 1234567.89, '0');

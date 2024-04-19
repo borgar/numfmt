@@ -213,11 +213,10 @@ test('Integer gets injected if not present:', t => {
   t.format(' . 0', 1234, ' 1234. 0');
   t.format('0 0/0', 1234, '1234 0/1');
   t.format('0/0', 1234, '1234/1');
-  // t.format('/0', 1234, undefined);
   t.end();
 });
 
-test.skip('Padding:', t => {
+test('Padding:', t => {
   t.format('0', 1, '1');
   t.format('0?', 1, '01');
   t.format('0??', 1, '0 1');
@@ -238,6 +237,17 @@ test.skip('Padding:', t => {
   t.format('0##', 0, '0');
   t.format('0###', 0, '0');
   t.format('0####', 0, '0');
+
+  t.format('0,', 1, '0');
+  t.format('0,?', 1, '01');
+  t.format('0,??', 1, '0 1');
+  t.format('0,???', 1, '0,  1');
+  t.format('0,????', 1, '0    1');
+  t.format('0,', 0, '0');
+  t.format('0,?', 0, '0 ');
+  t.format('0,??', 0, '0  ');
+  t.format('0,???', 0, '0,   ');
+  t.format('0,????', 0, '0     ');
 
   t.format('.0', 1, '1.0');
   t.format('.?0', 1, '1. 0');

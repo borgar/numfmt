@@ -88,8 +88,8 @@ test('Single characters', t => {
   // slash is allowed in date formats
   t.format('d/', 1, '1/');
   // slash otherwise means vulgar fractions
-  // t.format('0/0', 0, '0/1');
-  // t.format('0/0', 1, '1/1');
+  t.format('0/0', 0, '0/1');
+  t.format('0/0', 1, '1/1');
   t.formatInvalid('0/');
   t.formatInvalid('/0');
   t.formatInvalid('/');

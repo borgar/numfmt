@@ -226,28 +226,25 @@ test('Oddity: hh:mm AM/PM', t => {
   t.end();
 });
 
-// This does not throw in Excel: emits "12:00 AM" (given 1)
-// test('Oddity: hhh:mm AM/PM', t => {
-//   t.throws(() => fmt('hhh:mm AM/PM'), 'hhh:mm AM/PM');
-//   t.end();
-// });
+test('Oddity: hhh:mm AM/PM', t => {
+  t.format('hhh:mm AM/PM', 0.7, '04:48 PM');
+  t.end();
+});
 
 test('Oddity: hhh:mmm:sss', t => {
   t.format('hhh:mmm:sss', 0.7, '16:Jan:00');
   t.end();
 });
 
-// This does not throw in Excel
-// test('Oddity: hh:mmm:sss', t => {
-//   t.throws(() => fmt('hh:mmm:sss'), 'hh:mmm:sss');
-//   t.end();
-// });
+test('Oddity: hh:mmm:sss', t => {
+  t.format('hhh:mmm:sss', 0.7, '16:Jan:00');
+  t.end();
+});
 
-// This does not throw in Excel
-// test('Oddity: hh:mm:sss', t => {
-//   t.throws(() => fmt('hh:mm:sss'), 'hh:mm:sss');
-//   t.end();
-// });
+test('Oddity: hh:mm:sss', t => {
+  t.format('hh:mm:sss', 0.7, '16:48:00');
+  t.end();
+});
 
 test('Oddity: hh:mm:ss.000', t => {
   t.format('hh:mm:ss.000', 0.7, '16:48:00.000');
