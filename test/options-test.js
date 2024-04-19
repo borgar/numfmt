@@ -63,6 +63,17 @@ test('option: nbsp', t => {
   t.end();
 });
 
+test('option: grouping', t => {
+  t.format('0', 1234567890, '1234567890', { grouping: [ 2, 2 ] });
+  t.format('#,##0', 1234567890, '1,234,567,890', { grouping: [ 3, 3 ] });
+  t.format('#,##0', 1234567890, '1,234,567,890', { grouping: [ 3 ] });
+  t.format('#,##0', 1234567890, '1,23,45,67,890', { grouping: [ 3, 2 ] });
+  t.format('#,##0', 1234567890, '12,34,56,78,90', { grouping: [ 2, 2 ] });
+  t.format('#,##0', 1234567890, '12,34,56,78,90', { grouping: [ 2 ] });
+  t.format('#,##0', 1234567890, '12,345,678,90', { grouping: [ 2, 3 ] });
+  t.end();
+});
+
 // this test is flaky at best in node versions < 14 so only run it in 14+
 if (parseInt(process.version.replace(/^v/, ''), 10) >= 14) {
   test('option: ignoreTimezone', t => {
