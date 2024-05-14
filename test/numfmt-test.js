@@ -189,15 +189,12 @@ test('Excel ignores extra , in fractions:', t => { // issue #22
   t.end();
 });
 
-// FIXME: Some more work needs to be done with how digits are emitted (see https://github.com/borgar/numfmt/issues/18)
-test.skip('Order of operators in exponential notation doesn\'t matter:', t => {
-  // this pattern works in Excel but fails here because mantissa part is missing
+test.skip('Order of operators in exponential notation does not matter:', t => {
   t.format('0?.?0E+1', 0, '00. 0E+1');
   t.format('0?.?0E+0', 0, '00. 0E+0');
   t.end();
 });
 
-// FIXME: Tthis is pretty deep in the weeds and Google sheets fairs no better...
 test.skip('Digits following denominator are padding', t => {
   t.format('00 00/0z0', 12345.67, '12345 02/3z0');
   t.format('00 00/0 0', 12345.67, '12345 02/3 0');
