@@ -129,7 +129,9 @@ numfmt.dateToSerial("something else"); // null
 
 ### <a id="format" href="#format">#</a> format( pattern, value, _[options = `{}`]_ ) ⇒ `string`
 
-Returns a formatted string for the argument value.
+Formats a value as a string and returns the result.
+
+- Dates are normalized to spreadsheet style serial dates and then formatted. - Booleans are emitted as uppercase "TRUE" or "FALSE". - Null and Undefined will return an empty string "". - Any non number values will be stringified and passed through the text section of the format pattern. - NaNs and infinites will use the corresponding strings from the active locale.
 
 ##### Parameters
 
@@ -155,7 +157,7 @@ Returns a formatted string for the argument value.
 
 ---
 
-### <a id="formatColor" href="#formatColor">#</a> formatColor( pattern, value, _[options = `{}`]_ ) ⇒ `string` | `null`
+### <a id="formatColor" href="#formatColor">#</a> formatColor( pattern, value, _[options = `{}`]_ ) ⇒ `string` | `number` | `null`
 
 Find the color appropriate to a value as dictated by a format pattern.
 
@@ -170,17 +172,18 @@ console.log(color); // null
 
 ##### Parameters
 
-| Name                     | Type      | Default | Description                                                                                                                                                                                |
-| ------------------------ | --------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| pattern                  | `string`  |         | A format pattern in the ECMA-376 number format.                                                                                                                                            |
-| value                    | `any`     |         | The value to format.                                                                                                                                                                       |
-| [options]                | `object`  | `{}`    | Options                                                                                                                                                                                    |
-| [options].ignoreTimezone | `boolean` | `false` | Normally when date objects are used with the formatter, time zone is taken    into account. This makes the formatter ignore the timezone offset.                                           |
-| [options].throws         | `boolean` | `true`  | Should the formatter throw an error if a provided pattern is invalid.    If false, a formatter will be constructed which instead outputs an error    string (see _invalid_ in this table). |
+| Name                     | Type      | Default | Description                                                                                                                                                                                                                                                                     |
+| ------------------------ | --------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| pattern                  | `string`  |         | A format pattern in the ECMA-376 number format.                                                                                                                                                                                                                                 |
+| value                    | `any`     |         | The value to format.                                                                                                                                                                                                                                                            |
+| [options]                | `object`  | `{}`    | Options                                                                                                                                                                                                                                                                         |
+| [options].ignoreTimezone | `boolean` | `false` | Normally when date objects are used with the formatter, time zone is taken    into account. This makes the formatter ignore the timezone offset.                                                                                                                                |
+| [options].indexColors    | `boolean` | `true`  | When indexed color modifiers are used (`[Color 1]`) the formatter will    convert the index into the corresponding hex color of the default palette.    When this option is set to false, the number will instead by emitted    allowing you to index against a custom palette. |
+| [options].throws         | `boolean` | `true`  | Should the formatter throw an error if a provided pattern is invalid.    If false, a formatter will be constructed which instead outputs an error    string (see _invalid_ in this table).                                                                                      |
 
 ##### Returns
 
-`string` | `null` – A string color value as described by the pattern.
+`string` | `number` | `null` – A string color value as described by the pattern or a number if the    indexColors option has been set to false.
 
 ---
 

@@ -106,7 +106,12 @@ export declare function dateToSerial(date: (Date | Array<number>), options?: {
 }): (number | null);
 
 /**
- * Returns a formatted string for the argument value.
+ * Formats a value as a string and returns the result.
+ * - Dates are normalized to spreadsheet style serial dates and then formatted.
+ * - Booleans are emitted as uppercase "TRUE" or "FALSE".
+ * - Null and Undefined will return an empty string "".
+ * - Any non number values will be stringified and passed through the text section of the format pattern.
+ * - NaNs and infinites will use the corresponding strings from the active locale.
  *
  * @param pattern A format pattern in the ECMA-376 number format.
  * @param value The value to format.
@@ -202,10 +207,15 @@ export declare function format(pattern: string, value: any, options?: {
  * @param [options={}] Options
  * @param [options.ignoreTimezone=false] Normally when date objects are used with the formatter, time zone is taken
    into account. This makes the formatter ignore the timezone offset.
+ * @param [options.indexColors=true] When indexed color modifiers are used (`[Color 1]`) the formatter will
+   convert the index into the corresponding hex color of the default palette.
+   When this option is set to false, the number will instead by emitted
+   allowing you to index against a custom palette.
  * @param [options.throws=true] Should the formatter throw an error if a provided pattern is invalid.
    If false, a formatter will be constructed which instead outputs an error
    string (see _invalid_ in this table).
- * @returns A string color value as described by the pattern.
+ * @returns A string color value as described by the pattern or a number if the
+   indexColors option has been set to false.
  */
 export declare function formatColor(pattern: string, value: any, options?: {
     /**
@@ -214,12 +224,19 @@ export declare function formatColor(pattern: string, value: any, options?: {
      */
     ignoreTimezone?: boolean;
     /**
+     * When indexed color modifiers are used (`[Color 1]`) the formatter will
+     *    convert the index into the corresponding hex color of the default palette.
+     *    When this option is set to false, the number will instead by emitted
+     *    allowing you to index against a custom palette.
+     */
+    indexColors?: boolean;
+    /**
      * Should the formatter throw an error if a provided pattern is invalid.
      *    If false, a formatter will be constructed which instead outputs an error
      *    string (see _invalid_ in this table).
      */
     throws?: boolean;
-}): (string | null);
+}): (string | number | null);
 
 /**
  * Gets information about date codes use in a format string.
