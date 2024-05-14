@@ -1,6 +1,6 @@
 // tests converted from SSF
 import test, { Test } from 'tape';
-import { format, getFormatDateInfo, getFormatInfo } from '../lib/index.js';
+import { format, formatColor, getFormatDateInfo, getFormatInfo } from '../lib/index.js';
 import fs from 'fs';
 import path from 'path';
 import zlib from 'zlib';
@@ -109,6 +109,11 @@ Test.prototype.validFormat = function assertFormatParses (pattern, options = {})
   catch (err) {
     this.fail(message);
   }
+};
+
+Test.prototype.formatColor = function assertFormat (pattern, value, expected, options = {}) {
+  const output = formatColor(pattern, value, options);
+  this.is(output, expected, formatMessage(pattern, value, options));
 };
 
 Test.prototype.formatInvalid = function assertFormatThrows (pattern, options = {}) {
