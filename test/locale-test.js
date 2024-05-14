@@ -21,7 +21,7 @@ test('locale options', t => {
   t.format('General', 1234.56, '1234·56', { locale: 'xx' });
   t.format('General', 0.1, '0·1', { locale: 'xx' });
 
-  // different locale address modes (is-IS is not supported, while is_IS is)
+  // different locale address modes (both is-IS and is_IS are supported)
   t.format('[$-is]dddd, dd. mmmm yyy', date, 'laugardagur, 02. janúar 1909');
   t.format('[$-is_IS]dddd, dd. mmmm yyy', date, 'laugardagur, 02. janúar 1909');
   t.format('[$-is_IS]dddd, dd. mmmm yyy', date, 'laugardagur, 02. janúar 1909');
