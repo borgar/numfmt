@@ -20,11 +20,17 @@
 - [parseTime( value )](#parseTime)
 - [parseValue( value, _\[options\]_ )](#parseValue)
 - [round( number, _\[places\]_ )](#round)
+- [tokenize( pattern )](#tokenize)
+
+**Constant**
+
+- [tokenTypes](#tokenTypes)
 
 **Types**
 
 - [FormatDateInfo](#FormatDateInfo)
 - [FormatInfo](#FormatInfo)
+- [FormatToken](#FormatToken)
 - [LocaleData](#LocaleData)
 - [LocaleToken](#LocaleToken)
 - [ParseData](#ParseData)
@@ -200,11 +206,11 @@ Returns an object detailing the properties and internals of a format parsed form
 
 ##### Parameters
 
-| Name               | Type     | Default | Description                                                                                                                                                                                                               |
-| ------------------ | -------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| pattern            | `string` |         | A format pattern in the ECMA-376 number format.                                                                                                                                                                           |
-| [options]          | `object` | `{}`    | Options                                                                                                                                                                                                                   |
-| [options].currency | `string` |         | Limit the patterns identifed as currency to those that use the give string.   If nothing is provided, patterns will be tagged as currency if one of the   following currency symbols is used: ¤$£¥֏؋৳฿៛₡₦₩₪₫€₭₮₱₲₴₸₹₺₼₽₾₿ |
+| Name               | Type     | Default | Description                                                                                                                                                                                                                |
+| ------------------ | -------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| pattern            | `string` |         | A format pattern in the ECMA-376 number format.                                                                                                                                                                            |
+| [options]          | `object` | `{}`    | Options                                                                                                                                                                                                                    |
+| [options].currency | `string` |         | Limit the patterns identified as currency to those that use the give string.   If nothing is provided, patterns will be tagged as currency if one of the   following currency symbols is used: ¤$£¥֏؋৳฿៛₡₦₩₪₫€₭₮₱₲₴₸₹₺₼₽₾₿ |
 
 ##### Returns
 
@@ -444,6 +450,84 @@ Return a number rounded to the specified amount of places. This is the rounding 
 
 ---
 
+### <a id="tokenize" href="#tokenize">#</a> tokenize( pattern ) ⇒ `Array<FormatToken>`
+
+Breaks a format pattern string into a list of tokens.
+
+The returned output will be an array of objects representing the tokens:
+
+```js
+[
+  { type: 'zero', value: '0', raw: '0' },
+  { type: 'point', value: '.', raw: '.' },
+  { type: 'zero', value: '0', raw: '0' },
+  { type: 'percent', value: '%', raw: '%' }
+]
+```
+
+Token types may be found as an Object as the [`tokenTypes` export](#tokenTypes) of the package.
+
+##### Parameters
+
+| Name    | Type     | Description        |
+| ------- | -------- | ------------------ |
+| pattern | `string` | The format pattern |
+
+##### Returns
+
+`Array<FormatToken>` – a list of tokens
+
+---
+
+## Constant
+
+### <a id="tokenTypes" href="#tokenTypes">#</a> tokenTypes = `Readonly<Record<string, string>>`
+
+A dictionary of the types used to identify token variants.
+
+**See also:**  [tokenize](#tokenize).
+
+##### Properties
+
+| Name      | Type     | Description                                                         |
+| --------- | -------- | ------------------------------------------------------------------- |
+| AMPM      | `string` | AM/PM operator (`AM/PM`, `A/P`)                                     |
+| BREAK     | `string` | Semicolon operator indicating a break between format sections (`;`) |
+| CALENDAR  | `string` | Calendar modifier (`B2`)                                            |
+| CHAR      | `string` | Single non-operator character (`m`)                                 |
+| COLOR     | `string` | Color modifier (`[Black]`, `[color 5]`)                             |
+| COMMA     | `string` | Plain non-operator comma (`,`)                                      |
+| CONDITION | `string` | Condition modifier for a section (`[>=10]`)                         |
+| DATETIME  | `string` | Date-time operator (`mmmm`, `YY`)                                   |
+| DBNUM     | `string` | Number display modifier (`[DBNum23]`)                               |
+| DIGIT     | `string` | A digit between 1 and 9 (`3`)                                       |
+| DURATION  | `string` | Time duration (`[ss]`)                                              |
+| ERROR     | `string` | Unidentifiable or illegal character (`Ň`)                           |
+| ESCAPED   | `string` | Escaped character (`\E`)                                            |
+| EXP       | `string` | Exponent operator (`E+`)                                            |
+| FILL      | `string` | Fill with char operator and operand (`*_`)                          |
+| GENERAL   | `string` | General format operator (`General`)                                 |
+| GROUP     | `string` | Number grouping operator (`,`)                                      |
+| HASH      | `string` | Hash operator (digit if available) (`#`)                            |
+| LOCALE    | `string` | Locale modifier (`[$-1E020404]`)                                    |
+| MINUS     | `string` | Minus sign (`-`)                                                    |
+| MODIFIER  | `string` | An unidentified modifier (`[Schwarz]`)                              |
+| NATNUM    | `string` | Number display modifier (`[NatNum3]`)                               |
+| PAREN     | `string` | Parenthesis character (`)`)                                         |
+| PERCENT   | `string` | Percent operator (`%`)                                              |
+| PLUS      | `string` | Plus sign (`+`)                                                     |
+| POINT     | `string` | Decimal point operator (`.`)                                        |
+| QMARK     | `string` | Question mark operator (digit or space if not available) (`?`)      |
+| SCALE     | `string` | Scaling operator (`,`)                                              |
+| SKIP      | `string` | Skip with char operator and operand (`*_`)                          |
+| SLASH     | `string` | Slash operator (`/`)                                                |
+| SPACE     | `string` | Space (` `)                                                         |
+| STRING    | `string` | Quoted string (`"days"`)                                            |
+| TEXT      | `string` | Text output operator (`@`)                                          |
+| ZERO      | `string` | Zero operator (digit or zero if not available) (`0`)                |
+
+---
+
 ## Types
 
 ### <a id="FormatDateInfo" href="#FormatDateInfo">#</a> FormatDateInfo
@@ -483,6 +567,18 @@ An object of information properties based on a format pattern.
 | parentheses | `0` \| `1`                                                                                                                                                                 | 1 if the positive portion of the number format contains an open     parenthesis, else a 0. This is replicates Excel's `CELL("parentheses")`     functionality.                                                                                         |
 | scale       | `number`                                                                                                                                                                   | The multiplier used when formatting the number (100 for percentages).                                                                                                                                                                                  |
 | type        | `"currency"` \| `"date"` \| `"datetime"` \| `"error"` \| `"fraction"` \| `"general"` \| `"grouped"` \| `"number"` \| `"percent"` \| `"scientific"` \| `"text"` \| `"time"` | A string identifier for the type of the number formatter.                                                                                                                                                                                              |
+
+---
+
+### <a id="FormatToken" href="#FormatToken">#</a> FormatToken
+
+##### Properties
+
+| Name  | Type     | Description                                          |
+| ----- | -------- | ---------------------------------------------------- |
+| raw   | `string` | Raw token source.                                    |
+| type  | `string` | Token type.                                          |
+| value | `any`    | The value of the token, cleaned of extra characters. |
 
 ---
 

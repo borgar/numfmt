@@ -235,14 +235,14 @@ export declare function getFormatDateInfo(pattern: string): FormatDateInfo;
  *
  * @param pattern A format pattern in the ECMA-376 number format.
  * @param [options={}] Options
- * @param [options.currency] Limit the patterns identifed as currency to those that use the give string.
+ * @param [options.currency] Limit the patterns identified as currency to those that use the give string.
   If nothing is provided, patterns will be tagged as currency if one of the
   following currency symbols is used: ¤$£¥֏؋৳฿៛₡₦₩₪₫€₭₮₱₲₴₸₹₺₼₽₾₿
  * @returns An object of format properties.
  */
 export declare function getFormatInfo(pattern: string, options?: {
     /**
-     * Limit the patterns identifed as currency to those that use the give string.
+     * Limit the patterns identified as currency to those that use the give string.
      *   If nothing is provided, patterns will be tagged as currency if one of the
      *   following currency symbols is used: ¤$£¥֏؋৳฿៛₡₦₩₪₫€₭₮₱₲₴₸₹₺₼₽₾₿
      */
@@ -426,6 +426,97 @@ export declare function parseValue(value: string, options?: {
  */
 export declare function round(number: number, places?: number): number;
 
+/**
+ * Breaks a format pattern string into a list of tokens.
+ * The returned output will be an array of objects representing the tokens:
+ * ```js
+ * [
+ *   { type: 'zero', value: '0', raw: '0' },
+ *   { type: 'point', value: '.', raw: '.' },
+ *   { type: 'zero', value: '0', raw: '0' },
+ *   { type: 'percent', value: '%', raw: '%' }
+ * ]
+ * ```
+ * Token types may be found as an Object as the
+ * [`tokenTypes` export]{@link tokenTypes} of the package.
+ *
+ * @param pattern The format pattern
+ * @returns a list of tokens
+ */
+export declare function tokenize(pattern: string): Array<FormatToken>;
+
+/** A dictionary of the types used to identify token variants. */
+export declare const tokenTypes: Readonly<{
+    /** AM/PM operator (`AM/PM`, `A/P`) */
+    AMPM: string;
+    /** Semicolon operator indicating a break between format sections (`;`) */
+    BREAK: string;
+    /** Calendar modifier (`B2`) */
+    CALENDAR: string;
+    /** Single non-operator character (`m`) */
+    CHAR: string;
+    /** Color modifier (`[Black]`, `[color 5]`) */
+    COLOR: string;
+    /** Plain non-operator comma (`,`) */
+    COMMA: string;
+    /** Condition modifier for a section (`[>=10]`) */
+    CONDITION: string;
+    /** Date-time operator (`mmmm`, `YY`) */
+    DATETIME: string;
+    /** Number display modifier (`[DBNum23]`) */
+    DBNUM: string;
+    /** A digit between 1 and 9 (`3`) */
+    DIGIT: string;
+    /** Time duration (`[ss]`) */
+    DURATION: string;
+    /** Unidentifiable or illegal character (`Ň`) */
+    ERROR: string;
+    /** Escaped character (`\E`) */
+    ESCAPED: string;
+    /** Exponent operator (`E+`) */
+    EXP: string;
+    /** Fill with char operator and operand (`*_`) */
+    FILL: string;
+    /** General format operator (`General`) */
+    GENERAL: string;
+    /** Number grouping operator (`,`) */
+    GROUP: string;
+    /** Hash operator (digit if available) (`#`) */
+    HASH: string;
+    /** Locale modifier (`[$-1E020404]`) */
+    LOCALE: string;
+    /** Minus sign (`-`) */
+    MINUS: string;
+    /** An unidentified modifier (`[Schwarz]`) */
+    MODIFIER: string;
+    /** Number display modifier (`[NatNum3]`) */
+    NATNUM: string;
+    /** Parenthesis character (`)`) */
+    PAREN: string;
+    /** Percent operator (`%`) */
+    PERCENT: string;
+    /** Plus sign (`+`) */
+    PLUS: string;
+    /** Decimal point operator (`.`) */
+    POINT: string;
+    /** Question mark operator (digit or space if not available) (`?`) */
+    QMARK: string;
+    /** Scaling operator (`,`) */
+    SCALE: string;
+    /** Skip with char operator and operand (`*_`) */
+    SKIP: string;
+    /** Slash operator (`/`) */
+    SLASH: string;
+    /** Space (` `) */
+    SPACE: string;
+    /** Quoted string (`"days"`) */
+    STRING: string;
+    /** Text output operator (`@`) */
+    TEXT: string;
+    /** Zero operator (digit or zero if not available) (`0`) */
+    ZERO: string;
+}>;
+
 /** An object detailing which date specifiers are used in a format pattern. */
 export declare type FormatDateInfo = {
     /** 12 if the pattern uses AM/PM clock else 24. */
@@ -486,6 +577,15 @@ export declare type FormatInfo = {
     scale: number;
     /** A string identifier for the type of the number formatter. */
     type: ("currency" | "date" | "datetime" | "error" | "fraction" | "general" | "grouped" | "number" | "percent" | "scientific" | "text" | "time");
+};
+
+export declare type FormatToken = {
+    /** Raw token source. */
+    raw: string;
+    /** Token type. */
+    type: string;
+    /** The value of the token, cleaned of extra characters. */
+    value: any;
 };
 
 /** An object of properties used by a formatter when printing a number in a certain locale. */
