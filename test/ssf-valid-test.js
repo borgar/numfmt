@@ -1,6 +1,6 @@
 import test from './utils.js';
 
-test(t => {
+test('Validity tests', t => {
   t.validFormat('" Excellent"', '" Excellent"');
   t.validFormat('" Fair"', '" Fair"');
   t.validFormat('" Good"', '" Good"');

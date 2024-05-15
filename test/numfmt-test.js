@@ -11,11 +11,11 @@ test('near zero negatives:', t => {
   t.format('0.0', -0.1, '-0.1');
   t.format('-0.0', -0.01, '-0.0');
   t.format('0.0', -0.01, '0.0');
-  t.format(' - 0.0', -0.01, ' - 0.0');
-  t.format(' - 0.0', -1, '- - 1.0');
+  t.format(' - 0.0', -0.01, ' - 0.0');
+  t.format(' - 0.0', -1, '- - 1.0');
   t.format('0.0;-0.0', -0.01, '-0.0');
-  t.format('# ?/?', -0.01, '-0    ');
-  t.format('\\p\\o\\s 0.0;\\n\\e\\g 0.0;', -0.01, 'neg 0.0');
+  t.format('# ?/?', -0.01, '-0    ');
+  t.format('\\p\\o\\s 0.0;\\n\\e\\g 0.0;', -0.01, 'neg 0.0');
   t.end();
 });
 
@@ -111,8 +111,8 @@ test('Date object as a value:', t => {
   t.format('0.######', new Date(1909, 1 - 1, 2, 3, 4, 5), '3290.127836');
   t.format('0.######', new Date(1909, 1 - 1, 2, 3, 4, 5), '3290.127836');
   // these were yielding "Sep 0, 2020"
-  t.format('MMM D, YYYY', new Date(2020, 8 - 1, 31, 13, 3, 0), 'Aug 31, 2020');
-  t.format('MMM D, YYYY', new Date(Date.parse('2020-08-31T02:42:00.1')), 'Aug 31, 2020');
+  t.format('MMM D, YYYY', new Date(2020, 8 - 1, 31, 13, 3, 0), 'Aug 31, 2020');
+  t.format('MMM D, YYYY', new Date(Date.parse('2020-08-31T02:42:00.1')), 'Aug 31, 2020');
 
   // test ignoreTimezone
   const testYMD = (y, m, d) => {
@@ -156,22 +156,22 @@ test('Order of operators in fractions doesn\'t matter:', t => {
   t.format('#.##0', 0.1, '.10');
   t.format('#.###0', 0.1, '.10');
   // 0 after ?
-  t.format('#.?00', 1, '1. 00');
-  t.format('#.?0', 0.0001, '. 0');
-  t.format('#.????0', -10.29, '-10.29  0');
-  t.format('#.????0', 0.01, '.01  0');
+  t.format('#.?00', 1, '1. 00');
+  t.format('#.?0', 0.0001, '. 0');
+  t.format('#.????0', -10.29, '-10.29  0');
+  t.format('#.????0', 0.01, '.01  0');
   // split pattern
   t.format('#.#x#0', 1, '1.x0');
   t.format('#.#x#0', 0.1, '.1x0');
-  t.format('#.??x?0', 0.01, '.01x 0');
+  t.format('#.??x?0', 0.01, '.01x 0');
   t.end();
 });
 
 test('Order of operators in integers doesn\'t matter:', t => {
   t.format('0#', 0, '0');
-  t.format('0?', 0, '0 ');
+  t.format('0?', 0, '0 ');
   t.format('0#0#', 0, '00');
-  t.format('0?0?', 0, '0 0 ');
+  t.format('0?0?', 0, '0 0 ');
   t.end();
 });
 
@@ -190,25 +190,25 @@ test('Excel ignores extra , in fractions:', t => { // issue #22
 });
 
 test.skip('Order of operators in exponential notation does not matter:', t => {
-  t.format('0?.?0E+1', 0, '00. 0E+1');
-  t.format('0?.?0E+0', 0, '00. 0E+0');
+  t.format('0?.?0E+1', 0, '00. 0E+1');
+  t.format('0?.?0E+0', 0, '00. 0E+0');
   t.end();
 });
 
 test.skip('Digits following denominator are padding', t => {
-  t.format('00 00/0z0', 12345.67, '12345 02/3z0');
-  t.format('00 00/0 0', 12345.67, '12345 02/3 0');
-  t.format('00 00/? ?', 12345.67, '12345 02/3  ');
-  t.format('00 00/# #', 12345.67, '12345 02/3 0');
+  t.format('00 00/0z0', 12345.67, '12345 02/3z0');
+  t.format('00 00/0 0', 12345.67, '12345 02/3 0');
+  t.format('00 00/? ?', 12345.67, '12345 02/3  ');
+  t.format('00 00/# #', 12345.67, '12345 02/3 0');
   t.end();
 });
 
 test('Integer gets injected if not present:', t => {
   t.format('.0', 1234, '1234.0');
-  t.format(' .0', 1234, ' 1234.0');
+  t.format(' .0', 1234, ' 1234.0');
   t.format('x.0', 1234, 'x1234.0');
-  t.format(' . 0', 1234, ' 1234. 0');
-  t.format('0 0/0', 1234, '1234 0/1');
+  t.format(' . 0', 1234, ' 1234. 0');
+  t.format('0 0/0', 1234, '1234 0/1');
   t.format('0/0', 1234, '1234/1');
   t.end();
 });
@@ -216,14 +216,14 @@ test('Integer gets injected if not present:', t => {
 test('Padding:', t => {
   t.format('0', 1, '1');
   t.format('0?', 1, '01');
-  t.format('0??', 1, '0 1');
-  t.format('0???', 1, '0  1');
-  t.format('0????', 1, '0   1');
+  t.format('0??', 1, '0 1');
+  t.format('0???', 1, '0  1');
+  t.format('0????', 1, '0   1');
   t.format('0', 0, '0');
-  t.format('0?', 0, '0 ');
-  t.format('0??', 0, '0  ');
-  t.format('0???', 0, '0   ');
-  t.format('0????', 0, '0    ');
+  t.format('0?', 0, '0 ');
+  t.format('0??', 0, '0  ');
+  t.format('0???', 0, '0   ');
+  t.format('0????', 0, '0    ');
   t.format('0', 1, '1');
   t.format('0#', 1, '01');
   t.format('0##', 1, '01');
@@ -237,25 +237,25 @@ test('Padding:', t => {
 
   t.format('0,', 1, '0');
   t.format('0,?', 1, '01');
-  t.format('0,??', 1, '0 1');
-  t.format('0,???', 1, '0,  1');
-  t.format('0,????', 1, '0    1');
+  t.format('0,??', 1, '0 1');
+  t.format('0,???', 1, '0,  1');
+  t.format('0,????', 1, '0    1');
   t.format('0,', 0, '0');
-  t.format('0,?', 0, '0 ');
-  t.format('0,??', 0, '0  ');
-  t.format('0,???', 0, '0,   ');
-  t.format('0,????', 0, '0     ');
+  t.format('0,?', 0, '0 ');
+  t.format('0,??', 0, '0  ');
+  t.format('0,???', 0, '0,   ');
+  t.format('0,????', 0, '0     ');
 
   t.format('.0', 1, '1.0');
-  t.format('.?0', 1, '1. 0');
-  t.format('.??0', 1, '1.  0');
-  t.format('.???0', 1, '1.   0');
-  t.format('.????0', 1, '1.    0');
+  t.format('.?0', 1, '1. 0');
+  t.format('.??0', 1, '1.  0');
+  t.format('.???0', 1, '1.   0');
+  t.format('.????0', 1, '1.    0');
   t.format('.0', 0, '.0');
-  t.format('.?0', 0, '. 0');
-  t.format('.??0', 0, '.  0');
-  t.format('.???0', 0, '.   0');
-  t.format('.????0', 0, '.    0');
+  t.format('.?0', 0, '. 0');
+  t.format('.??0', 0, '.  0');
+  t.format('.???0', 0, '.   0');
+  t.format('.????0', 0, '.    0');
   t.format('.0', 1, '1.0');
   t.format('.#0', 1, '1.0');
   t.format('.##0', 1, '1.0');

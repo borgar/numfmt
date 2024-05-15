@@ -57,9 +57,12 @@ test('option: dateErrorNumber', t => {
 
 test('option: nbsp', t => {
   const spaceFmt = '???0" ". 0??';
-  t.format(spaceFmt, 1, '   1 . 0  ');
+  t.format(spaceFmt, 1, '   1 . 0  ');
   t.format(spaceFmt, 1, '   1 . 0  ', { nbsp: true });
   t.format(spaceFmt, 1, '   1 . 0  ', { nbsp: false });
+  t.format('0 "foo bar" .0', 1.1, '1 foo bar .1');
+  t.format('0 "foo bar" .0', 1.1, '1 foo bar .1', { nbsp: false });
+  t.format('0 "foo bar" .0', 1.1, '1 foo bar .1', { nbsp: true });
   t.end();
 });
 

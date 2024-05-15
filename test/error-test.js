@@ -70,7 +70,7 @@ test('Various format restrictions', t => {
 });
 
 test('Single characters', t => {
-  t.format(' ', 1, '\u00a0');
+  t.format(' ', 1, ' ');
   t.format('!', 1, '!');
   t.formatInvalid('"');
   t.format('#', 1, '1');
@@ -113,7 +113,7 @@ test('Single characters', t => {
   t.format('A', 1, 'A');
   // B is not allowed at the end of the pattern
   t.formatInvalid('B');
-  t.format('B ', 1, '43\u00a0');
+  t.format('B ', 1, '43 ');
   t.format('B;', 1, '43');
   t.format('C', 1, 'C');
   t.format('D', 1, '1');
@@ -281,7 +281,7 @@ test('The "E" and "e" operators', t => {
   t.formatInvalid('0 E 0');
   t.formatInvalid('0 E + 0');
   t.formatInvalid('0 E +0');
-  t.format('0 E+ 0', 1, '1\xa0E\xa0+0');
+  t.format('0 E+ 0', 1, '1 E +0');
 
   t.format('e-m', 1, '1900-1');
 

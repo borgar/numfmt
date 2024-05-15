@@ -376,11 +376,11 @@ test('Exponential 0.00E+00', t => {
 });
 
 test('Sign is grouped with digit in output', t => {
-  t.format('0 E+ 0', 10000000, '1 E +7');
-  t.format('0 E+ 00', 10000000, '1 E +07');
-  t.format('0 E- 0', 10000000, '1 E 7');
-  t.format('0 E- 0', 0.0000001, '1 E -7');
-  t.format('0 E- 00', 0.0000001, '1 E -07');
+  t.format('0 E+ 0', 10000000, '1 E +7');
+  t.format('0 E+ 00', 10000000, '1 E +07');
+  t.format('0 E- 0', 10000000, '1 E 7');
+  t.format('0 E- 0', 0.0000001, '1 E -7');
+  t.format('0 E- 00', 0.0000001, '1 E -07');
   t.end();
 });
 

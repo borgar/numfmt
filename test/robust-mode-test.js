@@ -3,7 +3,7 @@ import { format, formatColor, isDateFormat } from '../lib/index.js';
 
 const excelOpts = { dateSpanLarge: false, dateErrorNumber: false };
 
-test(t => {
+test('Robust mode', t => {
   t.equal(format('dddd, dd. mmmm yyy', -1, excelOpts), '######');
 
   // these things should throw

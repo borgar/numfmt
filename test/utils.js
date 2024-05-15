@@ -53,7 +53,7 @@ Test.prototype.runTable = function runSSFTable (pathToTable) {
       for (let i = startPos; i < endPos; i++) {
         const d = table[i];
         if (!d[0]) { break; }
-        let exp = d[hi + 1].replace(/ /g, ' ');
+        let exp = d[hi + 1];
         if (exp === '######') {
           // some tables use #VALUE!, others '######'
           exp = VALUE_ERROR;

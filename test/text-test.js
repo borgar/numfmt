@@ -20,12 +20,12 @@ test('Text in combination with other things', t => {
   t.format('@ "foo"', 1, '1');
   t.format('@ "foo"', -1, '-1');
   t.format('@ "foo"', 0, '0');
-  t.format('@ "foo"', 'text', 'text foo');
+  t.format('@ "foo"', 'text', 'text foo');
 
   t.format('"bar" @ "foo"', 1, '1');
   t.format('"bar" @ "foo"', -1, '-1');
   t.format('"bar" @ "foo"', 0, '0');
-  t.format('"bar" @ "foo"', 'text', 'bar text foo');
+  t.format('"bar" @ "foo"', 'text', 'bar text foo');
   t.end();
 });
 
