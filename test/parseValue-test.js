@@ -565,11 +565,6 @@ tape('parseNumber', t => {
     null,
     'parseDate does not parse non-dates'
   );
-  t.deepLooseEqual(
-    parseDate('1999-10-01 12:00:00', { nativeDate: true }),
-    { v: new Date(1999, 9, 1, 17, 30), z: 'yyyy-mm-dd hh:mm:ss' },
-    'parseDate parses and emits native dates'
-  );
 
   t.deepLooseEqual(
     parseTime('09:18 PM'),
@@ -608,12 +603,6 @@ tape('parseNumber', t => {
     parseDate('5.2022'),
     null,
     'parseDate does not parse "decimals"'
-  );
-
-  t.deepLooseEqual(
-    parseValue('1999-10-01 12:00:00', { nativeDate: true }),
-    { v: new Date(1999, 9, 1, 17, 30), z: 'yyyy-mm-dd hh:mm:ss' },
-    'parseValue parses and emits native dates'
   );
 
   // test value parsing

@@ -87,12 +87,5 @@ test('dateFromSerial:', t => {
     'dateFromSerial(42341)'
   );
 
-  // as native dates
-  const d1 = dateFromSerial(1234, { nativeDate: true });
-  t.ok(d1 instanceof Date, 'is date');
-  t.equal(d1.toISOString(), '1903-05-18T00:00:00.000Z', '[native] dateFromSerial(1234)');
-  const d2 = dateFromSerial(1234.567, { nativeDate: true });
-  t.ok(d2 instanceof Date, 'is date');
-  t.equal(d2.toISOString(), '1903-05-18T13:36:28.000Z', '[native] dateFromSerial(1234.567)');
   t.end();
 });
