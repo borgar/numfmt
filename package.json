@@ -23,7 +23,10 @@
     }
   },
   "preferGlobal": false,
-  "repository": "git://github.com/borgar/numfmt.git",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/borgar/numfmt.git"
+  },
   "homepage": "https://github.com/borgar/numfmt",
   "bugs": {
     "url": "http://github.com/borgar/numfmt/issues"
