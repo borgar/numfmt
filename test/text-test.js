@@ -1,33 +1,31 @@
 /* eslint-disable no-irregular-whitespace */
-import test from 'tape';
-import fmt from '../lib/index.js';
+import { format } from '../lib/index.js';
+import test from './utils.js';
 
 test('Errors', t => {
   // no more than a single text section
-  t.throws(() => fmt('@;@'), '@;@');
+  t.throws(() => format('@;@'), '@;@');
   t.end();
 });
 
 test('Repeated @ in same pattern', t => {
-  const _f = fmt('@@');
-  t.equal(_f(1), '1');
-  t.equal(_f(-1), '-1');
-  t.equal(_f(0), '0');
-  t.equal(_f('text'), 'texttext');
+  t.format('@@', 1, '1');
+  t.format('@@', -1, '-1');
+  t.format('@@', 0, '0');
+  t.format('@@', 'text', 'texttext');
   t.end();
 });
 
 test('Text in combination with other things', t => {
-  const _f = fmt('@ "foo"');
-  t.equal(_f(1), '1');
-  t.equal(_f(-1), '-1');
-  t.equal(_f(0), '0');
-  t.equal(_f('text'), 'text foo');
-  const _f2 = fmt('"bar" @ "foo"');
-  t.equal(_f2(1), '1');
-  t.equal(_f2(-1), '-1');
-  t.equal(_f2(0), '0');
-  t.equal(_f2('text'), 'bar text foo');
+  t.format('@ "foo"', 1, '1');
+  t.format('@ "foo"', -1, '-1');
+  t.format('@ "foo"', 0, '0');
+  t.format('@ "foo"', 'text', 'text foo');
+
+  t.format('"bar" @ "foo"', 1, '1');
+  t.format('"bar" @ "foo"', -1, '-1');
+  t.format('"bar" @ "foo"', 0, '0');
+  t.format('"bar" @ "foo"', 'text', 'bar text foo');
   t.end();
 });
 

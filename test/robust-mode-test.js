@@ -1,30 +1,24 @@
-import test from 'tape';
-import fmt from '../lib/index.js';
+import test from './utils.js';
+import { format, formatColor, isDateFormat } from '../lib/index.js';
 
 const excelOpts = { dateSpanLarge: false, dateErrorNumber: false };
 
-test(t => {
-  t.equal(fmt('dddd, dd. mmmm yyy', excelOpts)(-1), '######');
+test('Robust mode', t => {
+  t.equal(format('dddd, dd. mmmm yyy', -1, excelOpts), '######');
 
   // these things should throw
-  t.throws(() => fmt('a;b;c;d;', excelOpts), 'a;b;c;d;');
-  t.throws(() => fmt('y 0', excelOpts), 'y 0');
+  t.throws(() => format('a;b;c;d;', 0, excelOpts), 'a;b;c;d;');
+  t.throws(() => format('y 0', 0, excelOpts), 'y 0');
 
   // ...but not in robust mode
   const opts = { locale: 'en', throws: false, ...excelOpts };
-  const errf1 = fmt('a;b;c;d;', opts);
-  t.equal(typeof errf1, 'function');
-  t.equal(typeof errf1.isDate, 'function');
-  t.equal(errf1.isDate(), false);
-  t.equal(errf1.color(), 'black');
-  t.equal(errf1.error, 'Unexpected partition');
-  t.equal(errf1(1), '######');
-  t.equal(fmt('y 0', opts)(1), '######');
+  t.equal(format('a;b;c;d;', 0, opts), '######', 'format does not throw with "a;b;c;d;"');
+  t.equal(format('y 0', 1, opts), '######', 'format does not throw with "y 0"');
+  t.equal(format('dddd, dd. mmmm yyy', -1, opts), '######', 'format does not throw with "dddd, dd. mmmm yyy"');
+  t.equal(format('y 0', 1, opts), '######', 'format does not throw with "dddd, dd. mmmm yyy"');
 
-  t.equal(fmt('dddd, dd. mmmm yyy', opts)(-1), '######');
-
-  t.equal(fmt.format('y 0', 1, 'en', true), '######');
-  t.equal(fmt.format('y 0', 1, opts), '######');
+  t.equal(formatColor('a;b;c;d;', 0, opts), null, 'formatColor does not throw');
+  t.equal(isDateFormat('a;b;c;d;', opts), false, 'isDateFormat does not throw');
 
   t.end();
 });

@@ -2,18 +2,31 @@
   "name": "numfmt",
   "description": "Full Excel style number formatting",
   "author": "Borgar Þorsteinsson <borgar@borgar.net>",
-  "version": "2.5.2",
+  "version": "3.0.0",
   "scripts": {
-    "start": "webpack --mode development --watch",
-    "build": "webpack --mode production",
-    "dev": "nodemon -w test -w lib -x 'SKIPTABLES=1 tape 'test/*-test.js'|tap-min'",
-    "lint": "eslint index.js lib test",
+    "build": "NODE_ENV=production rollup -c",
+    "build:types": "jsdoc -c tsd.json lib>dist/numfmt.d.ts",
+    "build:docs": "echo '# Numfmt API\n'>API.md; jsdoc -t node_modules/@borgar/jsdoc-tsmd -d console lib>>API.md",
+    "build:all": "npm run build && npm run build:types && npm run build:docs",
+    "start": "nodemon -w test -w lib -x 'SKIPTABLES=1 tape 'test/*-test.js'|tap-min'",
+    "lint": "eslint lib test",
     "test-all": "tape 'test/*-test.js'",
-    "test": "SKIPTABLES=1 tape 'test/*-test.js'|tap-min"
+    "test": "SKIPTABLES=1 tape './{lib,test}/*{.spec,-test}.js'|tap-min"
   },
-  "main": "./index.js",
+  "main": "dist/numfmt.js",
+  "types": "dist/numfmt.d.ts",
+  "module": "lib/index.js",
+  "exports": {
+    ".": {
+      "require": "./dist/numfmt.js",
+      "default": "./lib/index.js"
+    }
+  },
   "preferGlobal": false,
-  "repository": "git://github.com/borgar/numfmt.git",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/borgar/numfmt.git"
+  },
   "homepage": "https://github.com/borgar/numfmt",
   "bugs": {
     "url": "http://github.com/borgar/numfmt/issues"
@@ -21,6 +34,8 @@
   "keywords": [
     "excel",
     "spreadsheet",
+    "xls",
+    "xlsx",
     "number",
     "date",
     "format",
@@ -28,19 +43,20 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "@babel/core": "~7.21.0",
+    "@babel/core": "~7.24.5",
     "@babel/plugin-proposal-class-properties": "~7.18.6",
-    "@babel/plugin-proposal-export-default-from": "~7.18.10",
-    "@babel/polyfill": "~7.12.1",
-    "@babel/preset-env": "~7.20.2",
-    "@borgar/eslint-config": "~3.0.0",
-    "babel-loader": "~9.1.2",
-    "eslint": "~8.35.0",
-    "eslint-plugin-import": "~2.27.5",
-    "tap-min": "~2.0.0",
-    "tape": "~5.6.3",
-    "terser-webpack-plugin": "~5.3.6",
-    "webpack": "~5.75.0",
-    "webpack-cli": "~5.0.1"
+    "@babel/plugin-proposal-export-default-from": "~7.24.1",
+    "@babel/preset-env": "~7.24.5",
+    "@borgar/eslint-config": "~3.1.0",
+    "@borgar/jsdoc-tsmd": "~0.2.2",
+    "@rollup/plugin-babel": "~6.0.4",
+    "@rollup/plugin-terser": "~0.4.4",
+    "eslint": "~8.57.0",
+    "eslint-plugin-import": "~2.29.1",
+    "eslint-plugin-jsdoc": "~48.2.4",
+    "jsdoc": "~4.0.3",
+    "rollup": "~4.12.0",
+    "tap-min": "~3.0.0",
+    "tape": "~5.7.5"
   }
 }
