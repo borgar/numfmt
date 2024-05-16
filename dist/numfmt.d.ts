@@ -55,28 +55,22 @@ export declare function addLocale(localeSettings: {
 }, l4e: string): LocaleData;
 
 /**
- * Convert a spreadsheet serial date to native JavaScript Date, or array of date
- * parts. Accurate to a second.
+ * Convert a spreadsheet serial date to an array of date parts.
+ * Accurate to a second.
  * ```js
  * // output as [ Y, M, D, h, m, s ]
- * numfmt.dateFromSerial(28627); // [ 1978, 5, 17, 0, 0, 0 ]
- * // output as Date
- * numfmt.dateFromSerial(28627); // new Date(1978, 5, 17)
+ * dateFromSerial(28627); // [ 1978, 5, 17, 0, 0, 0 ]
  * ````
  *
  * @param serialDate The date
  * @param [options={}] The options
- * @param [options.nativeDate=false] Makes this function return a native Date object rather than an array of
-  date values (`[ 1978, 5, 17, 0, 0, 0 ]`).
- * @returns returns an array of date parts or Date depending on options
+ * @param [options.leap1900=true] Simulate the Lotus 1-2-3 [1900 leap year bug](https://docs.microsoft.com/en-us/office/troubleshoot/excel/wrongly-assumes-1900-is-leap-year).
+ * @returns returns an array of date parts
  */
 export declare function dateFromSerial(serialDate: number, options?: {
-    /**
-     * Makes this function return a native Date object rather than an array of
-     *   date values (`[ 1978, 5, 17, 0, 0, 0 ]`).
-     */
-    nativeDate?: boolean;
-}): (Date | Array<number>);
+    /** Simulate the Lotus 1-2-3 [1900 leap year bug](https://docs.microsoft.com/en-us/office/troubleshoot/excel/wrongly-assumes-1900-is-leap-year). */
+    leap1900?: boolean;
+}): Array<number>;
 
 /**
  * Convert a native JavaScript Date, or array to an spreadsheet serial date.
@@ -84,11 +78,11 @@ export declare function dateFromSerial(serialDate: number, options?: {
  * numbers, a null.
  * ```js
  * // input as Date
- * numfmt.dateToSerial(new Date(1978, 5, 17)); // 28627
+ * dateToSerial(new Date(1978, 5, 17)); // 28627
  * // input as [ Y, M, D, h, m, s ]
- * numfmt.dateToSerial([ 1978, 5, 17 ]); // 28627
+ * dateToSerial([ 1978, 5, 17 ]); // 28627
  * // other input
- * numfmt.dateToSerial("something else"); // null
+ * dateToSerial("something else"); // null
  * ````
  *
  * @param date The date
@@ -129,9 +123,8 @@ export declare function dateToSerial(date: (Date | Array<number>), options?: {
    It is a requirement in the Ecma OOXML specification so it is on by default.
  * @param [options.locale=""] A BCP 47 string tag. Locale default is english with a `\u00a0`
    grouping symbol (see [addLocale](#addLocale))
- * @param [options.nbsp=true] By default the formatters will use a non-breaking-space rather than a
-   regular space in output. Setting this to false will make it use regular
-   spaces instead.
+ * @param [options.nbsp=false] By default the output will use a regular space, but in many cases you
+   may desire a non-breaking-space instead.
  * @param [options.overflow="######"] The string emitted when a formatter fails to format a date that is out
    of bounds.
  * @param [options.throws=true] Should the formatter throw an error if a provided pattern is invalid.
@@ -173,9 +166,8 @@ export declare function format(pattern: string, value: any, options?: {
      */
     locale?: string;
     /**
-     * By default the formatters will use a non-breaking-space rather than a
-     *    regular space in output. Setting this to false will make it use regular
-     *    spaces instead.
+     * By default the output will use a regular space, but in many cases you
+     *    may desire a non-breaking-space instead.
      */
     nbsp?: boolean;
     /**
@@ -275,7 +267,7 @@ export declare function getFormatInfo(pattern: string, options?: {
  * @param locale A BCP 47 string tag of the locale, or an Excel locale code.
  * @returns - An object of format date properties.
  */
-export declare function getLocale(locale: string): LocaleData;
+export declare function getLocale(locale: string): (LocaleData | null);
 
 /**
  * Determine if a given format pattern is a date pattern.
@@ -310,6 +302,14 @@ export declare function isPercentFormat(pattern: string): boolean;
 export declare function isTextFormat(pattern: string): boolean;
 
 /**
+ * Determine if a given format pattern is valid.
+ *
+ * @param pattern A format pattern in the ECMA-376 number format.
+ * @returns True if the specified pattern is valid, False otherwise.
+ */
+export declare function isValidFormat(pattern: string): boolean;
+
+/**
  * Parse a string input and return its boolean value. If the input was not
  * recognized or valid, the function returns a `null`, for valid input it
  * returns an object with one property:
@@ -328,18 +328,9 @@ export declare function parseBool(value: string): (ParseData | null);
  * - `z`: the number format of the input (if applicable).
  *
  * @param value The date to parse
- * @param [options={}] Options
- * @param [options.locale=""] A BCP 47 string tag. Locale default is english with a `\u00a0` grouping
- symbol (see [addLocale](#addLocale))
  * @returns An object of the parsed value and a corresponding format string
  */
-export declare function parseDate(value: string, options?: {
-    /**
-     * A BCP 47 string tag. Locale default is english with a `\u00a0` grouping
-     *  symbol (see [addLocale](#addLocale))
-     */
-    locale?: string;
-}): (ParseData | null);
+export declare function parseDate(value: string): (ParseData | null);
 
 /**
  * Parse a regular IETF BCP 47 locale tag and emit an object of its parts.
@@ -378,8 +369,7 @@ export declare function parseTime(value: string): (ParseData | null);
  * Attempt to parse a "spreadsheet input" string input and return its value and
  * format. If the input was not recognized or valid, the function returns a
  * `null`, for valid input it returns an object with two properties:
- * - `v`: The parsed value. For dates, this will be an Excel style serial date
- *        unless the `nativeDate` option is used.
+ * - `v`: The parsed value. For dates, this will be an Excel style serial date.
  * - `z`: (Optionally) the number format string of the input. This property will
  *        not be present if it amounts to the `General` format.
  * `parseValue()` recognizes a wide range of dates and date-times, times,
@@ -419,18 +409,9 @@ export declare function parseTime(value: string): (ParseData | null);
  * functions.
  *
  * @param value The value to parse
- * @param [options={}] Options
- * @param [options.locale=""] A BCP 47 string tag. Locale default is
-        english with a `\u00a0` grouping symbol (see [addLocale](#addLocale))
  * @returns An object of the parsed value and a corresponding format string
  */
-export declare function parseValue(value: string, options?: {
-    /**
-     * A BCP 47 string tag. Locale default is
-     *         english with a `\u00a0` grouping symbol (see [addLocale](#addLocale))
-     */
-    locale?: string;
-}): (ParseData | null);
+export declare function parseValue(value: string): (ParseData | null);
 
 /**
  * Return a number rounded to the specified amount of places. This is the
@@ -649,5 +630,10 @@ export declare type LocaleToken = {
     territory: string;
 };
 
-export declare type ParseData = void;
+export declare type ParseData = {
+    /** the value */
+    v: (number | boolean);
+    /** number format pattern */
+    z?: string;
+};
 

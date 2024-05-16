@@ -13,12 +13,13 @@
 - [isDateFormat( pattern )](#isDateFormat)
 - [isPercentFormat( pattern )](#isPercentFormat)
 - [isTextFormat( pattern )](#isTextFormat)
+- [isValidFormat( pattern )](#isValidFormat)
 - [parseBool( value )](#parseBool)
-- [parseDate( value, _\[options\]_ )](#parseDate)
+- [parseDate( value )](#parseDate)
 - [parseLocale( locale )](#parseLocale)
 - [parseNumber( value )](#parseNumber)
 - [parseTime( value )](#parseTime)
-- [parseValue( value, _\[options\]_ )](#parseValue)
+- [parseValue( value )](#parseValue)
 - [round( number, _\[places\]_ )](#round)
 - [tokenize( pattern )](#tokenize)
 
@@ -73,28 +74,26 @@ Any partial set of properties may be returned to have the defaults used where pr
 
 ---
 
-### <a id="dateFromSerial" href="#dateFromSerial">#</a> dateFromSerial( serialDate, _[options = `{}`]_ ) ⇒ `Date` | `Array<number>`
+### <a id="dateFromSerial" href="#dateFromSerial">#</a> dateFromSerial( serialDate, _[options = `{}`]_ ) ⇒ `Array<number>`
 
-Convert a spreadsheet serial date to native JavaScript Date, or array of date parts. Accurate to a second.
+Convert a spreadsheet serial date to an array of date parts. Accurate to a second.
 
 ```js
 // output as [ Y, M, D, h, m, s ]
-numfmt.dateFromSerial(28627); // [ 1978, 5, 17, 0, 0, 0 ]
-// output as Date
-numfmt.dateFromSerial(28627); // new Date(1978, 5, 17)
+dateFromSerial(28627); // [ 1978, 5, 17, 0, 0, 0 ]
 ````
 
 ##### Parameters
 
-| Name                 | Type      | Default | Description                                                                                                         |
-| -------------------- | --------- | ------- | ------------------------------------------------------------------------------------------------------------------- |
-| serialDate           | `number`  |         | The date                                                                                                            |
-| [options]            | `object`  | `{}`    | The options                                                                                                         |
-| [options].nativeDate | `boolean` | `false` | Makes this function return a native Date object rather than an array of   date values (`[ 1978, 5, 17, 0, 0, 0 ]`). |
+| Name               | Type      | Default | Description                                                                                                                                  |
+| ------------------ | --------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| serialDate         | `number`  |         | The date                                                                                                                                     |
+| [options]          | `object`  | `{}`    | The options                                                                                                                                  |
+| [options].leap1900 | `boolean` | `true`  | Simulate the Lotus 1-2-3 [1900 leap year bug](https://docs.microsoft.com/en-us/office/troubleshoot/excel/wrongly-assumes-1900-is-leap-year). |
 
 ##### Returns
 
-`Date` | `Array<number>` – returns an array of date parts or Date depending on options
+`Array<number>` – returns an array of date parts
 
 ---
 
@@ -106,11 +105,11 @@ Returns a serial date number if input was a Date object or an array of numbers, 
 
 ```js
 // input as Date
-numfmt.dateToSerial(new Date(1978, 5, 17)); // 28627
+dateToSerial(new Date(1978, 5, 17)); // 28627
 // input as [ Y, M, D, h, m, s ]
-numfmt.dateToSerial([ 1978, 5, 17 ]); // 28627
+dateToSerial([ 1978, 5, 17 ]); // 28627
 // other input
-numfmt.dateToSerial("something else"); // null
+dateToSerial("something else"); // null
 ````
 
 ##### Parameters
@@ -147,7 +146,7 @@ Formats a value as a string and returns the result.
 | [options].invalid         | `string`  | `"######"` | The string emitted when no-throw mode fails to parse a pattern.                                                                                                                                                             |
 | [options].leap1900        | `boolean` | `true`     | Simulate the Lotus 1-2-3 [1900 leap year bug](https://docs.microsoft.com/en-us/office/troubleshoot/excel/wrongly-assumes-1900-is-leap-year).    It is a requirement in the Ecma OOXML specification so it is on by default. |
 | [options].locale          | `string`  | `""`       | A BCP 47 string tag. Locale default is english with a `\u00a0`    grouping symbol (see [addLocale](#addLocale))                                                                                                             |
-| [options].nbsp            | `boolean` | `true`     | By default the formatters will use a non-breaking-space rather than a    regular space in output. Setting this to false will make it use regular    spaces instead.                                                         |
+| [options].nbsp            | `boolean` | `false`    | By default the output will use a regular space, but in many cases you    may desire a non-breaking-space instead.                                                                                                           |
 | [options].overflow        | `string`  | `"######"` | The string emitted when a formatter fails to format a date that is out    of bounds.                                                                                                                                        |
 | [options].throws          | `boolean` | `true`     | Should the formatter throw an error if a provided pattern is invalid.    If false, a formatter will be constructed which instead outputs an error    string (see _invalid_ in this table).                                  |
 
@@ -221,7 +220,7 @@ Returns an object detailing the properties and internals of a format parsed form
 
 ---
 
-### <a id="getLocale" href="#getLocale">#</a> getLocale( locale ) ⇒ [`LocaleData`](#LocaleData)
+### <a id="getLocale" href="#getLocale">#</a> getLocale( locale ) ⇒ [`LocaleData`](#LocaleData) | `null`
 
 Used by the formatter to pull a locate from its registered locales. If subtag isn't available but the base language is, the base language is used. So if `en-CA` is not found, the formatter tries to find `en` else it returns a `null`.
 
@@ -233,7 +232,7 @@ Used by the formatter to pull a locate from its registered locales. If subtag is
 
 ##### Returns
 
-[`LocaleData`](#LocaleData) – - An object of format date properties.
+[`LocaleData`](#LocaleData) | `null` – - An object of format date properties.
 
 ---
 
@@ -293,6 +292,22 @@ For example `@` or `@" USD"` are text patterns but `#;@` is not.
 
 ---
 
+### <a id="isValidFormat" href="#isValidFormat">#</a> isValidFormat( pattern ) ⇒ `boolean`
+
+Determine if a given format pattern is valid.
+
+##### Parameters
+
+| Name    | Type     | Description                                     |
+| ------- | -------- | ----------------------------------------------- |
+| pattern | `string` | A format pattern in the ECMA-376 number format. |
+
+##### Returns
+
+`boolean` – True if the specified pattern is valid, False otherwise.
+
+---
+
 ### <a id="parseBool" href="#parseBool">#</a> parseBool( value ) ⇒ [`ParseData`](#ParseData) | `null`
 
 Parse a string input and return its boolean value. If the input was not recognized or valid, the function returns a `null`, for valid input it returns an object with one property:
@@ -313,7 +328,7 @@ Parse a string input and return its boolean value. If the input was not recogniz
 
 ---
 
-### <a id="parseDate" href="#parseDate">#</a> parseDate( value, _[options = `{}`]_ ) ⇒ [`ParseData`](#ParseData) | `null`
+### <a id="parseDate" href="#parseDate">#</a> parseDate( value ) ⇒ [`ParseData`](#ParseData) | `null`
 
 Parse a date or datetime string input and return its value and format. If the input was not recognized or valid, the function returns a `null`, for valid input it returns an object with two properties:
 
@@ -323,11 +338,9 @@ Parse a date or datetime string input and return its value and format. If the in
 
 ##### Parameters
 
-| Name             | Type     | Default | Description                                                                                                   |
-| ---------------- | -------- | ------- | ------------------------------------------------------------------------------------------------------------- |
-| value            | `string` |         | The date to parse                                                                                             |
-| [options]        | `object` | `{}`    | Options                                                                                                       |
-| [options].locale | `string` | `""`    | A BCP 47 string tag. Locale default is english with a `\u00a0` grouping  symbol (see [addLocale](#addLocale)) |
+| Name  | Type     | Description       |
+| ----- | -------- | ----------------- |
+| value | `string` | The date to parse |
 
 ##### Returns
 
@@ -391,11 +404,11 @@ Parse a time string input and return its value and format. If the input was not 
 
 ---
 
-### <a id="parseValue" href="#parseValue">#</a> parseValue( value, _[options = `{}`]_ ) ⇒ [`ParseData`](#ParseData) | `null`
+### <a id="parseValue" href="#parseValue">#</a> parseValue( value ) ⇒ [`ParseData`](#ParseData) | `null`
 
 Attempt to parse a "spreadsheet input" string input and return its value and format. If the input was not recognized or valid, the function returns a `null`, for valid input it returns an object with two properties:
 
-- `v`: The parsed value. For dates, this will be an Excel style serial date        unless the `nativeDate` option is used. - `z`: (Optionally) the number format string of the input. This property will        not be present if it amounts to the `General` format.
+- `v`: The parsed value. For dates, this will be an Excel style serial date. - `z`: (Optionally) the number format string of the input. This property will        not be present if it amounts to the `General` format.
 
 `parseValue()` recognizes a wide range of dates and date-times, times, numbers, and booleans. Some examples:
 
@@ -424,11 +437,9 @@ Be warned that the parser do not (yet) take locale into account so all input is 
 
 ##### Parameters
 
-| Name             | Type     | Default | Description                                                                                                          |
-| ---------------- | -------- | ------- | -------------------------------------------------------------------------------------------------------------------- |
-| value            | `string` |         | The value to parse                                                                                                   |
-| [options]        | `object` | `{}`    | Options                                                                                                              |
-| [options].locale | `string` | `""`    | A BCP 47 string tag. Locale default is         english with a `\u00a0` grouping symbol (see [addLocale](#addLocale)) |
+| Name  | Type     | Description        |
+| ----- | -------- | ------------------ |
+| value | `string` | The value to parse |
 
 ##### Returns
 
@@ -625,14 +636,14 @@ An object of properties for a locale tag.
 
 ---
 
-### <a id="ParseData" href="#ParseData">#</a> ParseData = void
+### <a id="ParseData" href="#ParseData">#</a> ParseData
 
 ##### Properties
 
 | Name | Type                  | Description           |
 | ---- | --------------------- | --------------------- |
 | v    | `number` \| `boolean` | the value             |
-| z    | `string`              | number format pattern |
+| [z]  | `string`              | number format pattern |
 
 ---
 
