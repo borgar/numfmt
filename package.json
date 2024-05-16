@@ -9,7 +9,7 @@
     "build:docs": "echo '# Numfmt API\n'>API.md; jsdoc -t node_modules/@borgar/jsdoc-tsmd -d console lib>>API.md",
     "build:all": "npm run build && npm run build:types && npm run build:docs",
     "start": "nodemon -w test -w lib -x 'SKIPTABLES=1 tape 'test/*-test.js'|tap-min'",
-    "lint": "eslint index.js lib test",
+    "lint": "eslint lib test",
     "test-all": "tape 'test/*-test.js'",
     "test": "SKIPTABLES=1 tape './{lib,test}/*{.spec,-test}.js'|tap-min"
   },
