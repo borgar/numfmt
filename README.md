@@ -109,8 +109,8 @@ Only the first section is mandatory, the others are filled in as needed. The sec
 | `E-`, `E+` | Exponential format | `12200000` formatted with `0.00E+00` will emit `"1.22E+07"`
 | `$`, `-`, `+`, `/`, `(`, `)`,  ` ` | Pass-through | The symbol is printed as-is.
 | `\` | Escape | Pass the the next character through as-is.
-| `*` | Fill | Repeat the next character in the format enough times to fill the column to its current width. *Like Excel's TEXT function, numFmt emits nothing when this is used.*
-| `_` | Skip width | Skip the width of the next character. *Like Excel's TEXT function, numFmt emits only a single space when this is used.*
+| `*` | Fill | Repeat the next character in the format enough times to fill the column to its current width. By default numfmt emits nothing when this is used.
+| `_` | Skip width | Skip the width of the next character. By default numfmt emits only a single space when this is used.
 | `"text"` | Pass-through | Pass through whatever text is inside the quotation marks as-is. `7` formatted with `0 "bells"` will emit `"7 bells"`
 | `@` | Text value | When value is a text, emit it as is: `foo` formatted with `"bar"@"bar"` will emit `"barfoobar"`
 | `yy` | Years | Two digit year

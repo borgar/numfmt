@@ -116,6 +116,9 @@ export declare function dateToSerial(date: (Date | Array<number>), options?: {
    out of bounds?
  * @param [options.dateSpanLarge=true] Extends the allowed range of dates from Excel bounds (1900–9999) to
    Google Sheet bounds (0–99999).
+ * @param [options.fillChar=''] When the formatter encounters `*` it normally emits nothing instead of the
+   `*` and the next character (like Excel TEXT function does). Setting this
+   to a character will make the formatter emit that followed by the next one.
  * @param [options.ignoreTimezone=false] Normally when date objects are used with the formatter, time zone is taken
    into account. This makes the formatter ignore the timezone offset.
  * @param [options.invalid="######"] The string emitted when no-throw mode fails to parse a pattern.
@@ -127,6 +130,10 @@ export declare function dateToSerial(date: (Date | Array<number>), options?: {
    may desire a non-breaking-space instead.
  * @param [options.overflow="######"] The string emitted when a formatter fails to format a date that is out
    of bounds.
+ * @param [options.skipChar=''] When the formatter encounters `_` it normally emits a single space instead
+   of the `_` and the next character (like Excel TEXT function does). Setting
+   this to a character will make the formatter emit that followed by the next
+   one.
  * @param [options.throws=true] Should the formatter throw an error if a provided pattern is invalid.
    If false, a formatter will be constructed which instead outputs an error
    string (see _invalid_ in this table).
@@ -148,6 +155,12 @@ export declare function format(pattern: string, value: any, options?: {
      *    Google Sheet bounds (0–99999).
      */
     dateSpanLarge?: boolean;
+    /**
+     * When the formatter encounters `*` it normally emits nothing instead of the
+     *    `*` and the next character (like Excel TEXT function does). Setting this
+     *    to a character will make the formatter emit that followed by the next one.
+     */
+    fillChar?: boolean;
     /**
      * Normally when date objects are used with the formatter, time zone is taken
      *    into account. This makes the formatter ignore the timezone offset.
@@ -175,6 +188,13 @@ export declare function format(pattern: string, value: any, options?: {
      *    of bounds.
      */
     overflow?: string;
+    /**
+     * When the formatter encounters `_` it normally emits a single space instead
+     *    of the `_` and the next character (like Excel TEXT function does). Setting
+     *    this to a character will make the formatter emit that followed by the next
+     *    one.
+     */
+    skipChar?: boolean;
     /**
      * Should the formatter throw an error if a provided pattern is invalid.
      *    If false, a formatter will be constructed which instead outputs an error
