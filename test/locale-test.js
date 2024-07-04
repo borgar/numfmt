@@ -74,10 +74,16 @@ test('locale options', t => {
   t.format('[$-060409]mmmm', 43295, 'Dhuʻl-Qiʻdah');
   t.format('[$-060409]mmmm', 43324, 'Dhuʻl-Hijjah');
 
+  t.format('[$Fr.-807] #,##0.00', 12345.67, 'Fr. 12\'345.67');
+
   // TODO: names for hijri months
-  // Next test is incorrect, excel actually shows "1439 محرم 1"
+  // Next test is known to be incorrect, Excel emits "1439 محرم 1"
   t.format('B2yyyy mmmm d', 42999, '1439 Muharram 1', 'B2yyyy mmmm d');
+
   t.format('[$-060409]yyyy mmmm d', 42999, '1439 Muharram 1', '[$-060409]yyyy mmmm d');
+  t.format('[$-060C01]yyyy mmmm d', 42999, '1439 رمضان 1', '[$-060C01]yyyy mmmm d');
+  t.format('[$-010C01]yyyy mmmm d', 42999, '2017 سبتمبر 21', '[$-010C01]yyyy mmmm d');
+
   t.format('[$-0409]B2yyyy mmmm d', 42999, '2017 September 21', '[$-0409]yyyy mmmm d');
 
   t.end();
