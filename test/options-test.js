@@ -77,6 +77,16 @@ test('option: grouping', t => {
   t.end();
 });
 
+test('option: grouping', t => {
+  t.format('_($* #,##0.00_)', 12345.67, ' $12,345.67 ');
+  t.format('_($* #,##0.00_)', 12345.67, '\x03($12,345.67\x03)', { skipChar: '\x03' });
+  t.format('_($* #,##0.00_)', 12345.67, 'ÆÐ($12,345.67ÆÐ)', { skipChar: 'ÆÐ' });
+  t.format('_($* #,##0.00_)', 12345.67, ' $\x04 12,345.67 ', { fillChar: '\x04' });
+  t.format('_($* #,##0.00_)', 12345.67, ' $ÞÖ 12,345.67 ', { fillChar: 'ÞÖ' });
+  t.format('_($* #,##0.00_)', 12345.67, '\x03($\x04 12,345.67\x03)', { skipChar: '\x03', fillChar: '\x04' });
+  t.end();
+});
+
 // this test is flaky at best in node versions < 14 so only run it in 14+
 if (parseInt(process.version.replace(/^v/, ''), 10) >= 14) {
   test('option: ignoreTimezone', t => {
