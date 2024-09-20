@@ -268,3 +268,15 @@ test('Padding:', t => {
   t.format('.####0', 0, '.0');
   t.end();
 });
+
+test('Tokenizer is not case sensitive:', t => {
+  t.format('mmmm', 1234, 'May');
+  t.format('MMMM', 1234, 'May');
+  t.format('Mmmm', 1234, 'May');
+  t.format('MmMm', 1234, 'May');
+  t.format('dddd', 1234, 'Monday');
+  t.format('DDDD', 1234, 'Monday');
+  t.format('Dddd', 1234, 'Monday');
+  t.format('dDdD', 1234, 'Monday');
+  t.end();
+});
