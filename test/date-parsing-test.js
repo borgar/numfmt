@@ -93,6 +93,38 @@ test('Date specifiers:', t => {
   t.end();
 });
 
+test('Date specifiers: optional quarters', t => {
+  // default operation
+  t.format('yyyy\\Qq', date, '1909Qq');
+  t.format('yyyy\\Qqq', date, '1909Qqq');
+  t.format('yyyy\\Qqqq', date, '1909Qqqq');
+  t.format('yyyy\\Qqqqq', date, '1909Qqqqq');
+  t.format('yyyy\\Qqqqqq', date, '1909Qqqqqq');
+  // opting into quarters
+  t.format('yyyy\\Qq', date, '1909Q1', { q: true });
+  t.format('yyyy\\Qqq', date, '1909Q01', { q: true });
+  t.format('yyyy\\Qqqq', date, '1909Q01', { q: true });
+  t.format('yyyy\\Qqqqq', date, '1909Q01', { q: true });
+  t.format('yyyy\\Qqqqqq', date, '1909Q01', { q: true });
+  t.format('yyyy"Q"q', date, '1909Q1', { q: true });
+  t.format('yyyy-"Q"Q', date, '1909-Q1', { q: true });
+  t.format('yyyy-"Q"Q', date, '1909-Q1', { q: true });
+  // correct quarters
+  t.format('yyyy"Q"q', 31413, '1986Q1', { q: true });
+  t.format('yyyy"Q"q', 31444, '1986Q1', { q: true });
+  t.format('yyyy"Q"q', 31472, '1986Q1', { q: true });
+  t.format('yyyy"Q"q', 31503, '1986Q2', { q: true });
+  t.format('yyyy"Q"q', 31533, '1986Q2', { q: true });
+  t.format('yyyy"Q"q', 31564, '1986Q2', { q: true });
+  t.format('yyyy"Q"q', 31594, '1986Q3', { q: true });
+  t.format('yyyy"Q"q', 31625, '1986Q3', { q: true });
+  t.format('yyyy"Q"q', 31656, '1986Q3', { q: true });
+  t.format('yyyy"Q"q', 31686, '1986Q4', { q: true });
+  t.format('yyyy"Q"q', 31717, '1986Q4', { q: true });
+  t.format('yyyy"Q"q', 31747, '1986Q4', { q: true });
+  t.end();
+});
+
 test('Date specifiers: month vs. minute', t => {
   t.format('h', date, '3');
   t.format('m', date, '1');
