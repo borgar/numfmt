@@ -39,6 +39,12 @@ test('Date specifiers:', t => {
   t.format('HHHH', date, '03');
   t.format('HHHHH', date, '03');
   t.format('HHHHHH', date, '03');
+  t.format('a', date, 'a');
+  t.format('aa', date, 'aa');
+  t.format('aaa', date, 'Sat');
+  t.format('aaaa', date, 'Saturday');
+  t.format('aaaaa', date, 'Saturday');
+  t.format('aaaaaa', date, 'Saturday');
   t.format('d', date, '2');
   t.format('dd', date, '02');
   t.format('ddd', date, 'Sat');
