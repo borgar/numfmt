@@ -280,3 +280,10 @@ test('Tokenizer is not case sensitive:', t => {
   t.format('dDdD', 1234, 'Monday');
   t.end();
 });
+
+test('Comma resolution test:', t => {
+  t.format('#,,"M"', 6000000, '6M');
+  t.format('#,,"M";', 6000000, '6M');
+  t.format('#,,"M";#,,"M";0', 6000000, '6M');
+  t.end();
+});
