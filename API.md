@@ -14,12 +14,12 @@
 - [isPercentFormat( pattern )](#isPercentFormat)
 - [isTextFormat( pattern )](#isTextFormat)
 - [isValidFormat( pattern )](#isValidFormat)
-- [parseBool( value )](#parseBool)
-- [parseDate( value )](#parseDate)
+- [parseBool( value, _\[options\]_ )](#parseBool)
+- [parseDate( value, _\[options\]_ )](#parseDate)
 - [parseLocale( locale )](#parseLocale)
-- [parseNumber( value )](#parseNumber)
-- [parseTime( value )](#parseTime)
-- [parseValue( value )](#parseValue)
+- [parseNumber( value, _\[options\]_ )](#parseNumber)
+- [parseTime( value, _\[options\]_ )](#parseTime)
+- [parseValue( value, _\[options\]_ )](#parseValue)
 - [round( number, _\[places\]_ )](#round)
 - [tokenize( pattern )](#tokenize)
 
@@ -48,25 +48,27 @@ Any partial set of properties may be returned to have the defaults used where pr
 
 ##### Parameters
 
-| Name                      | Type            | Default                                                                                                                                           | Description                                                   |
-| ------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
-| localeSettings            | `object`        |                                                                                                                                                   | A collection of settings for a locale.                        |
-| localeSettings.[ampm]     | `Array<string>` | `["AM","PM"]`                                                                                                                                     | How AM and PM should be presented.                            |
-| localeSettings.[ddd]      | `Array<string>` | `["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]`                                                                                               | Shortened day names (e.g. `Wed`)                              |
-| localeSettings.[dddd]     | `Array<string>` | `["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]`                                                                  | Long day names (e.g. `Wednesday`)                             |
-| localeSettings.[decimal]  | `string`        | `"."`                                                                                                                                             | Symbol used to separate integers from fractions (usually `.`) |
-| localeSettings.[exponent] | `string`        | `"E"`                                                                                                                                             | Symbol used to indicate an exponent (usually `E`)             |
-| localeSettings.[group]    | `string`        | `"\u00a0"`                                                                                                                                        | Symbol used as a grouping separator (`1,000,000` uses `,`)    |
-| localeSettings.[infinity] | `string`        | `"∞"`                                                                                                                                             | Symbol used to indicate infinite values (`∞`)                 |
-| localeSettings.[mmm]      | `Array<string>` | `["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]`                                                            | Short month names for the Gregorian calendar (e.g. `Nov`)     |
-| localeSettings.[mmm6]     | `Array<string>` | `["Muh.", "Saf.", "Rab. I", "Rab. II", "Jum. I", "Jum. II", "Raj.", "Sha.", "Ram.", "Shaw.", "Dhuʻl-Q.", "Dhuʻl-H."]`                             | Short month names for the Islamic calendar (e.g. `Raj.`)      |
-| localeSettings.[mmmm]     | `Array<string>` | `["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]`                      | Long month names for the Gregorian calendar (e.g. `November`) |
-| localeSettings.[mmmm6]    | `Array<string>` | `["Muharram", "Safar", "Rabiʻ I", "Rabiʻ II", "Jumada I", "Jumada II", "Rajab", "Shaʻban", "Ramadan", "Shawwal", "Dhuʻl-Qiʻdah", "Dhuʻl-Hijjah"]` | Long month names for the Islamic calendar (e.g. `Rajab`)      |
-| localeSettings.[nan]      | `string`        | `"NaN"`                                                                                                                                           | Symbol used to indicate NaN values (`NaN`)                    |
-| localeSettings.[negative] | `string`        | `"-"`                                                                                                                                             | Symbol used to indicate positive numbers (usually `-`)        |
-| localeSettings.[percent]  | `string`        | `"%"`                                                                                                                                             | Symbol used to indicate a percentage (usually `%`)            |
-| localeSettings.[positive] | `string`        | `"+"`                                                                                                                                             | Symbol used to indicate positive numbers (usually `+`)        |
-| l4e                       | `string`        |                                                                                                                                                   | A string BCP 47 tag of the locale.                            |
+| Name                       | Type            | Default                                                                                                                                           | Description                                                                    |
+| -------------------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| localeSettings             | `object`        |                                                                                                                                                   | A collection of settings for a locale.                                         |
+| localeSettings.[ampm]      | `Array<string>` | `["AM","PM"]`                                                                                                                                     | How AM and PM should be presented.                                             |
+| localeSettings.[bool]      | `Array<string>` | `["TRUE", "FALSE"]`                                                                                                                               | How TRUE and FALSE should be presented.                                        |
+| localeSettings.[ddd]       | `Array<string>` | `["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]`                                                                                               | Shortened day names (e.g. `Wed`)                                               |
+| localeSettings.[dddd]      | `Array<string>` | `["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]`                                                                  | Long day names (e.g. `Wednesday`)                                              |
+| localeSettings.[decimal]   | `string`        | `"."`                                                                                                                                             | Symbol used to separate integers from fractions (usually `.`)                  |
+| localeSettings.[exponent]  | `string`        | `"E"`                                                                                                                                             | Symbol used to indicate an exponent (usually `E`)                              |
+| localeSettings.[group]     | `string`        | `"\u00a0"`                                                                                                                                        | Symbol used as a grouping separator (`1,000,000` uses `,`)                     |
+| localeSettings.[infinity]  | `string`        | `"∞"`                                                                                                                                             | Symbol used to indicate infinite values (`∞`)                                  |
+| localeSettings.[mmm]       | `Array<string>` | `["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]`                                                            | Short month names for the Gregorian calendar (e.g. `Nov`)                      |
+| localeSettings.[mmm6]      | `Array<string>` | `["Muh.", "Saf.", "Rab. I", "Rab. II", "Jum. I", "Jum. II", "Raj.", "Sha.", "Ram.", "Shaw.", "Dhuʻl-Q.", "Dhuʻl-H."]`                             | Short month names for the Islamic calendar (e.g. `Raj.`)                       |
+| localeSettings.[mmmm]      | `Array<string>` | `["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]`                      | Long month names for the Gregorian calendar (e.g. `November`)                  |
+| localeSettings.[mmmm6]     | `Array<string>` | `["Muharram", "Safar", "Rabiʻ I", "Rabiʻ II", "Jumada I", "Jumada II", "Rajab", "Shaʻban", "Ramadan", "Shawwal", "Dhuʻl-Qiʻdah", "Dhuʻl-Hijjah"]` | Long month names for the Islamic calendar (e.g. `Rajab`)                       |
+| localeSettings.[nan]       | `string`        | `"NaN"`                                                                                                                                           | Symbol used to indicate NaN values (`NaN`)                                     |
+| localeSettings.[negative]  | `string`        | `"-"`                                                                                                                                             | Symbol used to indicate positive numbers (usually `-`)                         |
+| localeSettings.[percent]   | `string`        | `"%"`                                                                                                                                             | Symbol used to indicate a percentage (usually `%`)                             |
+| localeSettings.[positive]  | `string`        | `"+"`                                                                                                                                             | Symbol used to indicate positive numbers (usually `+`)                         |
+| localeSettings.[preferMDY] | `boolean`       | `false`                                                                                                                                           | Is the prefered date format month first (12/31/2025) or day first (31/12/2025) |
+| l4e                        | `string`        |                                                                                                                                                   | A string BCP 47 tag of the locale.                                             |
 
 ##### Returns
 
@@ -310,7 +312,7 @@ Determine if a given format pattern is valid.
 
 ---
 
-### <a id="parseBool" href="#parseBool">#</a> parseBool( value ) ⇒ [`ParseData`](#ParseData) | `null`
+### <a id="parseBool" href="#parseBool">#</a> parseBool( value, _[options = `{}`]_ ) ⇒ [`ParseData`](#ParseData) | `null`
 
 Parse a string input and return its boolean value. If the input was not recognized or valid, the function returns a `null`, for valid input it returns an object with one property:
 
@@ -320,9 +322,11 @@ Parse a string input and return its boolean value. If the input was not recogniz
 
 ##### Parameters
 
-| Name  | Type     | Description                   |
-| ----- | -------- | ----------------------------- |
-| value | `string` | The supposed boolean to parse |
+| Name             | Type     | Default | Description                                                                                                     |
+| ---------------- | -------- | ------- | --------------------------------------------------------------------------------------------------------------- |
+| value            | `string` |         | The supposed boolean to parse                                                                                   |
+| [options]        | `object` | `{}`    | Options                                                                                                         |
+| [options].locale | `string` | `""`    | A BCP 47 string tag. Locale default is english with a `\u00a0`    grouping symbol (see [addLocale](#addLocale)) |
 
 ##### Returns
 
@@ -330,7 +334,7 @@ Parse a string input and return its boolean value. If the input was not recogniz
 
 ---
 
-### <a id="parseDate" href="#parseDate">#</a> parseDate( value ) ⇒ [`ParseData`](#ParseData) | `null`
+### <a id="parseDate" href="#parseDate">#</a> parseDate( value, _[options = `{}`]_ ) ⇒ [`ParseData`](#ParseData) | `null`
 
 Parse a date or datetime string input and return its value and format. If the input was not recognized or valid, the function returns a `null`, for valid input it returns an object with two properties:
 
@@ -340,9 +344,11 @@ Parse a date or datetime string input and return its value and format. If the in
 
 ##### Parameters
 
-| Name  | Type     | Description       |
-| ----- | -------- | ----------------- |
-| value | `string` | The date to parse |
+| Name             | Type     | Default | Description                                                                                                     |
+| ---------------- | -------- | ------- | --------------------------------------------------------------------------------------------------------------- |
+| value            | `string` |         | The date to parse                                                                                               |
+| [options]        | `object` | `{}`    | Options                                                                                                         |
+| [options].locale | `string` | `""`    | A BCP 47 string tag. Locale default is english with a `\u00a0`    grouping symbol (see [addLocale](#addLocale)) |
 
 ##### Returns
 
@@ -366,7 +372,7 @@ Parse a regular IETF BCP 47 locale tag and emit an object of its parts. Irregula
 
 ---
 
-### <a id="parseNumber" href="#parseNumber">#</a> parseNumber( value ) ⇒ [`ParseData`](#ParseData) | `null`
+### <a id="parseNumber" href="#parseNumber">#</a> parseNumber( value, _[options = `{}`]_ ) ⇒ [`ParseData`](#ParseData) | `null`
 
 Parse a numeric string input and return its value and format. If the input was not recognized or valid, the function returns a `null`, for valid input it returns an object with two properties:
 
@@ -376,9 +382,11 @@ Parse a numeric string input and return its value and format. If the input was n
 
 ##### Parameters
 
-| Name  | Type     | Description         |
-| ----- | -------- | ------------------- |
-| value | `string` | The number to parse |
+| Name             | Type     | Default | Description                                                                                                     |
+| ---------------- | -------- | ------- | --------------------------------------------------------------------------------------------------------------- |
+| value            | `string` |         | The number to parse                                                                                             |
+| [options]        | `object` | `{}`    | Options                                                                                                         |
+| [options].locale | `string` | `""`    | A BCP 47 string tag. Locale default is english with a `\u00a0`    grouping symbol (see [addLocale](#addLocale)) |
 
 ##### Returns
 
@@ -386,7 +394,7 @@ Parse a numeric string input and return its value and format. If the input was n
 
 ---
 
-### <a id="parseTime" href="#parseTime">#</a> parseTime( value ) ⇒ [`ParseData`](#ParseData) | `null`
+### <a id="parseTime" href="#parseTime">#</a> parseTime( value, _[options = `{}`]_ ) ⇒ [`ParseData`](#ParseData) | `null`
 
 Parse a time string input and return its value and format. If the input was not recognized or valid, the function returns a `null`, for valid input it returns an object with two properties:
 
@@ -396,9 +404,11 @@ Parse a time string input and return its value and format. If the input was not 
 
 ##### Parameters
 
-| Name  | Type     | Description       |
-| ----- | -------- | ----------------- |
-| value | `string` | The date to parse |
+| Name             | Type     | Default | Description                                                                                                     |
+| ---------------- | -------- | ------- | --------------------------------------------------------------------------------------------------------------- |
+| value            | `string` |         | The date to parse                                                                                               |
+| [options]        | `object` | `{}`    | Options                                                                                                         |
+| [options].locale | `string` | `""`    | A BCP 47 string tag. Locale default is english with a `\u00a0`    grouping symbol (see [addLocale](#addLocale)) |
 
 ##### Returns
 
@@ -406,7 +416,7 @@ Parse a time string input and return its value and format. If the input was not 
 
 ---
 
-### <a id="parseValue" href="#parseValue">#</a> parseValue( value ) ⇒ [`ParseData`](#ParseData) | `null`
+### <a id="parseValue" href="#parseValue">#</a> parseValue( value, _[options = `{}`]_ ) ⇒ [`ParseData`](#ParseData) | `null`
 
 Attempt to parse a "spreadsheet input" string input and return its value and format. If the input was not recognized or valid, the function returns a `null`, for valid input it returns an object with two properties:
 
@@ -439,9 +449,11 @@ Be warned that the parser do not (yet) take locale into account so all input is 
 
 ##### Parameters
 
-| Name  | Type     | Description        |
-| ----- | -------- | ------------------ |
-| value | `string` | The value to parse |
+| Name             | Type     | Default | Description                                                                                                     |
+| ---------------- | -------- | ------- | --------------------------------------------------------------------------------------------------------------- |
+| value            | `string` |         | The value to parse                                                                                              |
+| [options]        | `object` | `{}`    | Options                                                                                                         |
+| [options].locale | `string` | `""`    | A BCP 47 string tag. Locale default is english with a `\u00a0`    grouping symbol (see [addLocale](#addLocale)) |
 
 ##### Returns
 
@@ -604,23 +616,25 @@ An object of properties used by a formatter when printing a number in a certain 
 
 ##### Properties
 
-| Name     | Type            | Description                                                   |
-| -------- | --------------- | ------------------------------------------------------------- |
-| ampm     | `Array<string>` | How AM and PM should be presented                             |
-| ddd      | `Array<string>` | Shortened day names (`Wed`)                                   |
-| dddd     | `Array<string>` | Long day names (`Wednesday`)                                  |
-| decimal  | `string`        | Symbol used to separate integers from fractions (usually `.`) |
-| exponent | `string`        | Symbol used to indicate an exponent (usually `E`)             |
-| group    | `string`        | Symbol used as a grouping separator (`1,000,000` uses `,`)    |
-| infinity | `string`        | Symbol used to indicate infinite values (`∞`)                 |
-| mmm      | `Array<string>` | Short month names for the Gregorian calendar (`Nov`)          |
-| mmm6     | `Array<string>` | Short month names for the Islamic calendar (`Raj.`)           |
-| mmmm     | `Array<string>` | Long month names for the Gregorian calendar (`November`)      |
-| mmmm6    | `Array<string>` | Long month names for the Islamic calendar (`Rajab`)           |
-| nan      | `string`        | Symbol used to indicate NaN values (`NaN`)                    |
-| negative | `string`        | Symbol used to indicate positive numbers (usually `-`)        |
-| percent  | `string`        | Symbol used to indicate a percentage (usually `%`)            |
-| positive | `string`        | Symbol used to indicate positive numbers (usually `+`)        |
+| Name      | Type            | Description                                                                    |
+| --------- | --------------- | ------------------------------------------------------------------------------ |
+| ampm      | `Array<string>` | How AM and PM should be presented                                              |
+| bool      | `Array<string>` | How TRUE and FALSE should be presented                                         |
+| ddd       | `Array<string>` | Shortened day names (`Wed`)                                                    |
+| dddd      | `Array<string>` | Long day names (`Wednesday`)                                                   |
+| decimal   | `string`        | Symbol used to separate integers from fractions (usually `.`)                  |
+| exponent  | `string`        | Symbol used to indicate an exponent (usually `E`)                              |
+| group     | `string`        | Symbol used as a grouping separator (`1,000,000` uses `,`)                     |
+| infinity  | `string`        | Symbol used to indicate infinite values (`∞`)                                  |
+| mmm       | `Array<string>` | Short month names for the Gregorian calendar (`Nov`)                           |
+| mmm6      | `Array<string>` | Short month names for the Islamic calendar (`Raj.`)                            |
+| mmmm      | `Array<string>` | Long month names for the Gregorian calendar (`November`)                       |
+| mmmm6     | `Array<string>` | Long month names for the Islamic calendar (`Rajab`)                            |
+| nan       | `string`        | Symbol used to indicate NaN values (`NaN`)                                     |
+| negative  | `string`        | Symbol used to indicate positive numbers (usually `-`)                         |
+| percent   | `string`        | Symbol used to indicate a percentage (usually `%`)                             |
+| positive  | `string`        | Symbol used to indicate positive numbers (usually `+`)                         |
+| preferMDY | `boolean`       | Is the prefered date format month first (12/31/2025) or day first (31/12/2025) |
 
 ---
 
