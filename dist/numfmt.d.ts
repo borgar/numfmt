@@ -4,6 +4,7 @@
  *
  * @param localeSettings A collection of settings for a locale.
  * @param [localeSettings.ampm=["AM","PM"]] How AM and PM should be presented.
+ * @param [localeSettings.bool=["TRUE", "FALSE"]] How TRUE and FALSE should be presented.
  * @param [localeSettings.ddd=["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]] Shortened day names (e.g. `Wed`)
  * @param [localeSettings.dddd=["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]] Long day names (e.g. `Wednesday`)
  * @param [localeSettings.decimal="."] Symbol used to separate integers from fractions (usually `.`)
@@ -18,12 +19,15 @@
  * @param [localeSettings.negative="-"] Symbol used to indicate positive numbers (usually `-`)
  * @param [localeSettings.percent="%"] Symbol used to indicate a percentage (usually `%`)
  * @param [localeSettings.positive="+"] Symbol used to indicate positive numbers (usually `+`)
+ * @param [localeSettings.preferMDY=false] Is the prefered date format month first (12/31/2025) or day first (31/12/2025)
  * @param l4e A string BCP 47 tag of the locale.
  * @returns - A full collection of settings for a locale
  */
 export declare function addLocale(localeSettings: {
     /** How AM and PM should be presented. */
     ampm?: Array<string>;
+    /** How TRUE and FALSE should be presented. */
+    bool?: Array<string>;
     /** Shortened day names (e.g. `Wed`) */
     ddd?: Array<string>;
     /** Long day names (e.g. `Wednesday`) */
@@ -52,6 +56,8 @@ export declare function addLocale(localeSettings: {
     percent?: string;
     /** Symbol used to indicate positive numbers (usually `+`) */
     positive?: string;
+    /** Is the prefered date format month first (12/31/2025) or day first (31/12/2025) */
+    preferMDY?: boolean;
 }, l4e: string): LocaleData;
 
 /**
@@ -336,9 +342,18 @@ export declare function isValidFormat(pattern: string): boolean;
  * - `v`: the parsed value.
  *
  * @param value The supposed boolean to parse
+ * @param [options={}] Options
+ * @param [options.locale=""] A BCP 47 string tag. Locale default is english with a `\u00a0`
+   grouping symbol (see [addLocale](#addLocale))
  * @returns An object of the parsed value and a corresponding format string
  */
-export declare function parseBool(value: string): (ParseData | null);
+export declare function parseBool(value: string, options?: {
+    /**
+     * A BCP 47 string tag. Locale default is english with a `\u00a0`
+     *    grouping symbol (see [addLocale](#addLocale))
+     */
+    locale?: string;
+}): (ParseData | null);
 
 /**
  * Parse a date or datetime string input and return its value and format. If
@@ -348,9 +363,18 @@ export declare function parseBool(value: string): (ParseData | null);
  * - `z`: the number format of the input (if applicable).
  *
  * @param value The date to parse
+ * @param [options={}] Options
+ * @param [options.locale=""] A BCP 47 string tag. Locale default is english with a `\u00a0`
+   grouping symbol (see [addLocale](#addLocale))
  * @returns An object of the parsed value and a corresponding format string
  */
-export declare function parseDate(value: string): (ParseData | null);
+export declare function parseDate(value: string, options?: {
+    /**
+     * A BCP 47 string tag. Locale default is english with a `\u00a0`
+     *    grouping symbol (see [addLocale](#addLocale))
+     */
+    locale?: string;
+}): (ParseData | null);
 
 /**
  * Parse a regular IETF BCP 47 locale tag and emit an object of its parts.
@@ -369,9 +393,18 @@ export declare function parseLocale(locale: string): LocaleToken;
  * * `z`: the number format of the input (if applicable).
  *
  * @param value The number to parse
+ * @param [options={}] Options
+ * @param [options.locale=""] A BCP 47 string tag. Locale default is english with a `\u00a0`
+   grouping symbol (see [addLocale](#addLocale))
  * @returns An object of the parsed value and a corresponding format string
  */
-export declare function parseNumber(value: string): (ParseData | null);
+export declare function parseNumber(value: string, options?: {
+    /**
+     * A BCP 47 string tag. Locale default is english with a `\u00a0`
+     *    grouping symbol (see [addLocale](#addLocale))
+     */
+    locale?: string;
+}): (ParseData | null);
 
 /**
  * Parse a time string input and return its value and format. If the input was
@@ -381,9 +414,18 @@ export declare function parseNumber(value: string): (ParseData | null);
  * - `z`: the number format of the input (if applicable).
  *
  * @param value The date to parse
+ * @param [options={}] Options
+ * @param [options.locale=""] A BCP 47 string tag. Locale default is english with a `\u00a0`
+   grouping symbol (see [addLocale](#addLocale))
  * @returns An object of the parsed value and a corresponding format string
  */
-export declare function parseTime(value: string): (ParseData | null);
+export declare function parseTime(value: string, options?: {
+    /**
+     * A BCP 47 string tag. Locale default is english with a `\u00a0`
+     *    grouping symbol (see [addLocale](#addLocale))
+     */
+    locale?: string;
+}): (ParseData | null);
 
 /**
  * Attempt to parse a "spreadsheet input" string input and return its value and
@@ -429,9 +471,18 @@ export declare function parseTime(value: string): (ParseData | null);
  * functions.
  *
  * @param value The value to parse
+ * @param [options={}] Options
+ * @param [options.locale=""] A BCP 47 string tag. Locale default is english with a `\u00a0`
+   grouping symbol (see [addLocale](#addLocale))
  * @returns An object of the parsed value and a corresponding format string
  */
-export declare function parseValue(value: string): (ParseData | null);
+export declare function parseValue(value: string, options?: {
+    /**
+     * A BCP 47 string tag. Locale default is english with a `\u00a0`
+     *    grouping symbol (see [addLocale](#addLocale))
+     */
+    locale?: string;
+}): (ParseData | null);
 
 /**
  * Return a number rounded to the specified amount of places. This is the
@@ -610,6 +661,8 @@ export declare type FormatToken = {
 export declare type LocaleData = {
     /** How AM and PM should be presented */
     ampm: Array<string>;
+    /** How TRUE and FALSE should be presented */
+    bool: Array<string>;
     /** Shortened day names (`Wed`) */
     ddd: Array<string>;
     /** Long day names (`Wednesday`) */
@@ -638,6 +691,8 @@ export declare type LocaleData = {
     percent: string;
     /** Symbol used to indicate positive numbers (usually `+`) */
     positive: string;
+    /** Is the prefered date format month first (12/31/2025) or day first (31/12/2025) */
+    preferMDY: boolean;
 };
 
 /** An object of properties for a locale tag. */

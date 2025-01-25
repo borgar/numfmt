@@ -21,6 +21,22 @@ test('locale options', t => {
   t.format('General', 1234.56, '1234·56', { locale: 'xx' });
   t.format('General', 0.1, '0·1', { locale: 'xx' });
 
+  // general should respect locale in all cases
+  t.format('General', 0.0001, '0,0001', { locale: 'de' });
+  t.format('General', 10000000000, '10000000000', { locale: 'de' });
+  t.format('General', 1.1, '1,1', { locale: 'de' });
+  t.format('General', 1.1, '1,1', { locale: 'de' });
+  t.format('General', 1000000000.1, '1000000000', { locale: 'de' });
+  t.format('General', 1.1111111111, '1,111111111', { locale: 'de' });
+  t.format('General', 1.1e-9, '1,1E-09', { locale: 'de' });
+  t.format('General', 1.1e-10, '1,1E-10', { locale: 'de' });
+  t.format('General', 1.1e-10, '1,1E-10', { locale: 'de' });
+
+  // #59
+  t.format('General', 111.1111111, '111,1111111', { locale: 'de' });
+  t.format('General', 111.11111111, '111,1111111', { locale: 'de' });
+  t.format('General', 111.111111111, '111,1111111', { locale: 'de' });
+
   // different locale address modes (both is-IS and is_IS are supported)
   t.format('[$-is]dddd, dd. mmmm yyy', date, 'laugardagur, 02. janúar 1909');
   t.format('[$-is_IS]dddd, dd. mmmm yyy', date, 'laugardagur, 02. janúar 1909');
@@ -85,6 +101,15 @@ test('locale options', t => {
   t.format('[$-010C01]yyyy mmmm d', 42999, '2017 سبتمبر 21', '[$-010C01]yyyy mmmm d');
 
   t.format('[$-0409]B2yyyy mmmm d', 42999, '2017 September 21', '[$-0409]yyyy mmmm d');
+
+  t.format('General', true, 'TRUE', { locale: 'en' });
+  t.format('General', false, 'FALSE', { locale: 'en' });
+  t.format('General', true, 'VRAI', { locale: 'fr' });
+  t.format('General', false, 'FAUX', { locale: 'fr' });
+  t.format('General', true, 'TRUE', { locale: 'is' });
+  t.format('General', false, 'FALSE', { locale: 'is' });
+  t.format('General', true, 'WAAR', { locale: 'nl' });
+  t.format('General', false, 'ONWAAR', { locale: 'nl' });
 
   t.end();
 });

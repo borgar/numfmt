@@ -10,6 +10,7 @@
     "import/no-unresolved": "error",
     "no-mixed-operators": "off",
     "jsdoc/no-undefined-types": "off",
+    "newline-per-chained-call": "off"
   },
   "globals": {
     "console": true,
