@@ -1,3 +1,4 @@
+/* eslint-disable jsdoc/valid-types */
 /* globals process */
 import tape, { getTimeZoneName, isLeapYear } from './utils.js';
 import { addLocale, dateToSerial, format, parseBool, parseDate, parseNumber, parseTime, parseValue } from '../lib/index.js';
@@ -6,7 +7,10 @@ import { getLocale, listLocales } from '../lib/locale.js';
 const currentYear = dateToSerial([ new Date().getUTCFullYear(), 1, 1 ]) || 0;
 const leapDay = isLeapYear(new Date().getUTCFullYear()) ? 1 : 0;
 
-/** @type {[ string, number | boolean | null, string | null ][]} */
+/**
+ * @type {[ string, number | boolean | null, string | null ][]}
+ * @ignore
+ */
 const tests = [
   // general
   [ '1234', 1234, null ],
