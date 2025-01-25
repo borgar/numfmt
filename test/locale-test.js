@@ -102,6 +102,15 @@ test('locale options', t => {
 
   t.format('[$-0409]B2yyyy mmmm d', 42999, '2017 September 21', '[$-0409]yyyy mmmm d');
 
+  t.format('General', true, 'TRUE', { locale: 'en' });
+  t.format('General', false, 'FALSE', { locale: 'en' });
+  t.format('General', true, 'VRAI', { locale: 'fr' });
+  t.format('General', false, 'FAUX', { locale: 'fr' });
+  t.format('General', true, 'TRUE', { locale: 'is' });
+  t.format('General', false, 'FALSE', { locale: 'is' });
+  t.format('General', true, 'WAAR', { locale: 'nl' });
+  t.format('General', false, 'ONWAAR', { locale: 'nl' });
+
   t.end();
 });
 
