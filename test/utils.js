@@ -1,4 +1,3 @@
-// tests converted from SSF
 import test, { Test } from 'tape';
 import { format, formatColor, getFormatDateInfo, getFormatInfo } from '../lib/index.js';
 import fs from 'fs';
@@ -84,7 +83,8 @@ Test.prototype.runTable = function runSSFTable (pathToTable) {
 
 function formatMessage (pattern, value, options) {
   let message = pattern;
-  message += '\x1b[36m <=> ' + value + '';
+  const suffix = (typeof value === 'bigint') ? 'n' : '';
+  message += '\x1b[36m <=> ' + value + suffix;
   const o = JSON.stringify(options);
   if (o !== '{}') {
     message += '\x1b[2m\x1b[33m [ OPTIONS=' + o + ' ]';
