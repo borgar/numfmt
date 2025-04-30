@@ -116,6 +116,8 @@ export declare function dateToSerial(date: (Date | Array<number>), options?: {
  * @param pattern A format pattern in the ECMA-376 number format.
  * @param value The value to format.
  * @param [options={}] Options
+ * @param [options.bigintErrorNumber=false] Should the formatter switch to a plain string number format when trying to
+   format a bigint that is out of bounds?
  * @param [options.dateErrorNumber=true] Should the formatter switch to a General number format when trying to
    format a date that is out of bounds?
  * @param [options.dateErrorThrows=false] Should the formatter throw an error when trying to format a date that is
@@ -146,6 +148,11 @@ export declare function dateToSerial(date: (Date | Array<number>), options?: {
  * @returns A formatted value
  */
 export declare function format(pattern: string, value: any, options?: {
+    /**
+     * Should the formatter switch to a plain string number format when trying to
+     *    format a bigint that is out of bounds?
+     */
+    bigintErrorNumber?: boolean;
     /**
      * Should the formatter switch to a General number format when trying to
      *    format a date that is out of bounds?
