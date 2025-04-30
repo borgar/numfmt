@@ -13,6 +13,7 @@
     "newline-per-chained-call": "off"
   },
   "globals": {
+    "BigInt": true,
     "console": true,
     "Set": true,
     "require": true,
