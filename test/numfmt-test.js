@@ -287,3 +287,14 @@ test('Comma resolution test:', t => {
   t.format('#,,"M";#,,"M";0', 6000000, '6M');
   t.end();
 });
+
+test('Issue #64 (very small number):', t => {
+  t.format('0.000E+000', 2.33e-32, '2.330E-032');
+  t.format('0.000E+000', 2.33e-321, '2.330E-321');
+  t.format('0.000E+000', 2.33e+307, '2.330E+307');
+  t.format('0.000E+000', 2.33e+309, '∞');
+
+  t.format('General', 2.33e-321, '2.33E-321');
+  t.format('0.0', 2.33e-321, '0.0');
+  t.end();
+});
