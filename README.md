@@ -142,3 +142,10 @@ The `<POSITIVE>` and `<NEGATIVE>` sections may optionally have conditionals. A c
 * There must not be more than 2 conditional sections.
 * There must not be numerical or date emitting symbol in the (4th) text part.
 
+
+
+[ecma]: https://www.ecma-international.org/publications/standards/Ecma-376.htm
+[ssf]: https://www.npmjs.com/package/ssf
+[bcp]: http://www.rfc-editor.org/rfc/bcp/bcp47.txt
+[nbsp]: https://en.wikipedia.org/wiki/Non-breaking_space
+[bug1900]: https://docs.microsoft.com/en-us/office/troubleshoot/excel/wrongly-assumes-1900-is-leap-year
