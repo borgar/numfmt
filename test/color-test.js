@@ -30,9 +30,9 @@ test('formatColor', t => {
   t.formatColor('[yellow]0', 0, 'yellow');
   // 1-based index color resolutions
   t.formatColor('[color 0]0', 0, null);
-  t.formatColor('[color 1]0', 0, '#000');
-  t.formatColor('[color 2]0', 0, '#FFF');
-  t.formatColor('[color3]0', 0, '#F00');
+  t.formatColor('[color 1]0', 0, '#000000');
+  t.formatColor('[color 2]0', 0, '#FFFFFF');
+  t.formatColor('[color3]0', 0, '#FF0000');
   // numbers are returned when indexColors is off
   t.formatColor('[color 0]0', 0, null, { indexColors: false });
   t.formatColor('[color 1]0', 0, 1, { indexColors: false });
