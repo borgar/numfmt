@@ -40,5 +40,7 @@ test('formatColor', t => {
   t.formatColor('[color3]0', 0, 3, { indexColors: false });
   // keywords are still returned when indexColors is off
   t.formatColor('[yellow]0', 0, 'yellow', { indexColors: false });
+  t.formatColor('[Green]#,##0;[Red][<-2](#,##0.00)', 2, 'green', { indexColors: false });
+  t.formatColor('[Green]#,##0;[Red][<-2](#,##0.00)', -3, 'red', { indexColors: false });  
   t.end();
 });

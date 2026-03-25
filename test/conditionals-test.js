@@ -182,6 +182,8 @@ test('conditional parts vs negative numbers', t => {
   t.format('[>=2]\\A0;[=-6]\\B0;\\C0', -5, '-C5');
   t.format('[>=2]\\A0;[>2]\\B0;\\C0', -5, '-C5');
   t.format('[>=2]\\A0;[>=2]\\B0;\\C0', -5, '-C5');
+  t.format('[Green]#,##0;[Red][<-2](#,##0.00)', -5, '(5.00)');
+  t.format('[Green]#,##0;[Red][<-2](#,##0.00)', 5, '5');
 
   t.end();
 });
