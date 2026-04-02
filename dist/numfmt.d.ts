@@ -1,3 +1,12 @@
+Node {
+  type: { names: [ 'string' ] },
+  name: 'd[0]',
+  longname: 'd[0]',
+  kind: 'member',
+  scope: 'global',
+  space: Map(0) {}
+}
+member
 /**
  * Register locale data for a language so for use when formatting.
  * Any partial set of properties may be returned to have the defaults used where properties are missing.
@@ -59,6 +68,7 @@ export declare function addLocale(localeSettings: {
     /** Is the prefered date format month first (12/31/2025) or day first (31/12/2025) */
     preferMDY?: boolean;
 }, l4e: string): LocaleData;
+
 
 /**
  * Convert a spreadsheet serial date to an array of date parts.

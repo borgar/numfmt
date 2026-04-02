@@ -2,7 +2,7 @@
   "name": "numfmt",
   "description": "Full Excel style number formatting",
   "author": "Borgar Þorsteinsson <borgar@borgar.net>",
-  "version": "3.2.4",
+  "version": "3.2.5",
   "scripts": {
     "build": "NODE_ENV=production rollup -c",
     "build:all": "npm run build && npm run build:types && npm run build:docs",
