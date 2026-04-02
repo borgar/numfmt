@@ -1,5 +1,5 @@
 /* globals process */
-/* eslint-disable no-loss-of-precision, no-irregular-whitespace */
+/* eslint-disable no-loss-of-precision */
 import test, { getTimeZoneName, getTimeZoneOffset } from './utils.js';
 import { format as numfmt, isDateFormat, isPercentFormat, isTextFormat } from '../lib/index.js';
 
@@ -27,7 +27,6 @@ test('scaling should not mess number up:', t => {
 });
 
 test('Misc input:', t => {
-  // eslint-disable-next-line no-undefined
   t.format('0', undefined, '');
   t.format('0', null, '');
   t.format('0', NaN, 'NaN');

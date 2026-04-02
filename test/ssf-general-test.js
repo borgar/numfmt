@@ -498,7 +498,7 @@ test('General format', t => {
   t.format('General', true, 'TRUE');
   t.format('General', false, 'FALSE');
   t.format('General', 'sheetjs', 'sheetjs');
-  // eslint-disable-next-line no-undefined
+
   t.format('General', undefined, '');
   t.format('General', null, '');
   t.end();

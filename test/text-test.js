@@ -1,4 +1,3 @@
-/* eslint-disable no-irregular-whitespace */
 import { format } from '../lib/index.js';
 import test from './utils.js';
 
@@ -28,4 +27,3 @@ test('Text in combination with other things', t => {
   t.format('"bar" @ "foo"', 'text', 'bar text foo');
   t.end();
 });
-

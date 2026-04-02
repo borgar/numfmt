@@ -1,4 +1,3 @@
-/* eslint-disable jsdoc/valid-types */
 /* globals process */
 import tape, { getTimeZoneName, isLeapYear } from './utils.js';
 import { addLocale, dateToSerial, format, parseBool, parseDate, parseNumber, parseTime, parseValue } from '../lib/index.js';
@@ -631,13 +630,13 @@ tape('parseNumber', t => {
 
   // test format selection
   tests.forEach(ts => {
-    const [ input, , format ] = ts;
+    const [ input, , expectedZ ] = ts;
     const p = parseValue(input);
     if (p == null) {
-      t.equal(null, format, input);
+      t.equal(null, expectedZ, input);
     }
     else {
-      t.equal(p.z ?? null, format, `formatOf("${input}")`);
+      t.equal(p.z ?? null, expectedZ, `formatOf("${input}")`);
     }
   });
 

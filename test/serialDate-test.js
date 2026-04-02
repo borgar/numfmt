@@ -1,5 +1,5 @@
 /* globals process */
-/* eslint-disable no-loss-of-precision */
+
 import test, { getTimeZoneName } from './utils.js';
 import { dateToSerial, dateFromSerial } from '../lib/index.js';
 

@@ -1,4 +1,3 @@
-/* eslint-disable no-irregular-whitespace */
 import test from './utils.js';
 
 test('Correct handling of the comma operator', t => {

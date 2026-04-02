@@ -1,4 +1,3 @@
-/* eslint-disable no-loss-of-precision, no-irregular-whitespace */
 import test from './utils.js';
 
 test('Exponent detection', t => {

@@ -1,4 +1,3 @@
-/* eslint-disable no-irregular-whitespace */
 import test from './utils.js';
 
 test('SSF-fractions tests', t => {
@@ -146,4 +145,3 @@ test('More fraction cases', t => {
 
   t.end();
 });
-

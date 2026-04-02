@@ -3,7 +3,7 @@ import { format, formatColor, getFormatDateInfo, getFormatInfo } from '../lib/in
 import fs from 'fs';
 import path from 'path';
 import zlib from 'zlib';
-import { URL, fileURLToPath } from 'url';
+import { fileURLToPath } from 'url';
 
 const VALUE_ERROR = '#VALUE!';
 

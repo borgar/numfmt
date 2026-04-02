@@ -1,4 +1,3 @@
-/* eslint-disable no-irregular-whitespace */
 // Tests originally converted from SSF but have been reviewed
 // and corrected and conformed to Excel for Mac version 16.35
 import test from './utils.js';

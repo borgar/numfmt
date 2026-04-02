@@ -1,0 +1,28 @@
+{
+  "include": [
+    "lib/**/*",
+    "test/**/*",
+    "eslint.config.js"
+  ],
+  "types": [ "node" ],
+  "compilerOptions": {
+    "rootDir": ".",
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "allowSyntheticDefaultImports": true,
+    "allowImportingTsExtensions": true,
+    "forceConsistentCasingInFileNames": true,
+    "verbatimModuleSyntax": true,
+    "erasableSyntaxOnly": true,
+    "allowJs": true,
+    "checkJs": true,
+    "stripInternal": true,
+    "noEmit": true,
+    "noEmitOnError": true,
+    "noErrorTruncation": true,
+    "outDir": "types",
+    "declarationMap": false,
+    "skipLibCheck": true
+  }
+}

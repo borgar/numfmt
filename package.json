@@ -5,13 +5,15 @@
   "version": "3.2.4",
   "scripts": {
     "build": "NODE_ENV=production rollup -c",
-    "build:types": "jsdoc -c tsd.json lib>dist/numfmt.d.ts",
-    "build:docs": "echo '# Numfmt API\n'>API.md; jsdoc -t node_modules/@borgar/jsdoc-tsmd -d console lib>>API.md",
     "build:all": "npm run build && npm run build:types && npm run build:docs",
-    "start": "nodemon -w test -w lib -x 'SKIPTABLES=1 tape 'test/*-test.js'|tap-min'",
+    "build:docs": "echo '# Numfmt API\n'>API.md; jsdoc -t node_modules/@borgar/jsdoc-tsmd -d console lib>>API.md",
+    "build:types": "jsdoc -c tsd.json lib>dist/numfmt.d.ts",
+    "check": "npm run test && npm run lint && npm run typecheck",
     "lint": "eslint lib test",
-    "test-all": "tape 'test/*-test.js'",
-    "test": "SKIPTABLES=1 tape './{lib,test}/*{.spec,-test}.js'|tap-min"
+    "release": "git diff --exit-code && tsup && npm publish && V=$(jq -r .version package.json) && git tag -a $V -m $V && git push origin $V && gh release create $V --generate-notes",
+    "test": "SKIPTABLES=1 tape './{lib,test}/*{.spec,-test}.js'|tap-min",
+    "test-all": "tape test/*-test.js",
+    "typecheck": "tsc --noEmit"
   },
   "main": "dist/numfmt.js",
   "types": "dist/numfmt.d.ts",
@@ -45,17 +47,21 @@
   "license": "MIT",
   "devDependencies": {
     "@babel/core": "~7.29.0",
-    "@babel/preset-env": "~7.29.0",
-    "@borgar/eslint-config": "~3.1.0",
+    "@babel/preset-env": "~7.29.2",
+    "@borgar/eslint-config": "~4.1.0",
     "@borgar/jsdoc-tsmd": "~0.2.2",
-    "@rollup/plugin-babel": "~6.1.0",
-    "@rollup/plugin-terser": "~0.4.4",
-    "eslint": "~8.57.0",
-    "eslint-plugin-import": "~2.32.0",
-    "eslint-plugin-jsdoc": "~48.2.4",
+    "@eslint/js": "~9.39.2",
+    "@rollup/plugin-babel": "~7.0.0",
+    "@rollup/plugin-terser": "~1.0.0",
+    "@types/node": "~25.5.0",
+    "eslint": "~9.39.2",
+    "globals": "~17.4.0",
     "jsdoc": "~4.0.5",
-    "rollup": "~4.57.1",
+    "rollup": "~4.60.1",
     "tap-min": "~3.0.0",
-    "tape": "~5.9.0"
+    "tape": "~5.9.0",
+    "typedoc-plugin-markdown": "~4.10.0",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "~8.56.1"
   }
 }
