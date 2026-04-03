@@ -1,4 +1,4 @@
-import test from './utils.js';
+import test from './utils.ts';
 
 test('Validity tests', t => {
   t.validFormat('" Excellent"', '" Excellent"');
@@ -446,4 +446,3 @@ test('Validity tests', t => {
 
   t.end();
 });
-

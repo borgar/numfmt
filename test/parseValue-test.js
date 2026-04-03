@@ -1,7 +1,7 @@
 /* globals process */
-import tape, { getTimeZoneName, isLeapYear } from './utils.js';
-import { addLocale, dateToSerial, format, parseBool, parseDate, parseNumber, parseTime, parseValue } from '../lib/index.js';
-import { getLocale, listLocales } from '../lib/locale.js';
+import tape, { getTimeZoneName, isLeapYear } from './utils.ts';
+import { addLocale, dateToSerial, format, parseBool, parseDate, parseNumber, parseTime, parseValue } from '../lib/index.ts';
+import { getLocale, listLocales } from '../lib/locale.ts';
 
 const currentYear = dateToSerial([ new Date().getUTCFullYear(), 1, 1 ]) || 0;
 const leapDay = isLeapYear(new Date().getUTCFullYear()) ? 1 : 0;

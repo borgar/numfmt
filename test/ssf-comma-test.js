@@ -1,5 +1,5 @@
 // tests converted from SSF
-import test from './utils.js';
+import test from './utils.ts';
 
 test('Exponential: #.0000,,,', t => {
   t.format('#.0000,,,', 0.99, '.0000');

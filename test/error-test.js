@@ -1,5 +1,5 @@
-import { isDateFormat, isPercentFormat, isTextFormat } from '../lib/index.js';
-import test from './utils.js';
+import { isDateFormat, isPercentFormat, isTextFormat } from '../lib/index.ts';
+import test from './utils.ts';
 
 const excelOpts = { dateSpanLarge: false, dateErrorNumber: false };
 

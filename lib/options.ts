@@ -1,4 +1,6 @@
-export const defaultOptions = {
+import type { FormatColorOptions, FormatOptions } from './types.ts';
+
+export const defaultOptions: FormatOptions & FormatColorOptions = {
   // Overflow error string
   overflow: '######', // dateErrorThrow needs to be off! [prev in locale]
   // Should it throw when there is an overflow error?
@@ -28,5 +30,5 @@ export const defaultOptions = {
   // Skip-next signifier character
   skipChar: '',
   // Repear-next signifier character
-  repeatChar: ''
+  fillChar: ''
 };

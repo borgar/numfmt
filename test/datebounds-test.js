@@ -1,5 +1,5 @@
-import test from './utils.js';
-import { format } from '../lib/index.js';
+import test from './utils.ts';
+import { format } from '../lib/index.ts';
 
 const ISODATE = 'yyyy-mm-dd';
 const ISODATETIME = 'yyyy-mm-dd\\Thh:mm:ss';

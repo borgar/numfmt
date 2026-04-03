@@ -1,4 +1,4 @@
-import test from './utils.js';
+import test from './utils.ts';
 
 test('Fragmented number parts', t => {
   // exps with fragments

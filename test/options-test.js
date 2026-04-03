@@ -1,6 +1,6 @@
 /* global process */
-import test, { getTimeZoneName } from './utils.js';
-import { format } from '../lib/index.js';
+import test, { getTimeZoneName } from './utils.ts';
+import { format } from '../lib/index.ts';
 
 const excelOpts = { dateSpanLarge: false, dateErrorNumber: false };
 

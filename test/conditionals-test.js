@@ -1,4 +1,4 @@
-import test from './utils.js';
+import test from './utils.ts';
 
 test('conditional parts', t => {
   t.format('[>=100]"A"0;[<=-100]"B"0;"C"0', 6.3, 'C6');

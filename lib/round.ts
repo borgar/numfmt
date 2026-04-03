@@ -3,11 +3,11 @@
  * rounding function used internally by the formatter (symmetric arithmetic
  * rounding).
  *
- * @param {number} number - The number to round.
- * @param {number} [places=0] - The number of decimals to round to.
- * @returns {number} A rounded number.
+ * @param number - The number to round.
+ * @param [places=0] - The number of decimals to round to.
+ * @returns A rounded number.
  */
-export function round (number, places = 0) {
+export function round (number: number, places: number = 0): number {
   if (typeof number !== 'number') {
     return number;
   }

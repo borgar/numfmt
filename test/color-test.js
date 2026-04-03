@@ -1,4 +1,4 @@
-import test from './utils.js';
+import test from './utils.ts';
 
 test('formatColor', t => {
   // color works the same across number sections, but not text

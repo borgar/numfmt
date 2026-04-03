@@ -1,4 +1,4 @@
-import { resolveLocale } from './locale.js';
+import { resolveLocale } from './locale.ts';
 import {
   u_YEAR, u_MONTH, u_DAY, u_HOUR, u_MIN, u_SEC, u_DSEC, u_CSEC, u_MSEC,
   EPOCH_1900, EPOCH_1317,
@@ -7,25 +7,26 @@ import {
   TOKEN_FILL, TOKEN_GENERAL, TOKEN_GROUP, TOKEN_HASH, TOKEN_LOCALE, TOKEN_MINUS, TOKEN_NATNUM,
   TOKEN_PAREN, TOKEN_PERCENT, TOKEN_PLUS, TOKEN_POINT, TOKEN_QMARK, TOKEN_SCALE, TOKEN_SKIP,
   TOKEN_SLASH, TOKEN_SPACE, TOKEN_STRING, TOKEN_TEXT, TOKEN_ZERO
-} from './constants.js';
+} from './constants.ts';
+import type { FormatToken, PatternPart, RunToken } from './types.ts';
 
-function minMaxPad (str, part, prefix) {
+function minMaxPad (str: string, part: PatternPart, prefix: string) {
   part[prefix + '_max'] = str.length;
   part[prefix + '_min'] = str.replace(/#/g, '').length;
   return part;
 }
 
-function add (s, tokens) {
+function add (s: string | FormatToken | RunToken, tokens: RunToken[]) {
   // allow adding string tokens without wrapping
   if (typeof s === 'string') {
-    tokens.push({ type: 'string', value: s });
+    tokens.push({ type: 'string', value: s, raw: s });
   }
   else {
     tokens.push(s);
   }
 }
 
-function isNumOp (token, activePattern) {
+function isNumOp (token: FormatToken | RunToken, activePattern: string) {
   const type = token?.type;
   return (
     (type === TOKEN_HASH || type === TOKEN_ZERO || type === TOKEN_QMARK) ||
@@ -33,10 +34,8 @@ function isNumOp (token, activePattern) {
   );
 }
 
-export function parseFormatSection (inputTokens) {
-  const outputTokens = [];
-
-  const part = {
+export function getEmptyPatternPart (): PatternPart {
+  return {
     scale: 1,
     percent: false,
     text: false,
@@ -51,13 +50,19 @@ export function parseFormatSection (inputTokens) {
     man_pattern: [],
     den_pattern: [],
     num_pattern: [],
-    tokens: outputTokens
+    tokens: [],
+    pattern: ''
   };
+}
+
+export function parseFormatSection (inputTokens: FormatToken[]) {
+  const part: PatternPart = getEmptyPatternPart();
+  const outputTokens = part.tokens;
 
   let currentPattern = 'int';
   let lastNumberChunk = null;
   const dateChunks = [];
-  let last;
+  let last: FormatToken;
   let haveLocale = false;
 
   let index = -1;
@@ -160,7 +165,7 @@ export function parseFormatSection (inputTokens) {
     else if (type === TOKEN_DURATION) {
       const tokenValue = token.value.toLowerCase(); // deal with in tokenizer
       const startsWith = tokenValue[0];
-      const bit = { type: '', size: 0, date: 1, pad: tokenValue.length };
+      const bit: RunToken = { type: '', size: 0, date: 1, pad: tokenValue.length };
       if (startsWith === 'h') {
         bit.size = u_HOUR;
         bit.type = 'hour-elap';
@@ -232,7 +237,7 @@ export function parseFormatSection (inputTokens) {
       // date token. Which, if it was s or h, minutes is used. The same is true
       // if we hit m or s, and last is m.
       // m and mm are spurious, mmm is always month
-      const bit = { type: '', size: 0, date: 1 };
+      const bit: RunToken = { type: '', size: 0, date: 1 };
       const value = token.value.toLowerCase(); // deal with in tokenizer?
       const startsWith = value[0];
       if (value === 'y' || value === 'yy') {
@@ -254,7 +259,7 @@ export function parseFormatSection (inputTokens) {
       else if (value === 'd' || value === 'dd') {
         bit.size = u_DAY;
         bit.type = 'day';
-        bit.pad = /dd/.test(value);
+        bit.pad = /dd/.test(value) ? 1 : 0;
       }
       else if (value === 'ddd' || value === 'aaa') {
         bit.size = u_DAY;
@@ -267,7 +272,7 @@ export function parseFormatSection (inputTokens) {
       else if (startsWith === 'h') {
         bit.size = u_HOUR;
         bit.type = 'hour';
-        bit.pad = /hh/i.test(value);
+        bit.pad = /hh/i.test(value) ? 1 : 0;
       }
       else if (startsWith === 'm') {
         if (value.length === 3) {
@@ -291,21 +296,21 @@ export function parseFormatSection (inputTokens) {
           last_date_chunk.used = true;
           bit.size = u_MIN;
           bit.type = 'min';
-          bit.pad = /mm/.test(value);
+          bit.pad = /mm/.test(value) ? 1 : 0;
         }
         // if we still don't know, we treat as a month
         // and defer, a later 'sec' value may switch it
         if (!bit.type) {
           bit.size = u_MONTH;
           bit.type = 'month';
-          bit.pad = /mm/.test(value);
+          bit.pad = /mm/.test(value) ? 1 : 0;
           bit.indeterminate = true;
         }
       }
       else if (startsWith === 's') {
         bit.size = u_SEC;
         bit.type = 'sec';
-        bit.pad = /ss/.test(value);
+        bit.pad = /ss/.test(value) ? 1 : 0;
         // if last date chunk was m, flag this used
         const last_date_chunk = dateChunks[dateChunks.length - 1];
         if (last_date_chunk && last_date_chunk.size & u_MIN) {
@@ -335,8 +340,7 @@ export function parseFormatSection (inputTokens) {
       part.clock = 12;
       part.date = part.date | u_HOUR;
       part.date_eval = true;
-      // deal with in tokenizer?
-      token.short = token.value === 'A/P';
+      (token as RunToken).short = token.value === 'A/P';
       add(token, outputTokens);
     }
 
@@ -378,7 +382,7 @@ export function parseFormatSection (inputTokens) {
 
     // color
     else if (type === TOKEN_COLOR) {
-      let cm;
+      let cm: RegExpExecArray;
       let v = token.value.toLowerCase();
       if ((cm = /^color\s*(\d+)$/i.exec(v))) {
         v = parseInt(cm[1], 10);
@@ -512,7 +516,7 @@ export function parseFormatSection (inputTokens) {
   if (!part.integer && !part.exponential && fracPattern.length) {
     // if no integer has been found, we inject one
     const pointIdx = part.tokens.findIndex(d => d.type === 'point');
-    part.tokens.splice(pointIdx, 0, { type: 'int', value: '#' });
+    part.tokens.splice(pointIdx, 0, { type: 'int', value: '#', raw: '#' });
     part.integer = true;
     part.int_pattern = [ '#' ];
     part.int_p = '#';
@@ -524,7 +528,7 @@ export function parseFormatSection (inputTokens) {
     // if either bit is "#", the whitespace around it, and
     // the div symbol, is removed if the bit is not shown
     for (let i = 0; i < outputTokens.length - 1; i++) {
-      const tok = outputTokens[i];
+      const tok: RunToken = outputTokens[i];
       if (tok.type !== 'string' && tok.type !== 'space') {
         continue;
       }

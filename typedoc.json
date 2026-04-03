@@ -1,0 +1,25 @@
+{
+	"plugin": ["typedoc-plugin-markdown"],
+	"out": "./tempdocs",
+	"entryPoints": ["lib/index.ts"],
+	"cleanOutputDir": true,
+	"readme": "none",
+	"headings": {
+		"readme": false,
+		"document": false
+	},
+	"hidePageHeader": true,
+	"hideBreadcrumbs": true,
+	"useCodeBlocks": true,
+	"expandObjects": true,
+	"expandParameters": true,
+	"propertiesFormat": "table",
+	"parametersFormat": "table",
+	"disableSources": true,
+	"excludeInternal": true,
+	"excludePrivate": true,
+	"excludeProtected": true,
+	"pageTitleTemplates": {
+		"member": "{name}"
+	}
+}

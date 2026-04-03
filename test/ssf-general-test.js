@@ -1,5 +1,5 @@
 // tests converted from SSF
-import test from './utils.js';
+import test from './utils.ts';
 
 test('General format', t => {
   t.format('General', 1.234567e-14, '1.23457E-14');

@@ -1,4 +1,4 @@
-export function clamp (number) {
+export function clamp (number: number): number {
   if (number === 0) {
     return number;
   }

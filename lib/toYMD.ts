@@ -1,8 +1,8 @@
-import { EPOCH_1317, EPOCH_1904 } from './constants.js';
+import { EPOCH_1317, EPOCH_1904 } from './constants.ts';
 const floor = Math.floor;
 
 // https://www.codeproject.com/Articles/2750/Excel-Serial-Date-to-Day-Month-Year-and-Vice-Versa
-export function toYMD_1900 (ord, leap1900 = true) {
+export function toYMD_1900 (ord: number, leap1900 = true): [ number, number, number ] {
   if (leap1900 && ord >= 0) {
     if (ord === 0) {
       return [ 1900, 1, 0 ];
@@ -27,7 +27,7 @@ export function toYMD_1900 (ord, leap1900 = true) {
   return [ nYear | 0, nMonth | 0, nDay | 0 ];
 }
 
-export function toYMD_1904 (ord) {
+export function toYMD_1904 (ord: number) {
   return toYMD_1900(ord + 1462);
 }
 
@@ -35,7 +35,7 @@ export function toYMD_1904 (ord) {
 // > [algorithm] is used in many Microsoft products, including all
 // > operating systems that support Arabic locales, Microsoft Office,
 // > COM, Visual Basic, VBA, and SQL Server 2000.
-export function toYMD_1317 (ord) {
+export function toYMD_1317 (ord: number): [ number, number, number ] {
   if (ord === 60) {
     throw new Error('#VALUE!');
   }
@@ -59,7 +59,7 @@ export function toYMD_1317 (ord) {
   return [ 30 * cyc + j, m, z - floor(29.5001 * m - 29) ];
 }
 
-export function toYMD (ord, system = 0, leap1900 = true) {
+export function toYMD (ord: number, system = 0, leap1900 = true): [ number, number, number ] {
   const int = floor(ord);
   if (system === EPOCH_1317) {
     return toYMD_1317(int);

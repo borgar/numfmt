@@ -1,5 +1,5 @@
-import test from './utils.js';
-import { format, formatColor, isDateFormat } from '../lib/index.js';
+import test from './utils.ts';
+import { format, formatColor, isDateFormat } from '../lib/index.ts';
 
 const excelOpts = { dateSpanLarge: false, dateErrorNumber: false };
 
@@ -18,7 +18,7 @@ test('Robust mode', t => {
   t.equal(format('y 0', 1, opts), '######', 'format does not throw with "dddd, dd. mmmm yyy"');
 
   t.equal(formatColor('a;b;c;d;', 0, opts), null, 'formatColor does not throw');
-  t.equal(isDateFormat('a;b;c;d;', opts), false, 'isDateFormat does not throw');
+  t.equal(isDateFormat('a;b;c;d;'), false, 'isDateFormat does not throw');
 
   t.end();
 });

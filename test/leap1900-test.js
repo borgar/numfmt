@@ -1,4 +1,4 @@
-import test from './utils.js';
+import test from './utils.ts';
 
 const ISODATE = 'yyyy-mm-dd';
 
@@ -133,4 +133,3 @@ test('Excel 1900 bug: OFF', t => {
   t.format(ISODATE, 0, '1899-12-30', { leap1900: false });
   t.end();
 });
-

@@ -1,12 +1,13 @@
-import { getExponent, getSignificand } from './numberProps.js';
-import numdec from './numdec.js';
-import { round } from './round.js';
+import { getExponent, getSignificand } from './numberProps.ts';
+import numdec from './numdec.ts';
+import { round } from './round.ts';
+import type { LocaleData } from './types.ts';
 
-const fixLocale = (s, l10n) => {
+const fixLocale = (s: string, l10n: LocaleData) => {
   return s.replace(/\./, l10n.decimal);
 };
 
-const getExp = (n, exp, l10n) => {
+const getExp = (n: number, exp: number, l10n: LocaleData) => {
   const x = Math.abs(exp);
   let m;
   if (n === 1) {
@@ -24,7 +25,7 @@ const getExp = (n, exp, l10n) => {
   ];
 };
 
-export function general (ret, part, value, l10n) {
+export function general<T extends (string | number)[]> (ret: T, part, value: any, l10n: LocaleData): T {
   const int = value | 0;
 
   if (typeof value === 'string') {

@@ -1,28 +1,29 @@
-import { round } from './round.js';
-import { clamp } from './clamp.js';
-import { dec2frac } from './dec2frac.js';
-import { general } from './general.js';
-import { toYMD } from './toYMD.js';
-import { defaultLocale } from './locale.js';
+import { round } from './round.ts';
+import { clamp } from './clamp.ts';
+import { dec2frac } from './dec2frac.ts';
+import { general } from './general.ts';
+import { toYMD } from './toYMD.ts';
+import { defaultLocale } from './locale.ts';
 import {
   u_DSEC, u_CSEC, u_MSEC,
   EPOCH_1317,
   MIN_S_DATE, MAX_S_DATE,
   MIN_L_DATE, MAX_L_DATE
-} from './constants.js';
-import { pad } from './pad.js';
-import { getExponent, getSignificand } from './numberProps.js';
+} from './constants.ts';
+import { pad } from './pad.ts';
+import { getExponent, getSignificand } from './numberProps.ts';
+import type { FormatOptions, LocaleData, PatternPart } from './types.ts';
 
 const DAYSIZE = 86400;
 
-const dateOverflows = (inputValue, roundedValue, bigRange) => {
+const dateOverflows = (inputValue: number, roundedValue: number, bigRange: boolean): boolean => {
   if (bigRange) {
     return (inputValue < MIN_L_DATE || roundedValue >= MAX_L_DATE);
   }
   return (inputValue < MIN_S_DATE || roundedValue >= MAX_S_DATE);
 };
 
-export function runPart (value, part, opts, l10n_) {
+export function runPart (value: any, part: PatternPart, opts: FormatOptions, l10n_: LocaleData) {
   let mantissa = '';
   let mantissa_sign = '';
   let numerator = '';
@@ -209,7 +210,7 @@ export function runPart (value, part, opts, l10n_) {
 
   const ret = [];
 
-  const digitsStart = (numstr, pattern, prt, offset) => {
+  const digitsStart = (numstr: string, pattern: string, prt, offset: number) => {
     const l = (!offset && numstr.length > pattern.length)
       ? prt.length + numstr.length - pattern.length
       : prt.length;

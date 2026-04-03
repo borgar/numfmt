@@ -1,5 +1,5 @@
 import test, { Test } from 'tape';
-import { format, formatColor, getFormatDateInfo, getFormatInfo } from '../lib/index.js';
+import { format, formatColor, getFormatDateInfo, getFormatInfo } from '../lib/index.ts';
 import fs from 'fs';
 import path from 'path';
 import zlib from 'zlib';
@@ -25,7 +25,7 @@ function getTimeZoneOffset (d) {
     d.getSeconds(),
     d.getMilliseconds()
   );
-  return (d - temp) / 60000;
+  return (d.valueOf() - temp.valueOf()) / 60000;
 }
 
 function isLeapYear (year) {
@@ -34,7 +34,7 @@ function isLeapYear (year) {
 
 Test.prototype.runTable = function runSSFTable (pathToTable) {
   const filename = fileURLToPath(new URL(pathToTable, import.meta.url));
-  // eslint-disable-next-line
+
   if (process.env.SKIPTABLES) { return; }
   const tableFN = path.join(filename) + '.gz';
   const table = zlib.gunzipSync(fs.readFileSync(tableFN))

@@ -1,5 +1,5 @@
-import { format } from '../lib/index.js';
-import test from './utils.js';
+import { format } from '../lib/index.ts';
+import test from './utils.ts';
 
 test('Errors', t => {
   // no more than a single text section

@@ -6,12 +6,16 @@ const PRECISION = 1e-13;
  * vulgar fractions.
  *
  * @ignore
- * @param {number} number The value to split
- * @param {number} [numeratorMaxDigits=2] The maxdigits number
- * @param {number} [denominatorMaxDigits=2] The maxdigits de
- * @returns {Array<number>} Array of two numbers, numerator and denominator.
+ * @param number The value to split
+ * @param [numeratorMaxDigits=2] The maxdigits number
+ * @param [denominatorMaxDigits=2] The maxdigits de
+ * @returns Array of two numbers, numerator and denominator.
  */
-export function dec2frac (number, numeratorMaxDigits = 2, denominatorMaxDigits = 2) {
+export function dec2frac (
+  number: number,
+  numeratorMaxDigits: number = 2,
+  denominatorMaxDigits: number = 2
+): [ number, number ] {
   const sign = (number < 0) ? -1 : 1;
   const maxdigits_n = 10 ** (numeratorMaxDigits || 2);
   const maxdigits_d = 10 ** (denominatorMaxDigits || 2);
@@ -20,8 +24,8 @@ export function dec2frac (number, numeratorMaxDigits = 2, denominatorMaxDigits =
   let last_n = 0;
   let curr_n = 0;
   let curr_d = 1;
-  let tmp;
-  let r;
+  let tmp: number;
+  let r: [ number, number ];
   number = z;
   if (number % 1 === 0) {
     // handles exact integers including 0

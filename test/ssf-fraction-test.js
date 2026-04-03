@@ -1,4 +1,4 @@
-import test from './utils.js';
+import test from './utils.ts';
 
 test('SSF-fractions tests', t => {
   t.format('# ?/?', 1, '1    ', '# ?/?');
