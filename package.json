@@ -2,7 +2,7 @@
   "name": "numfmt",
   "description": "Full Excel style number formatting",
   "author": "Borgar Þorsteinsson <borgar@borgar.net>",
-  "version": "3.2.5",
+  "version": "3.2.6",
   "type": "module",
   "scripts": {
     "build": "NODE_ENV=production tsdown",
