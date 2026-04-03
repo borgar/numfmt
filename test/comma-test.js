@@ -1,4 +1,4 @@
-import test from './utils.js';
+import test from './utils.ts';
 
 test('Correct handling of the comma operator', t => {
   t.format('0,', 1234567.89, '1235');

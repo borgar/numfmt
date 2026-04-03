@@ -1,17 +1,19 @@
-import { TOKEN_TEXT, indexColors } from './constants.js';
-import { defaultLocale, getLocale } from './locale.js';
-import { parseFormatSection } from './parseFormatSection.js';
-import { runPart } from './runPart.js';
+import { TOKEN_TEXT, indexColors } from './constants.ts';
+import { defaultLocale, getLocale } from './locale.ts';
+import { parseFormatSection } from './parseFormatSection.ts';
+import type { ParseData } from './parsePattern.ts';
+import { runPart } from './runPart.ts';
+import type { FormatColorOptions, FormatOptions, PatternPart } from './types.ts';
 
 const default_text = parseFormatSection([
   { type: TOKEN_TEXT, value: '@', raw: '@' }
 ]);
 
-function getPart (value, parts) {
+function getPart (value: any, parts: PatternPart[]) {
   for (let pi = 0; pi < 3; pi++) {
     const part = parts[pi];
     if (part) {
-      let cond;
+      let cond: boolean;
       if (part.condition) {
         const operator = part.condition[0];
         const operand = part.condition[1];
@@ -33,11 +35,11 @@ function getPart (value, parts) {
   return undefined;
 }
 
-export function formatColor (value, parseData, opts) {
+export function formatColor (value: any, parseData: ParseData, opts: FormatColorOptions) {
   const parts = parseData.partitions;
   let part = parts[3];
   let color = null;
-  if ((typeof value === 'number' || typeof value === 'bigint') && isFinite(value)) {
+  if ((typeof value === 'number' && Number.isFinite(value)) || typeof value === 'bigint') {
     part = getPart(value, parts);
   }
   if (part?.color) {
@@ -49,7 +51,7 @@ export function formatColor (value, parseData, opts) {
   return color;
 }
 
-export function formatValue (value, parseData, opts) {
+export function formatValue (value: any, parseData: ParseData, opts: FormatOptions) {
   const parts = parseData.partitions;
   const l10n = getLocale(parseData.locale || opts.locale);
   // not a number?

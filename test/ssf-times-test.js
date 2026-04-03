@@ -1,4 +1,4 @@
-import test from './utils.js';
+import test from './utils.ts';
 
 // -- running the full table takes a while
 const FULL = false;

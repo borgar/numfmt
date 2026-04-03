@@ -1,7 +1,7 @@
 /* globals process */
 
-import test, { getTimeZoneName } from './utils.js';
-import { dateToSerial, dateFromSerial } from '../lib/index.js';
+import test, { getTimeZoneName } from './utils.ts';
+import { dateToSerial, dateFromSerial } from '../lib/index.ts';
 
 function round (n) {
   return Math.round(n * 1e10) / 1e10;

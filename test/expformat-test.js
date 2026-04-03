@@ -1,4 +1,4 @@
-import test from './utils.js';
+import test from './utils.ts';
 
 test('Exponent detection', t => {
   t.format('0E+00', 95000000, '1E+08');

@@ -1,11 +1,6 @@
-import { currencySymbols, reCurrencySymbols } from './constants.js';
-import { defaultLocale, getLocale } from './locale.js';
-
-/**
- * @typedef {object} ParseData
- * @property {number | boolean} v - the value
- * @property {string} [z] - number format pattern
- */
+import { currencySymbols, reCurrencySymbols } from './constants.ts';
+import { defaultLocale, getLocale } from './locale.ts';
+import type { ParseData } from './types.ts';
 
 /*
 This is a list of the allowed date formats. The test file contains
@@ -78,7 +73,7 @@ const tx00 = { j: 'dd', d: 'dd', D: 'ddd', l: 'dddd', n: 'mm', m: 'mm', M: 'mmm'
 // for minimal looping and branching while parsing
 const dateTrieDM = {};
 const dateTrieMD = {};
-function packDate (f, node, allowType = 1) {
+function packDate (f: string, node, allowType = 1) {
   if (f) {
     const char = f[0];
     const next = f.slice(1);
@@ -97,7 +92,7 @@ function packDate (f, node, allowType = 1) {
     node.$ = allowType;
   }
 }
-function addFormatToTrie (fmt, trie) {
+function addFormatToTrie (fmt: string, trie) {
   // add date to token tree
   packDate(fmt, trie);
   // add a variant of the date with time suffixed
@@ -113,7 +108,7 @@ function addFormatToTrie (fmt, trie) {
   packDate('D ' + fmt, trie);
   packDate('D ' + fmt + ' x', trie);
 }
-okDateFormats.forEach(fmt => {
+okDateFormats.forEach((fmt: string) => {
   if (!fmt.startsWith('?')) addFormatToTrie(fmt, dateTrieDM);
   if (!fmt.startsWith('!')) addFormatToTrie(fmt, dateTrieMD);
 });
@@ -143,14 +138,13 @@ const isDigit = d => d?.length === 1 && d >= '0' && d <= '9';
  * * `z`: the number format of the input (if applicable).
  *
  * @see parseValue
- * @param {string} value The number to parse
- * @param {object} [options={}]  Options
- * @param {string} [options.locale=""]
+ * @param value The number to parse
+ * @param [options.locale=""]
  *    A BCP 47 string tag. Locale default is english with a `\u00a0`
  *    grouping symbol (see [addLocale](#addLocale))
- * @returns {ParseData | null} An object of the parsed value and a corresponding format string
+ * @returns An object of the parsed value and a corresponding format string
  */
-export function parseNumber (value, options = {}) {
+export function parseNumber (value: string, options: { locale?: string; } = {}): ParseData | null {
   const l10n = getLocale(options.locale || '') || defaultLocale;
   // we base everything on the decimal separator
   const dec = l10n.decimal;
@@ -327,14 +321,14 @@ export function parseNumber (value, options = {}) {
       : '#,##0';
   }
   // we may want to lower the fidelity of the number: +num.toFixed(13)
-  const ret = { v: numberValue * sign };
+  const ret: ParseData = { v: numberValue * sign };
   if (format) {
     ret.z = format;
   }
   return ret;
 }
 
-export function isValidDate (y, m, d) {
+export function isValidDate (y: number, m: number, d: number): boolean {
   // day can't be 0
   if (d < 1) {
     return false;
@@ -362,7 +356,7 @@ export function isValidDate (y, m, d) {
 }
 
 // should really match { ’'   } and all whitespace
-const matchRec = (str, data, skipPeriod = false) => {
+const matchRec = (str: string, data, skipPeriod = false) => {
   for (const item of data) {
     if (str.startsWith(item[0])) {
       // if the match is followed by a "." we'll skip it if the abbr. is by
@@ -488,21 +482,20 @@ const getLookups = (arr, sym) => {
  * - `z`: the number format of the input (if applicable).
  *
  * @see parseValue
- * @param {string} value The date to parse
- * @param {object} [options={}]  Options
- * @param {string} [options.locale=""]
+ * @param value The date to parse
+ * @param [options.locale=""]
  *    A BCP 47 string tag. Locale default is english with a `\u00a0`
  *    grouping symbol (see [addLocale](#addLocale))
- * @returns {ParseData | null} An object of the parsed value and a corresponding format string
+ * @returns An object of the parsed value and a corresponding format string
  */
-export function parseDate (value, options = {}) {
-  const l10n = getLocale(options.locale || '') || defaultLocale;
+export function parseDate (value: string, options?: { locale?: string; }): ParseData | null {
+  const l10n = getLocale(options?.locale || '') || defaultLocale;
   const lData = {
     mon: getLookups(l10n.mmmm, 'F').concat(getLookups(l10n.mmm, 'M')),
     mp: l10n.mmm[0].at(-1) === '.',
     day: getLookups(l10n.dddd, 'l').concat(getLookups(l10n.ddd, 'D')),
     dp: l10n.ddd[0].at(-1) === '.',
-    locale: options.locale
+    locale: options?.locale
   };
   // possible shortcut: quickly dismiss if there isn't a number?
   const date = nextToken(
@@ -550,7 +543,7 @@ export function parseDate (value, options = {}) {
   return null;
 }
 
-const normAMPMStr = s => (
+const normAMPMStr = (s: string) => (
   s.replace(/\s+/g, '').trim()
     .replace(/\./g, '')
     .toLowerCase()
@@ -565,14 +558,14 @@ const normAMPMStr = s => (
  * - `z`: the number format of the input (if applicable).
  *
  * @see parseValue
- * @param {string} value The date to parse
- * @param {object} [options={}]  Options
- * @param {string} [options.locale=""]
+ * @param value The date to parse
+ * @param [options={}]  Options
+ * @param [options.locale=""]
  *    A BCP 47 string tag. Locale default is english with a `\u00a0`
  *    grouping symbol (see [addLocale](#addLocale))
- * @returns {ParseData | null} An object of the parsed value and a corresponding format string
+ * @returns An object of the parsed value and a corresponding format string
  */
-export function parseTime (value, options = {}) {
+export function parseTime (value: string, options: { locale?: string; } = {}): ParseData | null {
   const l10n = getLocale(options.locale || '') || defaultLocale;
   const parts = /^\s*([10]?\d|2[0-4])(?::([0-5]\d|\d))?(?::([0-5]\d|\d))?(\.\d{1,10})?(?=\s*[^\s\d]|$)/.exec(value);
   let ampm = '';
@@ -649,15 +642,14 @@ export function parseTime (value, options = {}) {
  * - `v`: the parsed value.
  *
  * @see parseValue
- * @param {string} value The supposed boolean to parse
- * @param {object} [options={}]  Options
- * @param {string} [options.locale=""]
+ * @param value The supposed boolean to parse
+ * @param [options.locale=""]
  *    A BCP 47 string tag. Locale default is english with a `\u00a0`
  *    grouping symbol (see [addLocale](#addLocale))
- * @returns {ParseData | null} An object of the parsed value and a corresponding format string
+ * @returns An object of the parsed value and a corresponding format string
  */
-export function parseBool (value, options = {}) {
-  const l10n = getLocale(options.locale || '') || defaultLocale;
+export function parseBool (value: string, options?: { locale?: string; }): ParseData | null {
+  const l10n = getLocale(options?.locale || '') || defaultLocale;
   const v = value.trim().toLowerCase();
   const bT = l10n.bool[0].toLowerCase();
   if (v === 'true' || v === bT) {
@@ -720,14 +712,13 @@ export function parseBool (value, options = {}) {
  * This may change in the future so be careful what options you pass the
  * functions.
  *
- * @param {string} value The value to parse
- * @param {object} [options={}]  Options
- * @param {string} [options.locale=""]
+ * @param value The value to parse
+ * @param [options.locale=""]
  *    A BCP 47 string tag. Locale default is english with a `\u00a0`
  *    grouping symbol (see [addLocale](#addLocale))
- * @returns {ParseData | null} An object of the parsed value and a corresponding format string
+ * @returns An object of the parsed value and a corresponding format string
  */
-export function parseValue (value, options) {
+export function parseValue (value: string, options?: { locale?: string; }): ParseData | null {
   return (
     parseNumber(value, options) ??
     parseDate(value, options) ??

@@ -1,8 +1,16 @@
-import { resolveLocale } from './locale.js';
-import { parseFormatSection } from './parseFormatSection.js';
-import { tokenize } from './tokenize.js';
+import { resolveLocale } from './locale.ts';
+import { getEmptyPatternPart, parseFormatSection } from './parseFormatSection.ts';
+import { tokenize } from './tokenize.ts';
+import type { PatternPart } from './types.ts';
 
-const maybeAddMinus = part => {
+export type ParseData = {
+  pattern: string;
+  partitions: PatternPart[],
+  error?: string,
+  locale: string | null
+};
+
+const maybeAddMinus = (part: PatternPart) => {
   const [ op, val ] = part.condition ?? [];
   const exception = (
     (val < 0 && (op === '<' || op === '<=' || op === '=')) ||
@@ -16,8 +24,8 @@ const maybeAddMinus = part => {
   }
 };
 
-const clonePart = (part, prefixToken = null) => {
-  const r = {};
+const clonePart = (part: PatternPart, prefixToken = null) => {
+  const r: Partial<PatternPart> = {};
   for (const key in part) {
     if (Array.isArray(part[key])) {
       r[key] = [ ...part[key] ];
@@ -30,16 +38,16 @@ const clonePart = (part, prefixToken = null) => {
     r.tokens.unshift(prefixToken);
   }
   r.generated = true;
-  return r;
+  return r as PatternPart;
 };
 
-export function parsePattern (pattern) {
+export function parsePattern (pattern: string): ParseData {
   const partitions = [];
   let conditional = false;
-  let l10n_override;
+  let l10n_override: string;
   let text_partition = null;
   let more = 0;
-  let part = false;
+  let part: PatternPart;
   let i = 0;
   let conditions = 0;
   let tokens = tokenize(pattern);
@@ -190,12 +198,13 @@ export function parsePattern (pattern) {
   };
 }
 
-export function parseCatch (pattern) {
+export function parseCatch (pattern: string): ParseData {
   try {
     return parsePattern(pattern);
   }
   catch (err) {
     const errPart = {
+      ...getEmptyPatternPart(),
       tokens: [ { type: 'error' } ],
       error: err.message
     };

@@ -2,7 +2,8 @@
   "include": [
     "lib/**/*",
     "test/**/*",
-    "eslint.config.js"
+    "eslint.config.js",
+    "tsdown.config.ts"
   ],
   "types": [ "node" ],
   "compilerOptions": {
@@ -19,10 +20,12 @@
     "checkJs": true,
     "stripInternal": true,
     "noEmit": true,
+    "emitDeclarationOnly": false,
     "noEmitOnError": true,
     "noErrorTruncation": true,
     "outDir": "types",
-    "declarationMap": false,
+    "declarationMap": true,
+    "composite": true,
     "skipLibCheck": true
   }
 }

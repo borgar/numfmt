@@ -1,7 +1,7 @@
 // Tests originally converted from SSF but have been reviewed
 // and corrected and conformed to Excel for Mac version 16.35
-import test from './utils.js';
-import { format } from '../lib/index.js';
+import test from './utils.ts';
+import { format } from '../lib/index.ts';
 
 test('Oddity: "foo";"bar";"baz";"qux"', t => {
   t.format('"foo";"bar";"baz";"qux"', 1, 'foo');

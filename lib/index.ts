@@ -5,21 +5,21 @@ import {
   TOKEN_CONDITION, TOKEN_DBNUM, TOKEN_NATNUM, TOKEN_LOCALE, TOKEN_COLOR, TOKEN_MODIFIER,
   TOKEN_AMPM, TOKEN_ESCAPED, TOKEN_STRING, TOKEN_SKIP, TOKEN_EXP, TOKEN_FILL, TOKEN_PAREN,
   TOKEN_CHAR
-} from './constants.js';
+} from './constants.ts';
 
 export {
   getLocale,
   parseLocale,
   addLocale
-} from './locale.js';
+} from './locale.ts';
 
-import { defaultOptions } from './options.js';
+import { defaultOptions } from './options.ts';
 
-export { round } from './round.js';
-export { dec2frac } from './dec2frac.js';
+export { round } from './round.ts';
+export { dec2frac } from './dec2frac.ts';
 
-import { dateToSerial as handleDates } from './serialDate.js';
-export { dateToSerial, dateFromSerial } from './serialDate.js';
+import { dateToSerial as handleDates } from './serialDate.ts';
+export { dateToSerial, dateFromSerial } from './serialDate.ts';
 
 export {
   parseNumber,
@@ -27,16 +27,17 @@ export {
   parseTime,
   parseBool,
   parseValue
-} from './parseValue.js';
+} from './parseValue.ts';
 
-import { formatColor as fmtColor, formatValue as fmtValue } from './formatNumber.js';
-import { info, dateInfo, isDate, isPercent, isText } from './formatInfo.js';
-import { parsePattern } from './parsePattern.js';
+import { formatColor as fmtColor, formatValue as fmtValue } from './formatNumber.ts';
+import { info, dateInfo, isDate, isPercent, isText } from './formatInfo.ts';
+import { parsePattern } from './parsePattern.ts';
+import type { FormatColorOptions, FormatDateInfo, FormatInfo, FormatOptions } from './types.ts';
 
-export { tokenize } from './tokenize.js';
+export { tokenize } from './tokenize.ts';
 
 const _parseDataCache = Object.create({});
-function prepareFormatterData (pattern, shouldThrow = false) {
+function prepareFormatterData (pattern: string, shouldThrow = false) {
   if (!pattern) { pattern = 'General'; }
 
   let parseData = _parseDataCache[pattern];
@@ -75,55 +76,13 @@ function prepareFormatterData (pattern, shouldThrow = false) {
  * - Any non number values will be stringified and passed through the text section of the format pattern.
  * - NaNs and infinites will use the corresponding strings from the active locale.
  *
- * @param {string} pattern - A format pattern in the ECMA-376 number format.
- * @param {*} value - The value to format.
- * @param {object} [options={}]  Options
- * @param {string} [options.locale=""]
- *    A BCP 47 string tag. Locale default is english with a `\u00a0`
- *    grouping symbol (see [addLocale](#addLocale))
- * @param {string} [options.overflow="######"]
- *    The string emitted when a formatter fails to format a date that is out
- *    of bounds.
- * @param {string} [options.invalid="######"]
- *    The string emitted when no-throw mode fails to parse a pattern.
- * @param {boolean} [options.throws=true]
- *    Should the formatter throw an error if a provided pattern is invalid.
- *    If false, a formatter will be constructed which instead outputs an error
- *    string (see _invalid_ in this table).
- * @param {boolean} [options.nbsp=false]
- *    By default the output will use a regular space, but in many cases you
- *    may desire a non-breaking-space instead.
- * @param {boolean} [options.leap1900=true]
- *    Simulate the Lotus 1-2-3 [1900 leap year bug](https://docs.microsoft.com/en-us/office/troubleshoot/excel/wrongly-assumes-1900-is-leap-year).
- *    It is a requirement in the Ecma OOXML specification so it is on by default.
- * @param {boolean} [options.dateErrorThrows=false]
- *    Should the formatter throw an error when trying to format a date that is
- *    out of bounds?
- * @param {boolean} [options.dateErrorNumber=true]
- *    Should the formatter switch to a General number format when trying to
- *    format a date that is out of bounds?
- * @param {boolean} [options.bigintErrorNumber=false]
- *    Should the formatter switch to a plain string number format when trying to
- *    format a bigint that is out of bounds?
- * @param {boolean} [options.dateSpanLarge=true]
- *    Extends the allowed range of dates from Excel bounds (1900–9999) to
- *    Google Sheet bounds (0–99999).
- * @param {boolean} [options.ignoreTimezone=false]
- *    Normally when date objects are used with the formatter, time zone is taken
- *    into account. This makes the formatter ignore the timezone offset.
- * @param {boolean} [options.skipChar='']
- *    When the formatter encounters `_` it normally emits a single space instead
- *    of the `_` and the next character (like Excel TEXT function does). Setting
- *    this to a character will make the formatter emit that followed by the next
- *    one.
- * @param {boolean} [options.fillChar='']
- *    When the formatter encounters `*` it normally emits nothing instead of the
- *    `*` and the next character (like Excel TEXT function does). Setting this
- *    to a character will make the formatter emit that followed by the next one.
- * @returns {string} A formatted value
+ * @param pattern - A format pattern in the ECMA-376 number format.
+ * @param value - The value to format.
+ * @param [options] - Formatter options
+ * @returns A formatted value
  */
-export function format (pattern, value, options = {}) {
-  const opts = Object.assign({}, defaultOptions, options);
+export function format (pattern: string, value: any, options?: FormatOptions): string {
+  const opts: FormatOptions = Object.assign({}, defaultOptions, options);
   const data = prepareFormatterData(pattern, opts.throws);
   const val = handleDates(value, opts) ?? value;
   return fmtValue(val, data, opts);
@@ -142,26 +101,14 @@ export function format (pattern, value, options = {}) {
  * console.log(color); // null
  * ```
  *
- * @param {string} pattern - A format pattern in the ECMA-376 number format.
- * @param {*} value - The value to format.
- * @param {object} [options={}]  Options
- * @param {boolean} [options.throws=true]
- *    Should the formatter throw an error if a provided pattern is invalid.
- *    If false, a formatter will be constructed which instead outputs an error
- *    string (see _invalid_ in this table).
- * @param {boolean} [options.ignoreTimezone=false]
- *    Normally when date objects are used with the formatter, time zone is taken
- *    into account. This makes the formatter ignore the timezone offset.
- * @param {boolean} [options.indexColors=true]
- *    When indexed color modifiers are used (`[Color 1]`) the formatter will
- *    convert the index into the corresponding hex color of the default palette.
- *    When this option is set to false, the number will instead by emitted
- *    allowing you to index against a custom palette.
- * @returns {string|number|null}
+ * @param pattern - A format pattern in the ECMA-376 number format.
+ * @param value - The value to format.
+ * @param [options] - Formatter options
+ * @returns
  *    A string color value as described by the pattern or a number if the
  *    indexColors option has been set to false.
  */
-export function formatColor (pattern, value, options) {
+export function formatColor (pattern: string, value: any, options?: FormatColorOptions): string | number | null {
   const opts = Object.assign({}, defaultOptions, options);
   const data = prepareFormatterData(pattern, opts.throws);
   const val = handleDates(value, opts) ?? value;
@@ -176,10 +123,10 @@ export function formatColor (pattern, value, options) {
  * date symbol (such as `Y` or `H`). Each section is restricted to be
  * _either_ a number or date format.
  *
- * @param {string} pattern - A format pattern in the ECMA-376 number format.
- * @returns {boolean} True if the specified pattern is date pattern, False otherwise.
+ * @param pattern - A format pattern in the ECMA-376 number format.
+ * @returns True if the specified pattern is date pattern, False otherwise.
  */
-export function isDateFormat (pattern) {
+export function isDateFormat (pattern: string): boolean {
   const data = prepareFormatterData(pattern, false);
   return isDate(data.partitions);
 }
@@ -190,10 +137,10 @@ export function isDateFormat (pattern) {
  * The pattern is considered a percentage pattern if any of its sections
  * contains an unescaped percentage symbol.
  *
- * @param {string} pattern - A format pattern in the ECMA-376 number format.
- * @returns {boolean} True if the specified pattern is date pattern, False otherwise.
+ * @param pattern - A format pattern in the ECMA-376 number format.
+ * @returns True if the specified pattern is date pattern, False otherwise.
  */
-export function isPercentFormat (pattern) {
+export function isPercentFormat (pattern: string): boolean {
   const data = prepareFormatterData(pattern, false);
   return isPercent(data.partitions);
 }
@@ -206,10 +153,10 @@ export function isPercentFormat (pattern) {
  *
  * For example `@` or `@" USD"` are text patterns but `#;@` is not.
  *
- * @param {string} pattern - A format pattern in the ECMA-376 number format.
- * @returns {boolean} True if the specified pattern is date pattern, False otherwise.
+ * @param pattern - A format pattern in the ECMA-376 number format.
+ * @returns True if the specified pattern is date pattern, False otherwise.
  */
-export function isTextFormat (pattern) {
+export function isTextFormat (pattern: string): boolean {
   const data = prepareFormatterData(pattern, false);
   return isText(data.partitions);
 }
@@ -217,10 +164,10 @@ export function isTextFormat (pattern) {
 /**
  * Determine if a given format pattern is valid.
  *
- * @param {string} pattern - A format pattern in the ECMA-376 number format.
- * @returns {boolean} True if the specified pattern is valid, False otherwise.
+ * @param pattern - A format pattern in the ECMA-376 number format.
+ * @returns True if the specified pattern is valid, False otherwise.
  */
-export function isValidFormat (pattern) {
+export function isValidFormat (pattern: string): boolean {
   try {
     prepareFormatterData(pattern, true);
     return true;
@@ -234,15 +181,14 @@ export function isValidFormat (pattern) {
  * Returns an object detailing the properties and internals of a format parsed
  * format pattern.
  *
- * @param {string} pattern - A format pattern in the ECMA-376 number format.
- * @param {object} [options={}]  Options
- * @param {string} [options.currency]
+ * @param pattern - A format pattern in the ECMA-376 number format.
+ * @param [options.currency]
  *   Limit the patterns identified as currency to those that use the give string.
  *   If nothing is provided, patterns will be tagged as currency if one of the
  *   following currency symbols is used: ¤$£¥֏؋৳฿៛₡₦₩₪₫€₭₮₱₲₴₸₹₺₼₽₾₿
- * @returns {FormatInfo} An object of format properties.
+ * @returns An object of format properties.
  */
-export function getFormatInfo (pattern, options = {}) {
+export function getFormatInfo (pattern: string, options: { currency?: string; } = {}): FormatInfo {
   const data = prepareFormatterData(pattern, false);
   if (!data.info) {
     data.info = info(data.partitions, options?.currency);
@@ -253,10 +199,10 @@ export function getFormatInfo (pattern, options = {}) {
 /**
  * Gets information about date codes use in a format string.
  *
- * @param {string} pattern - A format pattern in the ECMA-376 number format.
- * @returns {FormatDateInfo} An object of format date properties.
+ * @param pattern - A format pattern in the ECMA-376 number format.
+ * @returns An object of format date properties.
  */
-export function getFormatDateInfo (pattern) {
+export function getFormatDateInfo (pattern: string): FormatDateInfo {
   const data = prepareFormatterData(pattern, false);
   if (!data.dateInfo) {
     data.dateInfo = dateInfo(data.partitions);

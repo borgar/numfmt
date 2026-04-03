@@ -1,5 +1,5 @@
-import test from './utils.js';
-import { addLocale } from '../lib/index.js';
+import test from './utils.ts';
+import { addLocale } from '../lib/index.ts';
 
 const date = 3290.1278435; // 1909-01-02 03:04:05.678
 
@@ -113,4 +113,3 @@ test('locale options', t => {
 
   t.end();
 });
-

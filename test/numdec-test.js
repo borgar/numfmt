@@ -1,7 +1,7 @@
 /* eslint-disable no-loss-of-precision */
 // tests converted from SSF
 import test from 'tape';
-import numdec from '../lib/numdec.js';
+import numdec from '../lib/numdec.ts';
 
 function _f (v) {
   return numdec(v).total;
@@ -553,4 +553,3 @@ test('numdec', t => {
 
   t.end();
 });
-

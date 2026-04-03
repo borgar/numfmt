@@ -1,5 +1,5 @@
-import { getFormatInfo } from '../lib/index.js';
-import test from './utils.js';
+import { getFormatInfo } from '../lib/index.ts';
+import test from './utils.ts';
 
 test('numfmt.info', t => {
   const i1 = { ...getFormatInfo('0') };

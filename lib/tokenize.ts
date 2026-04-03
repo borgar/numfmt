@@ -5,9 +5,10 @@ import {
   TOKEN_CONDITION, TOKEN_DBNUM, TOKEN_NATNUM, TOKEN_LOCALE, TOKEN_COLOR, TOKEN_MODIFIER,
   TOKEN_AMPM, TOKEN_ESCAPED, TOKEN_STRING, TOKEN_SKIP, TOKEN_EXP, TOKEN_FILL, TOKEN_PAREN,
   TOKEN_CHAR
-} from './constants.js';
+} from './constants.ts';
+import type { FormatToken } from './types.ts';
 
-const tokenHandlers = [
+const tokenHandlers: [ string, RegExp, number | [ number, number ] ][] = [
   [ TOKEN_GENERAL, /^General/i, 0 ],
   [ TOKEN_HASH, /^#/, 0 ],
   [ TOKEN_ZERO, /^0/, 0 ],
@@ -53,17 +54,10 @@ const CODE_QMRK = 63;
 const CODE_HASH = 35;
 const CODE_ZERO = 48;
 const CODE_NINE = 57;
-const isNumOp = char => {
+const isNumOp = (char: string) => {
   const c = (char || '\0').charCodeAt(0);
   return (c === CODE_QMRK || c === CODE_HASH || (c >= CODE_ZERO && c <= CODE_NINE));
 };
-
-/**
- * @typedef {object} FormatToken
- * @property {string} type Token type.
- * @property {any} value The value of the token, cleaned of extra characters.
- * @property {string} raw Raw token source.
- */
 
 /**
  * Breaks a format pattern string into a list of tokens.
@@ -82,10 +76,10 @@ const isNumOp = char => {
  * Token types may be found as an Object as the
  * [`tokenTypes` export]{@link tokenTypes} of the package.
  *
- * @param {string} pattern The format pattern
- * @returns {FormatToken[]} a list of tokens
+ * @param pattern The format pattern
+ * @returns a list of tokens
  */
-export function tokenize (pattern) {
+export function tokenize (pattern: string): FormatToken[] {
   let i = 0;
   const tokens = [];
   const unresolvedCommas = [];
@@ -138,7 +132,7 @@ export function tokenize (pattern) {
     }
     // all other symbols are matched using
     else {
-      let token;
+      let token: FormatToken;
       for (const [ type, expr, group ] of tokenHandlers) {
         const m = expr.exec(curr);
         if (m) {

@@ -1,4 +1,4 @@
-import test from './utils.js';
+import test from './utils.ts';
 
 const date = 3290.1278435; // 1909-01-02 03:04:05.678
 
@@ -164,4 +164,3 @@ test('Date specifiers: month vs. minute', t => {
 
   t.end();
 });
-

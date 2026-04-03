@@ -1,7 +1,7 @@
 /* globals process */
 /* eslint-disable no-loss-of-precision */
-import test, { getTimeZoneName, getTimeZoneOffset } from './utils.js';
-import { format as numfmt, isDateFormat, isPercentFormat, isTextFormat } from '../lib/index.js';
+import test, { getTimeZoneName, getTimeZoneOffset } from './utils.ts';
+import { format as numfmt, isDateFormat, isPercentFormat, isTextFormat } from '../lib/index.ts';
 
 test('near zero negatives:', t => {
   t.format('-0', -1, '--1');
@@ -118,7 +118,7 @@ test('Date object as a value:', t => {
     const dt = new Date(y, m, d);
     const tzSkew = getTimeZoneOffset(dt) / (60 * 24);
     const output = numfmt('General', dt, { ignoreTimezone: true });
-    const diff = (output.replace(/^\d*(\.\d*)?$/, '0$1')) - tzSkew;
+    const diff = Number(output.replace(/^\d*(\.\d*)?$/, '0$1')) - tzSkew;
     return Math.abs(diff);
   };
 

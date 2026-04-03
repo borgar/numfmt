@@ -1,4 +1,4 @@
-import test from './utils.js';
+import test from './utils.ts';
 
 test('bigint', t => {
   t.format('0', Number.MAX_SAFE_INTEGER, String(Number.MAX_SAFE_INTEGER));
