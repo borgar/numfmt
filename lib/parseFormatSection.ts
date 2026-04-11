@@ -10,10 +10,48 @@ import {
 } from './constants.ts';
 import type { FormatToken, PatternPart, RunToken } from './types.ts';
 
-function minMaxPad (str: string, part: PatternPart, prefix: string) {
-  part[prefix + '_max'] = str.length;
-  part[prefix + '_min'] = str.replace(/#/g, '').length;
-  return part;
+type NumPart = 'int' | 'frac' | 'num' | 'den' | 'man';
+
+function minMaxPad (str: string, part: PatternPart, prefix: NumPart): void {
+  if (prefix === 'int') {
+    part.int_max = str.length;
+    part.int_min = str.replace(/#/g, '').length;
+  }
+  else if (prefix === 'frac') {
+    part.frac_max = str.length;
+    // part.frac_min = str.replace(/#/g, '').length;
+  }
+  else if (prefix === 'num') {
+    // part.num_max = str.length;
+    part.num_min = str.replace(/#/g, '').length;
+  }
+  else if (prefix === 'den') {
+    part.den_max = str.length;
+    part.den_min = str.replace(/#/g, '').length;
+  }
+  else if (prefix === 'man') {
+    // part.man_max = str.length;
+    // part.man_min = str.replace(/#/g, '').length;
+  }
+}
+
+function getPattern (part: PatternPart, currentPattern: NumPart): string[] {
+  if (currentPattern === 'int') {
+    return part.int_pattern;
+  }
+  else if (currentPattern === 'frac') {
+    return part.frac_pattern;
+  }
+  else if (currentPattern === 'num') {
+    return part.num_pattern;
+  }
+  else if (currentPattern === 'den') {
+    return part.den_pattern;
+  }
+  else if (currentPattern === 'man') {
+    return part.man_pattern;
+  }
+  return [];
 }
 
 function add (s: string | FormatToken | RunToken, tokens: RunToken[]) {
@@ -59,10 +97,10 @@ export function parseFormatSection (inputTokens: FormatToken[]) {
   const part: PatternPart = getEmptyPatternPart();
   const outputTokens = part.tokens;
 
-  let currentPattern = 'int';
-  let lastNumberChunk = null;
+  let currentPattern: NumPart = 'int';
+  let lastNumberChunk: null | { type: NumPart, num: string } = null;
   const dateChunks = [];
-  let last: FormatToken;
+  let last: FormatToken = { type: TOKEN_STRING, value: '', raw: '' }; // dummy
   let haveLocale = false;
 
   let index = -1;
@@ -82,11 +120,13 @@ export function parseFormatSection (inputTokens: FormatToken[]) {
 
     // new partition
     else if (isNumOp(token, currentPattern)) {
-      const pt = part[currentPattern + '_pattern'];
+      const pt = getPattern(part, currentPattern);
       if (isNumOp(last, currentPattern) || last?.type === TOKEN_GROUP) {
         // append to current
         pt.push((pt.pop() || '') + token.value);
-        lastNumberChunk.num += token.value;
+        if (lastNumberChunk) {
+          lastNumberChunk.num += token.value;
+        }
       }
       else {
         // new number section
@@ -110,13 +150,14 @@ export function parseFormatSection (inputTokens: FormatToken[]) {
     // vulgar fractions
     else if (type === TOKEN_SLASH) {
       haveSlash = true;
-      if (part[currentPattern + '_pattern'].length) {
+      const pt = getPattern(part, currentPattern);
+      if (pt.length) {
         if (!lastNumberChunk) { // need to have a numerator present
           throw new SyntaxError('Format pattern is missing a numerator');
         }
         part.fractions = true;
         // ... we just passed the numerator - correct that item
-        part.num_pattern.push(part[currentPattern + '_pattern'].pop());
+        part.num_pattern.push(pt.pop()!);
         lastNumberChunk.type = 'num';
         // next up... the denominator
         currentPattern = 'den';
@@ -291,7 +332,7 @@ export function parseFormatSection (inputTokens: FormatToken[]) {
         const last_date_chunk = dateChunks[dateChunks.length - 1];
         if (!bit.type && last_date_chunk &&
             !last_date_chunk.used &&
-            (last_date_chunk.size & (u_HOUR | u_SEC))) {
+            ((last_date_chunk.size ?? 0) & (u_HOUR | u_SEC))) {
           // if this value follows hour or second, it is a minute
           last_date_chunk.used = true;
           bit.size = u_MIN;
@@ -313,7 +354,7 @@ export function parseFormatSection (inputTokens: FormatToken[]) {
         bit.pad = /ss/.test(value) ? 1 : 0;
         // if last date chunk was m, flag this used
         const last_date_chunk = dateChunks[dateChunks.length - 1];
-        if (last_date_chunk && last_date_chunk.size & u_MIN) {
+        if (last_date_chunk && (last_date_chunk.size ?? 0) & u_MIN) {
           bit.used = true;
         }
         // if last date chunk is undecided, we know that it is a minute
@@ -328,7 +369,7 @@ export function parseFormatSection (inputTokens: FormatToken[]) {
         // TODO: Don't know what this does? (yet!)
       }
       // signal date calc and track smallest needed unit
-      part.date = part.date | bit.size;
+      part.date = part.date | (bit.size ?? 0);
       part.date_eval = true;
       dateChunks.push(bit);
       add(bit, outputTokens);
@@ -382,7 +423,7 @@ export function parseFormatSection (inputTokens: FormatToken[]) {
 
     // color
     else if (type === TOKEN_COLOR) {
-      let cm: RegExpExecArray;
+      let cm: RegExpExecArray | null;
       let v = token.value.toLowerCase();
       if ((cm = /^color\s*(\d+)$/i.exec(v))) {
         v = parseInt(cm[1], 10);

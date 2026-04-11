@@ -51,15 +51,16 @@ function prepareFormatterData (pattern: string, shouldThrow = false) {
       if (shouldThrow) {
         throw err;
       }
+      const message = (err as Error)?.message ?? '';
       // else we set the parsedata to error
       const errPart = {
         tokens: [ { type: 'error' } ],
-        error: err.message
+        error: message
       };
       parseData = {
         pattern: pattern,
         partitions: [ errPart, errPart, errPart, errPart ],
-        error: err.message,
+        error: message,
         locale: null
       };
     }

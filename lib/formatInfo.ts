@@ -56,9 +56,9 @@ const dateCodes: [ string, number ][] = [
   [ 'hm', 9 ]
 ];
 
-export function info (partitions: PatternPart[], currencyId = null) {
+export function info (partitions: PatternPart[], currencyId?: string | null) {
   const [ partPos, partNeg ] = partitions;
-  const frac_max = partPos.frac_max;
+  const frac_max = partPos.frac_max ?? -1;
   const output: FormatInfo = {
     type: 'general',
     isDate: isDate(partitions),

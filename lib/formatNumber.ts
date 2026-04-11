@@ -1,5 +1,6 @@
 import { TOKEN_TEXT, indexColors } from './constants.ts';
 import { defaultLocale, getLocale } from './locale.ts';
+import { defaultOptions } from './options.ts';
 import { parseFormatSection } from './parseFormatSection.ts';
 import type { ParseData } from './parsePattern.ts';
 import { runPart } from './runPart.ts';
@@ -13,7 +14,7 @@ function getPart (value: any, parts: PatternPart[]) {
   for (let pi = 0; pi < 3; pi++) {
     const part = parts[pi];
     if (part) {
-      let cond: boolean;
+      let cond = false;
       if (part.condition) {
         const operator = part.condition[0];
         const operand = part.condition[1];
@@ -37,7 +38,7 @@ function getPart (value: any, parts: PatternPart[]) {
 
 export function formatColor (value: any, parseData: ParseData, opts: FormatColorOptions) {
   const parts = parseData.partitions;
-  let part = parts[3];
+  let part: PatternPart | undefined = parts[3];
   let color = null;
   if ((typeof value === 'number' && Number.isFinite(value)) || typeof value === 'bigint') {
     part = getPart(value, parts);
@@ -51,9 +52,9 @@ export function formatColor (value: any, parseData: ParseData, opts: FormatColor
   return color;
 }
 
-export function formatValue (value: any, parseData: ParseData, opts: FormatOptions) {
+export function formatValue (value: any, parseData: ParseData, opts: FormatOptions): string {
   const parts = parseData.partitions;
-  const l10n = getLocale(parseData.locale || opts.locale);
+  const l10n = getLocale(parseData.locale || opts.locale || '');
   // not a number?
   const text_part = parts[3] ? parts[3] : default_text;
   if (typeof value === 'boolean') {
@@ -75,5 +76,5 @@ export function formatValue (value: any, parseData: ParseData, opts: FormatOptio
   }
   // find and run the pattern part that applies to this number
   const part = getPart(value, parts);
-  return part ? runPart(value, part, opts, l10n) : opts.overflow;
+  return part ? runPart(value, part, opts, l10n) : opts.overflow ?? defaultOptions.overflow;
 }

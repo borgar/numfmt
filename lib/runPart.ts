@@ -13,6 +13,7 @@ import {
 import { pad } from './pad.ts';
 import { getExponent, getSignificand } from './numberProps.ts';
 import type { FormatOptions, LocaleData, PatternPart } from './types.ts';
+import { defaultOptions } from './options.ts';
 
 const DAYSIZE = 86400;
 
@@ -23,7 +24,7 @@ const dateOverflows = (inputValue: number, roundedValue: number, bigRange: boole
   return (inputValue < MIN_S_DATE || roundedValue >= MAX_S_DATE);
 };
 
-export function runPart (value: any, part: PatternPart, opts: FormatOptions, l10n_: LocaleData) {
+export function runPart (value: any, part: PatternPart, opts: FormatOptions, l10n_?: LocaleData | null): string {
   let mantissa = '';
   let mantissa_sign = '';
   let numerator = '';
@@ -40,7 +41,7 @@ export function runPart (value: any, part: PatternPart, opts: FormatOptions, l10
     else {
       return opts.bigintErrorNumber
         ? String(value)
-        : opts.overflow;
+        : opts.overflow ?? defaultOptions.overflow;
     }
     date = value;
   }
@@ -89,8 +90,8 @@ export function runPart (value: any, part: PatternPart, opts: FormatOptions, l10
     integer += (i < 1) ? '' : Math.floor(i);
   }
   // integer grouping
-  const group_pri = opts.grouping[0] ?? 3;
-  const group_sec = opts.grouping[1] ?? group_pri;
+  const group_pri = opts.grouping?.[0] ?? 3;
+  const group_sec = opts.grouping?.[1] ?? group_pri;
 
   // fraction to text
   if (part.dec_fractions) {
@@ -98,7 +99,7 @@ export function runPart (value: any, part: PatternPart, opts: FormatOptions, l10
   }
 
   // using vulgar fractions
-  const fixed_slash = !part.error && (part.num_p.includes('0') || part.den_p.includes('0'));
+  const fixed_slash = !part.error && (part.num_p?.includes('0') || part.den_p?.includes('0'));
 
   let have_fraction = fixed_slash;
   if (part.fractions) {
@@ -182,7 +183,10 @@ export function runPart (value: any, part: PatternPart, opts: FormatOptions, l10
       hour = Math.floor((x / 60) / 60) % 60;
     }
     weekday = (6 + date) % 7;
-    if (part.date_eval && dateOverflows(value, date + (time / DAYSIZE), opts.dateSpanLarge)) {
+    if (
+      part.date_eval &&
+      dateOverflows(value, date + (time / DAYSIZE), opts.dateSpanLarge ?? defaultOptions.dateSpanLarge)
+    ) {
       // if value is out of bounds and formatting is date Excel emits a
       // stream of "######" that fills the cell width.
       // This doesn't happen, if the only date tokens are "elapsed time" tokens.
@@ -192,9 +196,9 @@ export function runPart (value: any, part: PatternPart, opts: FormatOptions, l10
       }
       if (opts.dateErrorNumber) {
         const _ret = value < 0 ? [ l10n.negative ] : [];
-        return general(_ret, {}, value, l10n).join('');
+        return general(_ret, value, l10n).join('');
       }
-      return opts.overflow;
+      return opts.overflow ?? defaultOptions.overflow;
     }
   }
 
@@ -210,7 +214,7 @@ export function runPart (value: any, part: PatternPart, opts: FormatOptions, l10
 
   const ret = [];
 
-  const digitsStart = (numstr: string, pattern: string, prt, offset: number) => {
+  const digitsStart = (numstr: string, pattern: string, prt: string = '', offset: number) => {
     const l = (!offset && numstr.length > pattern.length)
       ? prt.length + numstr.length - pattern.length
       : prt.length;
@@ -237,7 +241,7 @@ export function runPart (value: any, part: PatternPart, opts: FormatOptions, l10
           if (have_fraction) {
             ret.push(tok.value.replace(/ /g, padQ));
           }
-          else if (part.num_min > 0 || part.den_min > 0) {
+          else if ((part.num_min ?? 0) > 0 || (part.den_min ?? 0) > 0) {
             // FIXME: ret.push(''.repeat(tok.value.length))
             ret.push(tok.value.replace(/./g, padQ));
           }
@@ -246,7 +250,7 @@ export function runPart (value: any, part: PatternPart, opts: FormatOptions, l10
           if (have_fraction && integer) {
             ret.push(tok.value.replace(/ /g, padQ));
           }
-          else if ((part.den_min > 0) && (integer || part.num_min)) {
+          else if (((part.den_min ?? 0) > 0) && (integer || part.num_min)) {
             ret.push(tok.value.replace(/./g, padQ));
           }
         }
@@ -254,7 +258,7 @@ export function runPart (value: any, part: PatternPart, opts: FormatOptions, l10
           if (have_fraction) {
             ret.push(tok.value.replace(/ /g, padQ));
           }
-          else if (part.den_min > 0 || part.den_min > 0) {
+          else if ((part.den_min ?? 0) > 0 || (part.den_min ?? 0) > 0) {
             ret.push(tok.value.replace(/./g, padQ));
           }
         }
@@ -285,7 +289,7 @@ export function runPart (value: any, part: PatternPart, opts: FormatOptions, l10
       ret.push(part.date ? tok.value : l10n.decimal);
     }
     else if (tokenType === 'general') {
-      general(ret, part, value, l10n);
+      general(ret, value, l10n);
     }
     else if (tokenType === 'exp') {
       ret.push(l10n.exponent);
@@ -336,7 +340,7 @@ export function runPart (value: any, part: PatternPart, opts: FormatOptions, l10
       if (have_fraction) {
         ret.push('/');
       }
-      else if (part.num_min > 0 || part.den_min > 0) {
+      else if ((part.num_min ?? 0) > 0 || (part.den_min ?? 0) > 0) {
         ret.push(padQ);
       }
       else {
@@ -346,8 +350,8 @@ export function runPart (value: any, part: PatternPart, opts: FormatOptions, l10
     else if (tokenType === 'int') {
       // number isn't fragmented
       if (part.int_pattern.length === 1) {
-        const pt = part.int_p;
-        const l = Math.max(part.int_min, integer.length);
+        const pt = part.int_p ?? '';
+        const l = Math.max((part.int_min ?? 0), integer.length);
         let digits = '';
         for (let i = l; i > 0; i--) {
           const d = integer.charAt(integer.length - i);
@@ -366,13 +370,13 @@ export function runPart (value: any, part: PatternPart, opts: FormatOptions, l10
         ret.push(digits);
       }
       else {
-        counter.int += digitsStart(integer, part.int_p, tok.num, counter.int);
+        counter.int += digitsStart(integer, part.int_p ?? '', tok.num, counter.int);
       }
     }
     else if (tokenType === 'frac') {
       const o = counter.frac;
       for (let i = 0; i < len; i++) {
-        ret.push(fraction[i + o] || pad(tok.num[i], opts.nbsp));
+        ret.push(fraction[i + o] || pad((tok.num ?? '')[i], opts.nbsp));
       }
       counter.frac += len;
     }
@@ -382,17 +386,17 @@ export function runPart (value: any, part: PatternPart, opts: FormatOptions, l10
       if (!counter[tokenType] && !counter.man) {
         ret.push(mantissa_sign);
       }
-      counter.man += digitsStart(mantissa, part.man_p, tok.num, counter.man);
+      counter.man += digitsStart(mantissa, (part.man_p ?? ''), tok.num, counter.man);
     }
     else if (tokenType === 'num') {
-      counter.num += digitsStart(numerator, part.num_p, tok.num, counter.num);
+      counter.num += digitsStart(numerator, (part.num_p ?? ''), tok.num, counter.num);
     }
     else if (tokenType === 'den') {
       const o = counter.den;
       for (let i = 0; i < len; i++) {
         let digit = denominator[i + o];
         if (!digit) {
-          const ch = tok.num[i];
+          const ch = (tok.num ?? '')[i];
           if (
             '123456789'.includes(ch) ||
             (denominator_fixed && ch === '0')
@@ -480,7 +484,7 @@ export function runPart (value: any, part: PatternPart, opts: FormatOptions, l10
       // decimals is pre-determined by longest subsec token
       // but the number emitted is per-token
       const f = subsec.toFixed(part.sec_decimals);
-      ret.push(f.slice(2, 2 + tok.decimals));
+      ret.push(f.slice(2, 2 + (tok.decimals ?? 0)));
     }
     else if (tokenType === 'ampm') {
       const idx = hour < 12 ? 0 : 1;
@@ -494,17 +498,17 @@ export function runPart (value: any, part: PatternPart, opts: FormatOptions, l10
     else if (tokenType === 'hour-elap') {
       if (value < 0) { ret.push(l10n.negative); }
       const hh = (date * 24) + Math.floor(Math.abs(time) / (60 * 60));
-      ret.push(String(Math.abs(hh)).padStart(tok.pad, '0'));
+      ret.push(String(Math.abs(hh)).padStart(tok.pad ?? 0, '0'));
     }
     else if (tokenType === 'min-elap') {
       if (value < 0) { ret.push(l10n.negative); }
       const mm = (date * 1440) + Math.floor(Math.abs(time) / 60);
-      ret.push(String(Math.abs(mm)).padStart(tok.pad, '0'));
+      ret.push(String(Math.abs(mm)).padStart(tok.pad ?? 0, '0'));
     }
     else if (tokenType === 'sec-elap') {
       if (value < 0) { ret.push(l10n.negative); }
       const ss = (date * DAYSIZE) + Math.abs(time);
-      ret.push(String(Math.abs(ss)).padStart(tok.pad, '0'));
+      ret.push(String(Math.abs(ss)).padStart(tok.pad ?? 0, '0'));
     }
     else if (tokenType === 'b-year') {
       ret.push(year + 543);

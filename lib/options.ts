@@ -1,6 +1,6 @@
 import type { FormatColorOptions, FormatOptions } from './types.ts';
 
-export const defaultOptions: FormatOptions & FormatColorOptions = {
+export const defaultOptions: Required<FormatOptions & FormatColorOptions> = {
   // Overflow error string
   overflow: '######', // dateErrorThrow needs to be off! [prev in locale]
   // Should it throw when there is an overflow error?

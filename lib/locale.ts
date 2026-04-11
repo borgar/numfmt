@@ -1,9 +1,9 @@
-import codeToLocale from './codeToLocale.ts';
+import { codeToLocale } from './codeToLocale.ts';
 import type { LocaleData, LocaleToken } from './types.ts';
 
 // Locale: [language[_territory][.codeset][@modifier]]
 const re_locale = /^([a-z\d]+)(?:[_-]([a-z\d]+))?(?:\.([a-z\d]+))?(?:@([a-z\d]+))?$/i;
-const locales = {};
+const locales: Record<string, LocaleData> = {};
 
 /**
  * Split a semicolon delimited string and replace instances of characters
@@ -32,7 +32,7 @@ const _ = (str: string, tilde: string = ''): string[] => str.replace(/~/g, tilde
  * @returns The same input object, but with ddd and mmm filled in.
  */
 function xm (o: Partial<LocaleData>, ml: number = 0, dl: number = 0): LocaleData {
-  if (!o.mmm) {
+  if (!o.mmm && o.mmmm) {
     o.mmm = ml < 1
       ? o.mmmm.concat()
       : o.mmmm.map(d => {
@@ -40,7 +40,7 @@ function xm (o: Partial<LocaleData>, ml: number = 0, dl: number = 0): LocaleData
         return s + (ml < 10 || d === s ? '' : '.');
       });
   }
-  if (!o.ddd) {
+  if (!o.ddd && o.dddd) {
     o.ddd = dl < 1
       ? o.dddd.concat()
       : o.dddd.map(d => {
@@ -97,13 +97,13 @@ export function parseLocale (locale: string): LocaleToken {
 // aa = numerical style (optional, 00 if absent)
 // bb = calendar format (optional, 00 if absent)
 // cc = language code
-export function resolveLocale (l4e) {
+export function resolveLocale (l4e: number | string) {
   if (typeof l4e === 'number') {
-    return codeToLocale[l4e & 0xffff] || null;
+    return codeToLocale.get(l4e & 0xffff) || null;
   }
   const wincode = parseInt(l4e, 16);
-  if (isFinite(wincode) && codeToLocale[wincode & 0xffff]) {
-    return codeToLocale[wincode & 0xffff] || null;
+  if (isFinite(wincode) && codeToLocale.has(wincode & 0xffff)) {
+    return codeToLocale.get(wincode & 0xffff) || null;
   }
   if (re_locale.test(l4e)) {
     return l4e;
@@ -322,7 +322,7 @@ const _fr = xm({
 }, -1, 13);
 addLocale({ ..._fr }, 'fr');
 addLocale({ ..._fr, mmm: _('janv.;févr.;mars;avr.;mai;juin;juill.;août;sept.;oct.;nov.;déc.') }, 'fr_CA');
-addLocale({ group: "'", decimal: '.', ..._fr }, 'fr_CH');
+addLocale({ ..._fr, group: "'", decimal: '.' }, 'fr_CH');
 
 const _de = xm({
   mmmm: _('Januar;Februar;März;April;Mai;Juni;Juli;August;September;Oktober;November;Dezember'),
@@ -330,8 +330,8 @@ const _de = xm({
   dddd: _('Sonn~;Mon~;Diens~;Mittwoch;Donners~;Frei~;Sams~', 'tag'),
   bool: _('WAHR;FALSCH')
 }, -1, 12);
-addLocale({ group: '.', decimal: ',', ..._de }, 'de');
-addLocale({ group: "'", decimal: '.', ..._de }, 'de_CH');
+addLocale({ ..._de, group: '.', decimal: ',' }, 'de');
+addLocale({ ..._de, group: "'", decimal: '.' }, 'de_CH');
 
 addLocale(xm({
   group: '.',
@@ -372,8 +372,8 @@ const _it = xm({
   dddd: _('domenica;lunedì;martedì;mercoledì;giovedì;venerdì;sabato'),
   bool: _('VERO;FALSO')
 }, 3, 3);
-addLocale({ group: '.', decimal: ',', ..._it }, 'it');
-addLocale({ group: "'", decimal: '.', ..._it }, 'it_CH');
+addLocale({ ..._it, group: '.', decimal: ',' }, 'it');
+addLocale({ ..._it, group: "'", decimal: '.' }, 'it_CH');
 
 const _no = {
   decimal: ',',

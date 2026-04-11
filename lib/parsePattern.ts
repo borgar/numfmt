@@ -1,7 +1,8 @@
+import { TOKEN_BREAK } from './constants.ts';
 import { resolveLocale } from './locale.ts';
 import { getEmptyPatternPart, parseFormatSection } from './parseFormatSection.ts';
 import { tokenize } from './tokenize.ts';
-import type { PatternPart } from './types.ts';
+import type { PatternPart, RunToken } from './types.ts';
 
 export type ParseData = {
   pattern: string;
@@ -11,7 +12,7 @@ export type ParseData = {
 };
 
 const maybeAddMinus = (part: PatternPart) => {
-  const [ op, val ] = part.condition ?? [];
+  const [ op, val ] = part.condition ?? [ '', 0 ];
   const exception = (
     (val < 0 && (op === '<' || op === '<=' || op === '=')) ||
     (val === 0 && (op === '<'))
@@ -24,27 +25,27 @@ const maybeAddMinus = (part: PatternPart) => {
   }
 };
 
-const clonePart = (part: PatternPart, prefixToken = null) => {
-  const r: Partial<PatternPart> = {};
-  for (const key in part) {
-    if (Array.isArray(part[key])) {
-      r[key] = [ ...part[key] ];
-    }
-    else {
-      r[key] = part[key];
-    }
-  }
+const clonePart = (part: PatternPart, prefixToken?: RunToken): PatternPart => {
+  const r: PatternPart = {
+    ...part,
+    den_pattern: [ ...part.den_pattern ],
+    frac_pattern: [ ...part.frac_pattern ],
+    int_pattern: [ ...part.int_pattern ],
+    man_pattern: [ ...part.man_pattern ],
+    num_pattern: [ ...part.num_pattern ],
+    tokens: [ ...part.tokens ],
+    generated: true
+  };
   if (prefixToken) {
     r.tokens.unshift(prefixToken);
   }
-  r.generated = true;
-  return r as PatternPart;
+  return r;
 };
 
 export function parsePattern (pattern: string): ParseData {
   const partitions = [];
   let conditional = false;
-  let l10n_override: string;
+  let l10n_override: string | null = null;
   let text_partition = null;
   let more = 0;
   let part: PatternPart;
@@ -81,8 +82,9 @@ export function parsePattern (pattern: string): ParseData {
     }
     partitions.push(part);
 
-    more = tokens[part.tokensUsed]?.type === 'break' ? 1 : 0;
-    tokens = tokens.slice(part.tokensUsed + more);
+    const used = part.tokensUsed ?? 0;
+    more = tokens[used]?.type === TOKEN_BREAK ? 1 : 0;
+    tokens = tokens.slice(used + more);
     i++;
   }
   while (more && i < 4 && conditions < 3);
@@ -131,7 +133,7 @@ export function parsePattern (pattern: string): ParseData {
       }
       else {
         // ...else it *seems* to follow logic based on first condition
-        const cond = part1.condition;
+        const cond = part1.condition!;
         if (
           cond[0] === '=' ||
           (cond[1] >= 0 && (cond[0] === '>' || cond[0] === '>='))
@@ -188,7 +190,7 @@ export function parsePattern (pattern: string): ParseData {
 
     partitions[0].condition = [ '>', 0 ];
     partitions[1].condition = [ '<', 0 ];
-    partitions[2].condition = null;
+    delete partitions[2].condition;
   }
 
   return {
@@ -203,15 +205,16 @@ export function parseCatch (pattern: string): ParseData {
     return parsePattern(pattern);
   }
   catch (err) {
+    const message = (err as Error)?.message;
     const errPart = {
       ...getEmptyPatternPart(),
       tokens: [ { type: 'error' } ],
-      error: err.message
+      error: message
     };
     return {
       pattern: pattern,
       partitions: [ errPart, errPart, errPart, errPart ],
-      error: err.message,
+      error: message,
       locale: null
     };
   }

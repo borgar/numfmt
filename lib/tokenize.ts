@@ -132,7 +132,7 @@ export function tokenize (pattern: string): FormatToken[] {
     }
     // all other symbols are matched using
     else {
-      let token: FormatToken;
+      let token: FormatToken = { type: TOKEN_STRING, value: '', raw: '""' };
       for (const [ type, expr, group ] of tokenHandlers) {
         const m = expr.exec(curr);
         if (m) {

@@ -25,7 +25,7 @@ const getExp = (n: number, exp: number, l10n: LocaleData) => {
   ];
 };
 
-export function general<T extends (string | number)[]> (ret: T, part, value: any, l10n: LocaleData): T {
+export function general<T extends (string | number)[]> (ret: T, value: any, l10n: LocaleData): T {
   const int = value | 0;
 
   if (typeof value === 'string') {

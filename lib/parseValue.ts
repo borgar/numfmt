@@ -2,6 +2,34 @@ import { currencySymbols, reCurrencySymbols } from './constants.ts';
 import { defaultLocale, getLocale } from './locale.ts';
 import type { ParseData } from './types.ts';
 
+type DataPoint = [string, number, string];
+
+type DateData = {
+  path: string;
+  sep?: string;
+  day?: string;
+  month: number;
+  _mon: string;
+  year?: number;
+  time?: number;
+  tf?: string;
+};
+
+type LocaleData = {
+  mon: DataPoint[];
+  mp: boolean;
+  day: DataPoint[];
+  dp: boolean;
+  locale?: string;
+};
+
+type DateOperator = 'j' | 'd' | 'D' | 'l' | 'n' | 'm' | 'M' | 'F' | 'y' | 'Y';
+
+type TrieNode = {
+  children: Record<string, TrieNode>;
+  isEnd?: boolean;
+};
+
 /*
 This is a list of the allowed date formats. The test file contains
 the full list of permuations and the resulting values and formats.
@@ -66,14 +94,14 @@ const okDateFormats = [
 ];
 
 // letter to excel
-const tx0 = { j: 'd', d: 'd', D: 'ddd', l: 'dddd', n: 'm', m: 'm', M: 'mmm', F: 'mmmm', y: 'yy', Y: 'yyyy' };
-const tx00 = { j: 'dd', d: 'dd', D: 'ddd', l: 'dddd', n: 'mm', m: 'mm', M: 'mmm', F: 'mmmm', y: 'yy', Y: 'yyyy' };
+const tx0: Record<DateOperator, string> = { j: 'd', d: 'd', D: 'ddd', l: 'dddd', n: 'm', m: 'm', M: 'mmm', F: 'mmmm', y: 'yy', Y: 'yyyy' };
+const tx00: Record<DateOperator, string> = { j: 'dd', d: 'dd', D: 'ddd', l: 'dddd', n: 'mm', m: 'mm', M: 'mmm', F: 'mmmm', y: 'yy', Y: 'yyyy' };
 
 // date formats are stored as a token-tree in a trie
 // for minimal looping and branching while parsing
-const dateTrieDM = {};
-const dateTrieMD = {};
-function packDate (f: string, node, allowType = 1) {
+const dateTrieDM: TrieNode = { children: {} };
+const dateTrieMD: TrieNode = { children: {} };
+function packDate (f: string, node: TrieNode, allowType = 1) {
   if (f) {
     const char = f[0];
     const next = f.slice(1);
@@ -84,15 +112,16 @@ function packDate (f: string, node, allowType = 1) {
       packDate(next, node, 2);
     }
     else {
-      node[char] = node[char] || {};
-      packDate(next, node[char], allowType);
+      node.children[char] ??= { children: {} };
+      packDate(next, node.children[char], allowType);
     }
   }
   else {
-    node.$ = allowType;
+    node.isEnd = true;
   }
 }
-function addFormatToTrie (fmt: string, trie) {
+
+function addFormatToTrie (fmt: string, trie: TrieNode) {
   // add date to token tree
   packDate(fmt, trie);
   // add a variant of the date with time suffixed
@@ -108,6 +137,7 @@ function addFormatToTrie (fmt: string, trie) {
   packDate('D ' + fmt, trie);
   packDate('D ' + fmt + ' x', trie);
 }
+
 okDateFormats.forEach((fmt: string) => {
   if (!fmt.startsWith('?')) addFormatToTrie(fmt, dateTrieDM);
   if (!fmt.startsWith('!')) addFormatToTrie(fmt, dateTrieMD);
@@ -122,12 +152,12 @@ const NS = ' ';
 const NN = ' ';
 const AP = "'";
 const AG = '٬';
-const dec2group = {
+const dec2group: Record<string, string[]> = {
   '.': [ CM, NS, NN, AP, AG ],
   ',': [ PT, NS, NN, AP, AG ],
   '٫': [ PT, NS, NN, AP, AG ]
 };
-const isDigit = d => d?.length === 1 && d >= '0' && d <= '9';
+const isDigit = (d: string) => d?.length === 1 && d >= '0' && d <= '9';
 
 /**
  * Parse a numeric string input and return its value and format. If the input
@@ -149,7 +179,7 @@ export function parseNumber (value: string, options: { locale?: string; } = {}):
   // we base everything on the decimal separator
   const dec = l10n.decimal;
   // base allowed grouping chars on decimal
-  const grp = [ ...(dec2group[dec] || [ AP, AG ]) ];
+  const grp = [ ...(dec2group[dec] ?? [ AP, AG ]) ];
   if (!grp.includes(l10n.group) && l10n.group !== SP && l10n.group !== dec) {
     grp.push(l10n.group);
   }
@@ -356,7 +386,7 @@ export function isValidDate (y: number, m: number, d: number): boolean {
 }
 
 // should really match { ’'   } and all whitespace
-const matchRec = (str: string, data, skipPeriod = false) => {
+const matchRec = (str: string, data: DataPoint[], skipPeriod = false): [string, DataPoint] | [string, null] => {
   for (const item of data) {
     if (str.startsWith(item[0])) {
       // if the match is followed by a "." we'll skip it if the abbr. is by
@@ -371,28 +401,19 @@ const matchRec = (str: string, data, skipPeriod = false) => {
   return [ '', null ];
 };
 
-const nextToken = (str, node, data, lData) => {
+const nextToken = (str: string, node: TrieNode, data: DateData, lData: LocaleData): DateData | undefined => {
   const path = data.path || '';
-  const matchOrder = Object.keys(node);
-  for (const t of matchOrder) {
-    let r;
-    if (!node[t]) {
-      continue;
-    }
-    if (t === '$' || t === '€') {
-      // if string is done, then we can return
-      if (!str) {
-        r = data;
-      }
-    }
-    else if (t === '-') {
+  for (const t of Object.keys(node.children)) {
+    const child = node.children[t];
+    let r: DateData | undefined;
+    if (t === '-') {
       const m = /^(\s*([./-]|,\s)\s*|\s+)/.exec(str);
       if (m) {
         const sep = (m[1] === '-' || m[1] === '/' || m[1] === '.') ? m[1] : ' ';
         // don't allow mixing date separators
         if (!data.sep || data.sep === sep) {
           const s = m[0].replace(/\s+/g, ' ');
-          r = nextToken(str.slice(m[0].length), node[t], { ...data, sep, path: path + s }, lData);
+          r = nextToken(str.slice(m[0].length), child, { ...data, sep, path: path + s }, lData);
         }
       }
     }
@@ -400,25 +421,25 @@ const nextToken = (str, node, data, lData) => {
       const m = /^[,.]?\s+/.exec(str);
       if (m) {
         const s = m[0].replace(/\s+/g, ' ');
-        r = nextToken(str.slice(m[0].length), node[t], { ...data, path: path + s }, lData);
+        r = nextToken(str.slice(m[0].length), child, { ...data, path: path + s }, lData);
       }
     }
     else if (t === 'j' || t === 'd') {
       const m = /^(0?[1-9]|1\d|2\d|3[01])\b/.exec(str);
       if (m) {
-        r = nextToken(str.slice(m[0].length), node[t], { ...data, day: m[0], path: path + t }, lData);
+        r = nextToken(str.slice(m[0].length), child, { ...data, day: m[0], path: path + t }, lData);
       }
     }
     else if (t === 'n' || t === 'm') {
       const m = /^(0?[1-9]|1[012])\b/.exec(str);
       if (m) {
-        r = nextToken(str.slice(m[0].length), node[t], { ...data, month: +m[0], _mon: m[0], path: path + t }, lData);
+        r = nextToken(str.slice(m[0].length), child, { ...data, month: +m[0], _mon: m[0], path: path + t }, lData);
       }
     }
     else if (t === 'F' || t === 'M') {
       const [ m, match ] = matchRec(str, lData.mon, lData.mp);
       if (match?.[2] === t) {
-        r = nextToken(str.slice(m.length), node[t],
+        r = nextToken(str.slice(m.length), child,
           { ...data, month: match[1], _mon: m, path: path + t }, lData);
       }
     }
@@ -426,26 +447,26 @@ const nextToken = (str, node, data, lData) => {
       const [ m, match ] = matchRec(str, lData.day, lData.dp);
       if (match?.[2] === t) {
         // the value is ignored
-        r = nextToken(str.slice(m.length), node[t], { ...data, path: path + t }, lData);
+        r = nextToken(str.slice(m.length), child, { ...data, path: path + t }, lData);
       }
     }
     else if (t === 'y') {
       const m = /^\d\d\b/.exec(str);
       if (m) {
         const y = (+m[0] >= 30) ? +m[0] + 1900 : +m[0] + 2000;
-        r = nextToken(str.slice(m[0].length), node[t], { ...data, year: y, path: path + t }, lData);
+        r = nextToken(str.slice(m[0].length), child, { ...data, year: y, path: path + t }, lData);
       }
     }
     else if (t === 'Y') {
       const m = /^\d\d\d\d\b/.exec(str);
       if (m) {
-        r = nextToken(str.slice(m[0].length), node[t], { ...data, year: +m[0], path: path + t }, lData);
+        r = nextToken(str.slice(m[0].length), child, { ...data, year: +m[0], path: path + t }, lData);
       }
     }
     else if (t === 'x') {
       const time = parseTime(str, { locale: lData.locale });
       if (time) {
-        r = nextToken('', node[t], { ...data, time: time.v, tf: time.z, path: path + t }, lData);
+        r = nextToken('', child, { ...data, time: time.v as number, tf: time.z, path: path + t }, lData);
       }
     }
     else {
@@ -458,17 +479,23 @@ const nextToken = (str, node, data, lData) => {
       }
     }
   }
+  // if string is done and this node is an end, we can return
+  if (node.isEnd && !str) {
+    if (isValidDate(data.year || 1916, data.month || 1, data.day ? +data.day : 1)) {
+      return data;
+    }
+  }
 };
 
-const normDateStr = s => (
-  s.replace(/\s+/g, ' ').trim()
+const normDateStr = (s: string) => (
+  s.trim().replace(/\s+/g, ' ')
     .replace(/’/, "'")
     .replace(/\.$/, '')
     .toLowerCase()
 );
 
-const getLookups = (arr, sym) => {
-  const s = arr.map((d, i) => [ normDateStr(d), i + 1, sym ]);
+const getLookups = (arr: string[], sym: string) => {
+  const s = arr.map<DataPoint>((d, i) => [ normDateStr(d), i + 1, sym ]);
   s.sort((a, b) => b[0].length - a[0].length);
   return s;
 };
@@ -501,7 +528,7 @@ export function parseDate (value: string, options?: { locale?: string; }): Parse
   const date = nextToken(
     normDateStr(value),
     l10n.preferMDY ? dateTrieMD : dateTrieDM,
-    { path: '' },
+    { path: '', month: 0, _mon: '' },
     lData
   );
   if (date) {
@@ -511,31 +538,31 @@ export function parseDate (value: string, options?: { locale?: string; }): Parse
     }
     const year = +(date.year ?? currentYear);
     if (!date.day) {
-      date.day = 1;
+      date.day = '1';
     }
     let epoch = -Infinity;
     if (year < 1900) {
       return null;
     }
-    else if (year <= 1900 && date.month <= 2) {
+    else if (year <= 1900 && date?.month <= 2) {
       epoch = 25568;
     }
     else if (year < 10000) {
       epoch = 25569;
     }
-    const dateValue = (Date.UTC(year, date.month - 1, date.day) / 864e5) + epoch + (date.time || 0);
+    const dateValue = (Date.UTC(year, date.month - 1, +date.day) / 864e5) + epoch + (date.time || 0);
     if (dateValue >= 0 && dateValue <= 2958465) {
       const lead0 = (
         // either has a leading zero
-        (date._mon[0] === '0' || date.day[0] === '0') ||
+        (date._mon?.startsWith('0') || date.day?.startsWith('0')) ||
         // both are 2-digits long
         (date._mon.length === 2 && date.day.length === 2)
       );
-      const format = date.path.replace(/[jdlDnmMFyYx]/g, a => {
+      const format = date.path.replace(/[jdlDnmMFyYx]/g, (a: string) => {
         if (a === 'x') {
           return date.tf || '';
         }
-        return (lead0 ? tx00[a] : tx0[a]) || a;
+        return (lead0 ? tx00[a as DateOperator] : tx0[a as DateOperator]) || a;
       });
       return { v: dateValue, z: format };
     }
