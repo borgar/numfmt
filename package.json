@@ -3,26 +3,28 @@
   "description": "Full Excel style number formatting",
   "author": "Borgar Þorsteinsson <borgar@borgar.net>",
   "version": "3.2.6",
+  "type": "module",
   "scripts": {
-    "build": "NODE_ENV=production rollup -c",
+    "build": "NODE_ENV=production tsdown",
     "build:all": "npm run build && npm run build:types && npm run build:docs",
     "build:docs": "echo '# Numfmt API\n'>API.md; jsdoc -t node_modules/@borgar/jsdoc-tsmd -d console lib>>API.md",
+    "docs": "typedoc && concat-md tempdocs > ./API.md && rm -rf tempdocs",
     "build:types": "jsdoc -c tsd.json lib>dist/numfmt.d.ts",
     "check": "npm run test && npm run lint && npm run typecheck",
     "lint": "eslint lib test",
     "release": "git diff --exit-code && tsup && npm publish && V=$(jq -r .version package.json) && git tag -a $V -m $V && git push origin $V && gh release create $V --generate-notes",
-    "test": "SKIPTABLES=1 tape './{lib,test}/*{.spec,-test}.js'|tap-min",
-    "test-all": "tape test/*-test.js",
-    "typecheck": "tsc --noEmit"
+    "test": "SKIPTABLES=1 vitest run",
+    "test:all": "vitest run",
+    "typecheck": "tsc --noEmit --tsBuildInfoFile /dev/null"
   },
-  "main": "dist/numfmt.js",
-  "types": "dist/numfmt.d.ts",
-  "module": "lib/index.js",
+  "source": "lib/index.ts",
+  "main": "dist/index.cjs",
+  "types": "dist/index.d.cts",
   "exports": {
     ".": {
-      "require": "./dist/numfmt.js",
-      "types": "./dist/numfmt.d.ts",
-      "default": "./lib/index.js"
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.cts",
+      "default": "./dist/index.js"
     }
   },
   "preferGlobal": false,
@@ -46,22 +48,17 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "@babel/core": "~7.29.0",
-    "@babel/preset-env": "~7.29.2",
     "@borgar/eslint-config": "~4.1.0",
-    "@borgar/jsdoc-tsmd": "~0.2.2",
     "@eslint/js": "~9.39.2",
-    "@rollup/plugin-babel": "~7.0.0",
-    "@rollup/plugin-terser": "~1.0.0",
     "@types/node": "~25.5.0",
+    "concat-md": "~0.5.1",
     "eslint": "~9.39.2",
     "globals": "~17.4.0",
-    "jsdoc": "~4.0.5",
-    "rollup": "~4.60.1",
-    "tap-min": "~3.0.0",
-    "tape": "~5.9.0",
+    "tsdown": "~0.21.7",
+    "typedoc": "~0.28.17",
     "typedoc-plugin-markdown": "~4.10.0",
     "typescript": "~5.9.3",
-    "typescript-eslint": "~8.56.1"
+    "typescript-eslint": "~8.56.1",
+    "vitest": "~4.1.4"
   }
 }
