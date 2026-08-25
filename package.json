@@ -46,22 +46,25 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "@babel/core": "~7.29.0",
-    "@babel/preset-env": "~7.29.2",
+    "@babel/core": "^7.29.7",
+    "@babel/preset-env": "~7.29.7",
     "@borgar/eslint-config": "~4.1.0",
     "@borgar/jsdoc-tsmd": "~0.2.2",
-    "@eslint/js": "~9.39.2",
-    "@rollup/plugin-babel": "~7.0.0",
+    "@eslint/js": "~10.0.1",
+    "@rollup/plugin-babel": "~7.1.0",
     "@rollup/plugin-terser": "~1.0.0",
-    "@types/node": "~25.5.0",
-    "eslint": "~9.39.2",
-    "globals": "~17.4.0",
+    "@types/node": "~26.3.0",
+    "eslint": "~10.9.1",
+    "globals": "~17.11.0",
     "jsdoc": "~4.0.5",
-    "rollup": "~4.60.1",
+    "rollup": "~4.62.5",
     "tap-min": "~3.0.0",
-    "tape": "~5.9.0",
-    "typedoc-plugin-markdown": "~4.10.0",
+    "tape": "~5.10.2",
+    "typedoc-plugin-markdown": "~4.12.0",
     "typescript": "~5.9.3",
-    "typescript-eslint": "~8.56.1"
+    "typescript-eslint": "~8.68.0"
+  },
+  "allowScripts": {
+    "fsevents@2.3.3": true
   }
 }
