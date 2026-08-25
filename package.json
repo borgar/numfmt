@@ -11,8 +11,8 @@
     "check": "npm run test && npm run lint && npm run typecheck",
     "lint": "eslint lib test",
     "release": "git diff --exit-code && PACKAGE_VERSION=$(jq -r .version package.json) && echo \"About to tag and push v$PACKAGE_VERSION. Continue? (y/n)\" && read -r REPLY && [ \"$REPLY\" = \"y\" ] && git tag --annotate v$PACKAGE_VERSION --message=v$PACKAGE_VERSION && git push origin v$PACKAGE_VERSION",
-    "test": "SKIPTABLES=1 tape './{lib,test}/*{.spec,-test}.js'|tap-min",
-    "test-all": "tape test/*-test.js",
+    "test": "SKIPTABLES=1 vitest run",
+    "test-all": "vitest run",
     "typecheck": "tsc --noEmit"
   },
   "main": "dist/numfmt.js",
@@ -58,11 +58,10 @@
     "globals": "~17.11.0",
     "jsdoc": "~4.0.5",
     "rollup": "~4.62.5",
-    "tap-min": "~3.0.0",
-    "tape": "~5.10.2",
     "typedoc-plugin-markdown": "~4.12.0",
     "typescript": "~5.9.3",
-    "typescript-eslint": "~8.68.0"
+    "typescript-eslint": "~8.68.0",
+    "vitest": "~4.1.11"
   },
   "allowScripts": {
     "fsevents@2.3.3": true
