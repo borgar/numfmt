@@ -1,6 +1,6 @@
-import test from './utils.js';
+import { describe } from 'vitest';
+import { runTable } from './utils.ts';
 
-test('SSF table: tables/ssf-dates.tsv', t => {
-  t.runTable('tables/ssf-dates.tsv');
-  t.end();
+describe('SSF table: tables/ssf-dates.tsv', () => {
+  runTable('tables/ssf-dates.tsv');
 });

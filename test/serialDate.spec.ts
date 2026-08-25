@@ -1,91 +1,82 @@
 /* globals process */
 
-import test, { getTimeZoneName } from './utils.js';
+import { expect, test } from 'vitest';
+import { getTimeZoneName } from './utils.ts';
 import { dateToSerial, dateFromSerial } from '../lib/index.js';
 
-function round (n) {
+function round (n: number): number {
   return Math.round(n * 1e10) / 1e10;
 }
 
-test('dateToSerial (Date):', t => {
+test('dateToSerial (Date):', () => {
   process.env.TZ = 'Asia/Calcutta';
-  t.equal(getTimeZoneName(), 'India Standard Time', 'Timezone is IST');
+  expect(getTimeZoneName(), 'Timezone is IST').toBe('India Standard Time');
 
-  const testYMD = (y, m, d, hh, mm, ss, tz = false) => {
+  const testYMD = (y: number, m: number, d: number, hh: number, mm: number, ss: number, tz = false) => {
     const dt = new Date(y, m - 1, d, hh, mm, ss);
     return round(dateToSerial(dt, { ignoreTimezone: tz }));
   };
 
-  t.equal(testYMD(1978, 5, 17, 10, 25, 30, true), 28627.2052083333, '[1978, 5, 17, 10, 25, 30] ignoreTimezone');
-  t.equal(testYMD(1978, 5, 17, 10, 25, 30), 28627.434375, '[1978, 5, 17, 10, 25, 30]');
+  expect(testYMD(1978, 5, 17, 10, 25, 30, true), '[1978, 5, 17, 10, 25, 30] ignoreTimezone').toBe(28627.2052083333);
+  expect(testYMD(1978, 5, 17, 10, 25, 30), '[1978, 5, 17, 10, 25, 30]').toBe(28627.434375);
 
-  t.equal(testYMD(2022, 3, 1, 13, 53, 11), 44621.578599537, '[2022, 3, 1, 13, 53, 11]');
-  t.equal(testYMD(2022, 3, 1, 13, 53, 11, true), 44621.3494328704, '[2022, 3, 1, 13, 53, 11] ignoreTimezone');
+  expect(testYMD(2022, 3, 1, 13, 53, 11), '[2022, 3, 1, 13, 53, 11]').toBe(44621.578599537);
+  expect(testYMD(2022, 3, 1, 13, 53, 11, true), '[2022, 3, 1, 13, 53, 11] ignoreTimezone').toBe(44621.3494328704);
 
-  t.equal(testYMD(1900, 1, 1, 0, 0, 0), 1, '[1900, 1, 1, 0, 0, 0]');
-  t.equal(testYMD(1900, 1, 1, 0, 0, 0, true), 0.7769675926, '[1900, 1, 1, 0, 0, 0] ignoreTimezone');
+  expect(testYMD(1900, 1, 1, 0, 0, 0), '[1900, 1, 1, 0, 0, 0]').toBe(1);
+  expect(testYMD(1900, 1, 1, 0, 0, 0, true), '[1900, 1, 1, 0, 0, 0] ignoreTimezone').toBe(0.7769675926);
 
-  t.equal(testYMD(1950, 1, 1, 0, 0, 0), 18264, '[1950, 1, 1, 0, 0, 0]');
-  t.equal(testYMD(1950, 1, 1, 0, 0, 0, true), 18263.7708333333, '[1950, 1, 1, 0, 0, 0] ignoreTimezone');
+  expect(testYMD(1950, 1, 1, 0, 0, 0), '[1950, 1, 1, 0, 0, 0]').toBe(18264);
+  expect(testYMD(1950, 1, 1, 0, 0, 0, true), '[1950, 1, 1, 0, 0, 0] ignoreTimezone').toBe(18263.7708333333);
 
-  t.equal(testYMD(2000, 1, 1, 0, 0, 0), 36526, '[2000, 1, 1, 0, 0, 0]');
-  t.equal(testYMD(2000, 1, 1, 0, 0, 0, true), 36525.7708333333, '[2000, 1, 1, 0, 0, 0] ignoreTimezone');
-
-  t.end();
+  expect(testYMD(2000, 1, 1, 0, 0, 0), '[2000, 1, 1, 0, 0, 0]').toBe(36526);
+  expect(testYMD(2000, 1, 1, 0, 0, 0, true), '[2000, 1, 1, 0, 0, 0] ignoreTimezone').toBe(36525.7708333333);
 });
 
-test('dateToSerial (Array):', t => {
-  const testYMD = (y, m, d, hh, mm, ss, tz = false) => {
+test('dateToSerial (Array):', () => {
+  const testYMD = (y: number, m: number, d: number, hh: number, mm: number, ss: number, tz = false) => {
     return round(dateToSerial(
       [ y, m, d, hh, mm, ss ],
       { ignoreTimezone: tz }
     ));
   };
-  t.equal(testYMD(1978, 5, 17, 10, 25, 30, false), 28627.434375, '[1978, 5, 17, 10, 25, 30]');
-  t.equal(testYMD(1978, 5, 17, 10, 25, 30, true), 28627.434375, '[1978, 5, 17, 10, 25, 30]');
-  t.equal(testYMD(2022, 3, 1, 13, 53, 11, false), 44621.578599537, '[2022, 3, 1, 13, 53, 11]');
-  t.equal(testYMD(2022, 3, 1, 13, 53, 11, true), 44621.578599537, '[2022, 3, 1, 13, 53, 11]');
-  t.equal(testYMD(1900, 1, 1, 0, 0, 0, false), 1, '[1900, 1, 1, 0, 0, 0]');
-  t.equal(testYMD(1900, 1, 1, 0, 0, 0, true), 1, '[1900, 1, 1, 0, 0, 0]');
-  t.equal(testYMD(1950, 1, 1, 0, 0, 0, false), 18264, '[1950, 1, 1, 0, 0, 0]');
-  t.equal(testYMD(1950, 1, 1, 0, 0, 0, true), 18264, '[1950, 1, 1, 0, 0, 0]');
-  t.equal(testYMD(2000, 1, 1, 0, 0, 0, false), 36526, '[2000, 1, 1, 0, 0, 0]');
-  t.equal(testYMD(2000, 1, 1, 0, 0, 0, true), 36526, '[2000, 1, 1, 0, 0, 0]');
-  t.end();
+  expect(testYMD(1978, 5, 17, 10, 25, 30, false), '[1978, 5, 17, 10, 25, 30]').toBe(28627.434375);
+  expect(testYMD(1978, 5, 17, 10, 25, 30, true), '[1978, 5, 17, 10, 25, 30]').toBe(28627.434375);
+  expect(testYMD(2022, 3, 1, 13, 53, 11, false), '[2022, 3, 1, 13, 53, 11]').toBe(44621.578599537);
+  expect(testYMD(2022, 3, 1, 13, 53, 11, true), '[2022, 3, 1, 13, 53, 11]').toBe(44621.578599537);
+  expect(testYMD(1900, 1, 1, 0, 0, 0, false), '[1900, 1, 1, 0, 0, 0]').toBe(1);
+  expect(testYMD(1900, 1, 1, 0, 0, 0, true), '[1900, 1, 1, 0, 0, 0]').toBe(1);
+  expect(testYMD(1950, 1, 1, 0, 0, 0, false), '[1950, 1, 1, 0, 0, 0]').toBe(18264);
+  expect(testYMD(1950, 1, 1, 0, 0, 0, true), '[1950, 1, 1, 0, 0, 0]').toBe(18264);
+  expect(testYMD(2000, 1, 1, 0, 0, 0, false), '[2000, 1, 1, 0, 0, 0]').toBe(36526);
+  expect(testYMD(2000, 1, 1, 0, 0, 0, true), '[2000, 1, 1, 0, 0, 0]').toBe(36526);
 });
 
-test('dateFromSerial:', t => {
+test('dateFromSerial:', () => {
   process.env.TZ = 'Europe/Amsterdam';
-  t.ok(
+  expect(
     /^Central European (Standard|Summer) Time$/.test(getTimeZoneName()),
     'Timezone is what we think it is'
-  );
+  ).toBeTruthy();
 
-  t.deepLooseEqual(
+  expect(
     dateFromSerial(1234),
-    [ 1903, 5, 18, 0, 0, 0 ],
     'dateFromSerial(1234)'
-  );
-  t.deepLooseEqual(
+  ).toEqual([ 1903, 5, 18, 0, 0, 0 ]);
+  expect(
     dateFromSerial(1234.567),
-    [ 1903, 5, 18, 13, 36, 28 ],
     'dateFromSerial(1234)'
-  );
-  t.deepLooseEqual(
+  ).toEqual([ 1903, 5, 18, 13, 36, 28 ]);
+  expect(
     dateFromSerial(12),
-    [ 1900, 1, 12, 0, 0, 0 ],
     'dateFromSerial(12)'
-  );
-  t.deepLooseEqual(
+  ).toEqual([ 1900, 1, 12, 0, 0, 0 ]);
+  expect(
     dateFromSerial(24052.8361),
-    [ 1965, 11, 6, 20, 3, 59 ],
     'dateFromSerial(24052.8361)'
-  );
-  t.deepLooseEqual(
+  ).toEqual([ 1965, 11, 6, 20, 3, 59 ]);
+  expect(
     dateFromSerial(42341),
-    [ 2015, 12, 3, 0, 0, 0 ],
     'dateFromSerial(42341)'
-  );
-
-  t.end();
+  ).toEqual([ 2015, 12, 3, 0, 0, 0 ]);
 });

@@ -1,44 +1,44 @@
-import test from './utils.js';
+import { expect, test } from 'vitest';
+import { formatColor } from '../lib/index.js';
 
-test('formatColor', t => {
+test('formatColor', () => {
   // color works the same across number sections, but not text
-  t.formatColor('0', 123, null);
-  t.formatColor('0', 0, null);
-  t.formatColor('0', -123, null);
-  t.formatColor('0', 'foo', null);
-  t.formatColor('[blue]0', 123, 'blue');
-  t.formatColor('[blue]0', 0, 'blue');
-  t.formatColor('[blue]0', -123, 'blue');
-  t.formatColor('[blue]0', 'foo', null);
+  expect(formatColor('0', 123)).toBe(null);
+  expect(formatColor('0', 0)).toBe(null);
+  expect(formatColor('0', -123)).toBe(null);
+  expect(formatColor('0', 'foo')).toBe(null);
+  expect(formatColor('[blue]0', 123)).toBe('blue');
+  expect(formatColor('[blue]0', 0)).toBe('blue');
+  expect(formatColor('[blue]0', -123)).toBe('blue');
+  expect(formatColor('[blue]0', 'foo')).toBe(null);
   // can define separate colors per section
-  t.formatColor('[blue]0;[green]-0;[magenta]0;[cyan]@', 1, 'blue');
-  t.formatColor('[blue]0;[green]-0;[magenta]0;[cyan]@', -1, 'green');
-  t.formatColor('[blue]0;[green]-0;[magenta]0;[cyan]@', 0, 'magenta');
-  t.formatColor('[blue]0;[green]-0;[magenta]0;[cyan]@', 'foo', 'cyan');
+  expect(formatColor('[blue]0;[green]-0;[magenta]0;[cyan]@', 1)).toBe('blue');
+  expect(formatColor('[blue]0;[green]-0;[magenta]0;[cyan]@', -1)).toBe('green');
+  expect(formatColor('[blue]0;[green]-0;[magenta]0;[cyan]@', 0)).toBe('magenta');
+  expect(formatColor('[blue]0;[green]-0;[magenta]0;[cyan]@', 'foo')).toBe('cyan');
   // color is case insensitive
-  t.formatColor('[red]0', 0, 'red');
-  t.formatColor('[Red]0', 0, 'red');
-  t.formatColor('[RED]0', 0, 'red');
+  expect(formatColor('[red]0', 0)).toBe('red');
+  expect(formatColor('[Red]0', 0)).toBe('red');
+  expect(formatColor('[RED]0', 0)).toBe('red');
   // all known primaries work
-  t.formatColor('[black]0', 0, 'black');
-  t.formatColor('[blue]0', 0, 'blue');
-  t.formatColor('[cyan]0', 0, 'cyan');
-  t.formatColor('[green]0', 0, 'green');
-  t.formatColor('[magenta]0', 0, 'magenta');
-  t.formatColor('[red]0', 0, 'red');
-  t.formatColor('[white]0', 0, 'white');
-  t.formatColor('[yellow]0', 0, 'yellow');
+  expect(formatColor('[black]0', 0)).toBe('black');
+  expect(formatColor('[blue]0', 0)).toBe('blue');
+  expect(formatColor('[cyan]0', 0)).toBe('cyan');
+  expect(formatColor('[green]0', 0)).toBe('green');
+  expect(formatColor('[magenta]0', 0)).toBe('magenta');
+  expect(formatColor('[red]0', 0)).toBe('red');
+  expect(formatColor('[white]0', 0)).toBe('white');
+  expect(formatColor('[yellow]0', 0)).toBe('yellow');
   // 1-based index color resolutions
-  t.formatColor('[color 0]0', 0, null);
-  t.formatColor('[color 1]0', 0, '#000000');
-  t.formatColor('[color 2]0', 0, '#FFFFFF');
-  t.formatColor('[color3]0', 0, '#FF0000');
+  expect(formatColor('[color 0]0', 0)).toBe(null);
+  expect(formatColor('[color 1]0', 0)).toBe('#000000');
+  expect(formatColor('[color 2]0', 0)).toBe('#FFFFFF');
+  expect(formatColor('[color3]0', 0)).toBe('#FF0000');
   // numbers are returned when indexColors is off
-  t.formatColor('[color 0]0', 0, null, { indexColors: false });
-  t.formatColor('[color 1]0', 0, 1, { indexColors: false });
-  t.formatColor('[color 2]0', 0, 2, { indexColors: false });
-  t.formatColor('[color3]0', 0, 3, { indexColors: false });
+  expect(formatColor('[color 0]0', 0, { indexColors: false })).toBe(null);
+  expect(formatColor('[color 1]0', 0, { indexColors: false })).toBe(1);
+  expect(formatColor('[color 2]0', 0, { indexColors: false })).toBe(2);
+  expect(formatColor('[color3]0', 0, { indexColors: false })).toBe(3);
   // keywords are still returned when indexColors is off
-  t.formatColor('[yellow]0', 0, 'yellow', { indexColors: false });
-  t.end();
+  expect(formatColor('[yellow]0', 0, { indexColors: false })).toBe('yellow');
 });
