@@ -1,6 +1,6 @@
 // tests converted from SSF
 import { expect, test } from 'vitest';
-import { format } from '../lib/index.js';
+import { format } from '../lib/index.ts';
 
 test('General format', () => {
   expect(format('General', 1.234567e-14)).toBe('1.23457E-14');

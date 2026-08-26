@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { format } from '../lib/index.js';
+import { format } from '../lib/index.ts';
 
 test('SSF-fractions tests', () => {
   expect(format('# ?/?', 1, '# ?/?')).toBe('1    ');

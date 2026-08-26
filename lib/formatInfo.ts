@@ -1,4 +1,4 @@
-import { u_YEAR, u_MONTH, u_DAY, u_HOUR, u_MIN, u_SEC, reCurrencySymbols } from './constants.js';
+import { u_YEAR, u_MONTH, u_DAY, u_HOUR, u_MIN, u_SEC, reCurrencySymbols } from './constants.ts';
 
 export function isPercent (partitions) {
   return !!(

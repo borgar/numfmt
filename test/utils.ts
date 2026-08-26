@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import zlib from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 import { expect, test } from 'vitest';
-import { format } from '../lib/index.js';
+import { format } from '../lib/index.ts';
 
 const VALUE_ERROR = '#VALUE!';
 

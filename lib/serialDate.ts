@@ -1,4 +1,4 @@
-import { toYMD } from './toYMD.js';
+import { toYMD } from './toYMD.ts';
 const floor = Math.floor;
 const DAYSIZE = 86400;
 

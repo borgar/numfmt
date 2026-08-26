@@ -1,4 +1,4 @@
-import { round } from './round.js';
+import { round } from './round.ts';
 
 const zero = {
   total: 1,

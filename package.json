@@ -17,12 +17,12 @@
   },
   "main": "dist/numfmt.js",
   "types": "dist/numfmt.d.ts",
-  "module": "lib/index.js",
+  "module": "lib/index.ts",
   "exports": {
     ".": {
       "require": "./dist/numfmt.js",
       "types": "./dist/numfmt.d.ts",
-      "default": "./lib/index.js"
+      "default": "./lib/index.ts"
     }
   },
   "preferGlobal": false,

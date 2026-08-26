@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { format } from '../lib/index.js';
+import { format } from '../lib/index.ts';
 
 test('Errors', () => {
   // no more than a single text section

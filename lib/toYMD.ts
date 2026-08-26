@@ -1,4 +1,4 @@
-import { EPOCH_1317, EPOCH_1904 } from './constants.js';
+import { EPOCH_1317, EPOCH_1904 } from './constants.ts';
 const floor = Math.floor;
 
 // https://www.codeproject.com/Articles/2750/Excel-Serial-Date-to-Day-Month-Year-and-Vice-Versa

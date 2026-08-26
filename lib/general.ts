@@ -1,6 +1,6 @@
-import { getExponent, getSignificand } from './numberProps.js';
-import numdec from './numdec.js';
-import { round } from './round.js';
+import { getExponent, getSignificand } from './numberProps.ts';
+import numdec from './numdec.ts';
+import { round } from './round.ts';
 
 const fixLocale = (s, l10n) => {
   return s.replace(/\./, l10n.decimal);

@@ -5,21 +5,21 @@ import {
   TOKEN_CONDITION, TOKEN_DBNUM, TOKEN_NATNUM, TOKEN_LOCALE, TOKEN_COLOR, TOKEN_MODIFIER,
   TOKEN_AMPM, TOKEN_ESCAPED, TOKEN_STRING, TOKEN_SKIP, TOKEN_EXP, TOKEN_FILL, TOKEN_PAREN,
   TOKEN_CHAR
-} from './constants.js';
+} from './constants.ts';
 
 export {
   getLocale,
   parseLocale,
   addLocale
-} from './locale.js';
+} from './locale.ts';
 
-import { defaultOptions } from './options.js';
+import { defaultOptions } from './options.ts';
 
-export { round } from './round.js';
-export { dec2frac } from './dec2frac.js';
+export { round } from './round.ts';
+export { dec2frac } from './dec2frac.ts';
 
-import { dateToSerial as handleDates } from './serialDate.js';
-export { dateToSerial, dateFromSerial } from './serialDate.js';
+import { dateToSerial as handleDates } from './serialDate.ts';
+export { dateToSerial, dateFromSerial } from './serialDate.ts';
 
 export {
   parseNumber,
@@ -27,13 +27,13 @@ export {
   parseTime,
   parseBool,
   parseValue
-} from './parseValue.js';
+} from './parseValue.ts';
 
-import { formatColor as fmtColor, formatValue as fmtValue } from './formatNumber.js';
-import { info, dateInfo, isDate, isPercent, isText } from './formatInfo.js';
-import { parsePattern } from './parsePattern.js';
+import { formatColor as fmtColor, formatValue as fmtValue } from './formatNumber.ts';
+import { info, dateInfo, isDate, isPercent, isText } from './formatInfo.ts';
+import { parsePattern } from './parsePattern.ts';
 
-export { tokenize } from './tokenize.js';
+export { tokenize } from './tokenize.ts';
 
 const _parseDataCache = Object.create({});
 function prepareFormatterData (pattern, shouldThrow = false) {

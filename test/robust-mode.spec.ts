@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { format, formatColor, isDateFormat } from '../lib/index.js';
+import { format, formatColor, isDateFormat } from '../lib/index.ts';
 
 const excelOpts = { dateSpanLarge: false, dateErrorNumber: false };
 

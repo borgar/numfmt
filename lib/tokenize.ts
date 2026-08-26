@@ -5,7 +5,7 @@ import {
   TOKEN_CONDITION, TOKEN_DBNUM, TOKEN_NATNUM, TOKEN_LOCALE, TOKEN_COLOR, TOKEN_MODIFIER,
   TOKEN_AMPM, TOKEN_ESCAPED, TOKEN_STRING, TOKEN_SKIP, TOKEN_EXP, TOKEN_FILL, TOKEN_PAREN,
   TOKEN_CHAR
-} from './constants.js';
+} from './constants.ts';
 
 const tokenHandlers = [
   [ TOKEN_GENERAL, /^General/i, 0 ],

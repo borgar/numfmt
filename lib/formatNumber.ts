@@ -1,7 +1,7 @@
-import { TOKEN_TEXT, indexColors } from './constants.js';
-import { defaultLocale, getLocale } from './locale.js';
-import { parseFormatSection } from './parseFormatSection.js';
-import { runPart } from './runPart.js';
+import { TOKEN_TEXT, indexColors } from './constants.ts';
+import { defaultLocale, getLocale } from './locale.ts';
+import { parseFormatSection } from './parseFormatSection.ts';
+import { runPart } from './runPart.ts';
 
 const default_text = parseFormatSection([
   { type: TOKEN_TEXT, value: '@', raw: '@' }

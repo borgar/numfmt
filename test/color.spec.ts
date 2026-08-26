@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { formatColor } from '../lib/index.js';
+import { formatColor } from '../lib/index.ts';
 
 test('formatColor', () => {
   // color works the same across number sections, but not text

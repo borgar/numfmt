@@ -1,7 +1,7 @@
 /* global process */
 import { expect, test } from 'vitest';
 import { getTimeZoneName } from './utils.ts';
-import { format } from '../lib/index.js';
+import { format } from '../lib/index.ts';
 
 const excelOpts = { dateSpanLarge: false, dateErrorNumber: false };
 

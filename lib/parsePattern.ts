@@ -1,6 +1,6 @@
-import { resolveLocale } from './locale.js';
-import { parseFormatSection } from './parseFormatSection.js';
-import { tokenize } from './tokenize.js';
+import { resolveLocale } from './locale.ts';
+import { parseFormatSection } from './parseFormatSection.ts';
+import { tokenize } from './tokenize.ts';
 
 const maybeAddMinus = part => {
   const [ op, val ] = part.condition ?? [];

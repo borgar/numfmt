@@ -1,5 +1,5 @@
-import { currencySymbols, reCurrencySymbols } from './constants.js';
-import { defaultLocale, getLocale } from './locale.js';
+import { currencySymbols, reCurrencySymbols } from './constants.ts';
+import { defaultLocale, getLocale } from './locale.ts';
 
 /**
  * @typedef {object} ParseData

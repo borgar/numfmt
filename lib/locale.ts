@@ -1,4 +1,4 @@
-import codeToLocale from './codeToLocale.js';
+import codeToLocale from './codeToLocale.ts';
 
 // Locale: [language[_territory][.codeset][@modifier]]
 const re_locale = /^([a-z\d]+)(?:[_-]([a-z\d]+))?(?:\.([a-z\d]+))?(?:@([a-z\d]+))?$/i;

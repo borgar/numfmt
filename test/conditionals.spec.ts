@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { format } from '../lib/index.js';
+import { format } from '../lib/index.ts';
 
 test('conditional parts', () => {
   expect(format('[>=100]"A"0;[<=-100]"B"0;"C"0', 6.3)).toBe('C6');

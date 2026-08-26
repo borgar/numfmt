@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { format } from '../lib/index.js';
+import { format } from '../lib/index.ts';
 
 test('Exponent detection', () => {
   expect(format('0E+00', 95000000)).toBe('1E+08');

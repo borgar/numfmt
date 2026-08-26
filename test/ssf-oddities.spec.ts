@@ -1,7 +1,7 @@
 // Tests originally converted from SSF but have been reviewed
 // and corrected and conformed to Excel for Mac version 16.35
 import { expect, test } from 'vitest';
-import { format } from '../lib/index.js';
+import { format } from '../lib/index.ts';
 
 test('Oddity: "foo";"bar";"baz";"qux"', () => {
   expect(format('"foo";"bar";"baz";"qux"', 1)).toBe('foo');

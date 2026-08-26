@@ -2,7 +2,7 @@
 
 import { expect, test } from 'vitest';
 import { getTimeZoneName } from './utils.ts';
-import { dateToSerial, dateFromSerial } from '../lib/index.js';
+import { dateToSerial, dateFromSerial } from '../lib/index.ts';
 
 function round (n: number): number {
   return Math.round(n * 1e10) / 1e10;

@@ -1,7 +1,7 @@
 /* eslint-disable no-loss-of-precision */
 // tests converted from SSF
 import { expect, test } from 'vitest';
-import numdec from '../lib/numdec.js';
+import numdec from '../lib/numdec.ts';
 
 function _f (v: number) {
   return numdec(v).total;

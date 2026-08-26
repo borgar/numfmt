@@ -1,4 +1,4 @@
-import { resolveLocale } from './locale.js';
+import { resolveLocale } from './locale.ts';
 import {
   u_YEAR, u_MONTH, u_DAY, u_HOUR, u_MIN, u_SEC, u_DSEC, u_CSEC, u_MSEC,
   EPOCH_1900, EPOCH_1317,
@@ -7,7 +7,7 @@ import {
   TOKEN_FILL, TOKEN_GENERAL, TOKEN_GROUP, TOKEN_HASH, TOKEN_LOCALE, TOKEN_MINUS, TOKEN_NATNUM,
   TOKEN_PAREN, TOKEN_PERCENT, TOKEN_PLUS, TOKEN_POINT, TOKEN_QMARK, TOKEN_SCALE, TOKEN_SKIP,
   TOKEN_SLASH, TOKEN_SPACE, TOKEN_STRING, TOKEN_TEXT, TOKEN_ZERO
-} from './constants.js';
+} from './constants.ts';
 
 function minMaxPad (str, part, prefix) {
   part[prefix + '_max'] = str.length;

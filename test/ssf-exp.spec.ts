@@ -1,6 +1,6 @@
 // tests converted from SSF
 import { expect, test } from 'vitest';
-import { format } from '../lib/index.js';
+import { format } from '../lib/index.ts';
 
 test('Exponential: #0.0E+0', () => {
   expect(format('#0.0E+0', 1.23457E-13)).toBe('12.3E-14');
