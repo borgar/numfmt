@@ -7,6 +7,7 @@ import { format as numfmt, isDateFormat, isPercentFormat, isTextFormat } from '.
 test('near zero negatives:', () => {
   expect(numfmt('-0', -1)).toBe('--1');
   expect(numfmt('-general', -1)).toBe('--1');
+  // @ts-expect-error testing missing value input
   expect(() => numfmt('0.0 general'), '0.0 general').toThrow();
   expect(numfmt('0.0', -1)).toBe('-1.0');
   expect(numfmt('0.0', -0.1)).toBe('-0.1');
@@ -277,4 +278,40 @@ test('Issue #64 (very small number):', () => {
 
   expect(numfmt('General', 2.33e-321)).toBe('2.33E-321');
   expect(numfmt('0.0', 2.33e-321)).toBe('0.0');
+});
+
+test('Correct output for single bracket patterns', () => {
+  expect(numfmt('[HH]', 123.456)).toBe('2962');
+  expect(numfmt('[H]', 123.456)).toBe('2962');
+  expect(numfmt('[SS]', 123.456)).toBe('10666598');
+  expect(numfmt('[S]', 123.456)).toBe('10666598');
+  expect(numfmt('[MM]', 123.456)).toBe('177776');
+  expect(numfmt('[M]', 123.456)).toBe('177776');
+  expect(numfmt('[FOO]', 123.456, { throws: false })).toBe('######');
+  expect(numfmt('[$-1234]', 123.456)).toBe('');
+  expect(numfmt('[$foo]', 123.456)).toBe('foo');
+  expect(numfmt('[$-foo]', 123.456)).toBe('');
+  expect(numfmt('[DBNum]', 123.456, { throws: false })).toBe('######');
+  expect(numfmt('[DBNum0]', 123.456, { throws: false })).toBe('######');
+  expect(numfmt('[DBNum1]', 123.456)).toBe('123.456');
+  expect(numfmt('[DBNum2]', 123.456)).toBe('123.456');
+  expect(numfmt('[DBNum3]', 123.456)).toBe('123.456');
+  expect(numfmt('[DBNum4]', 123.456)).toBe('123.456');
+  expect(numfmt('[DBNum5]', 123.456, { throws: false })).toBe('######');
+  expect(numfmt('[NatNum]', 123.456, { throws: false })).toBe('######');
+  expect(numfmt('[NatNum1]', 123.456, { throws: false })).toBe('######');
+  expect(numfmt('[NatNum2]', 123.456, { throws: false })).toBe('######');
+  expect(numfmt('[$-is-IS]', 123.456)).toBe('');
+  expect(numfmt('[$-040F]', 123.456)).toBe('');
+  expect(numfmt('[$-01040]', 123.456)).toBe('');
+  expect(numfmt('[$-0101040F]', 123.456)).toBe('');
+  expect(numfmt('[$$-409]', 123.456)).toBe('$');
+  expect(numfmt('[$ISK]', 123.456)).toBe('ISK');
+  expect(numfmt('[$ISK-]', 123.456)).toBe('ISK');
+  expect(numfmt('[$NZ$-481]', 123.456)).toBe('NZ$');
+  expect(numfmt('[$whatever]', 123.456)).toBe('whatever');
+  expect(numfmt('[$-060C01]', 123.456)).toBe('');
+  expect(numfmt('[black]', 123.456)).toBe('123.456');
+  expect(numfmt('[blue]', 123.456)).toBe('123.456');
+  expect(numfmt('[orange]', 123.456, { throws: false })).toBe('######');
 });

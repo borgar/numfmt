@@ -15,6 +15,7 @@
     "forceConsistentCasingInFileNames": true,
     "verbatimModuleSyntax": true,
     "erasableSyntaxOnly": true,
+    "strict": true,
     "allowJs": true,
     "checkJs": true,
     "stripInternal": true,

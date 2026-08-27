@@ -1,10 +1,10 @@
 /**
- * @ignore
- * @param {string} c Instruction character (['#', '?', '0'])
- * @param {boolean} [nbsp=false] Use nonbreaking space or not?
- * @returns {string} Padding character
+ * @internal
+ * @param c Instruction character ('#' | '?' | '0')
+ * @param Use nonbreaking space or not?
+ * @returns Padding character
  */
-export function pad (c, nbsp = false) {
+export function pad (c: string, nbsp = false): string {
   if (c === '0') {
     return '0';
   }

@@ -1,45 +1,46 @@
+import { TOKEN_BREAK, TOKEN_ERROR, TOKEN_MINUS } from './constants.ts';
+import { createPartition } from './createPartition.ts';
 import { resolveLocale } from './locale.ts';
 import { parseFormatSection } from './parseFormatSection.ts';
 import { tokenize } from './tokenize.ts';
+import type { Partition, PatternParseData, RenderToken } from './types.ts';
 
-const maybeAddMinus = part => {
-  const [ op, val ] = part.condition ?? [];
+const maybeAddMinus = (part: Partition): void => {
+  const [ op, val ] = part.condition ?? [ '', 0 ];
   const exception = (
     (val < 0 && (op === '<' || op === '<=' || op === '=')) ||
     (val === 0 && (op === '<'))
   );
   if (!exception) {
     part.tokens.unshift({
-      type: 'minus',
+      type: TOKEN_MINUS,
       volatile: true
     });
   }
 };
 
-const clonePart = (part, prefixToken = null) => {
-  const r = {};
+const clonePart = (part: Partition, prefixToken?: RenderToken): Partition => {
+  const r: Partial<Partition> = {};
   for (const key in part) {
-    if (Array.isArray(part[key])) {
-      r[key] = [ ...part[key] ];
-    }
-    else {
-      r[key] = part[key];
-    }
+    // @ts-ignore
+    const val = part[key];
+    // @ts-ignore
+    r[key] = Array.isArray(val) ? [ ...val ] : val;
   }
-  if (prefixToken) {
+  if (prefixToken && r.tokens) {
     r.tokens.unshift(prefixToken);
   }
   r.generated = true;
-  return r;
+  return r as Partition;
 };
 
-export function parsePattern (pattern) {
+export function parsePattern (pattern: string): PatternParseData {
   const partitions = [];
   let conditional = false;
-  let l10n_override;
+  let l10n_override: string | undefined;
   let text_partition = null;
   let more = 0;
-  let part = false;
+  let part: Partition;
   let i = 0;
   let conditions = 0;
   let tokens = tokenize(pattern);
@@ -73,7 +74,7 @@ export function parsePattern (pattern) {
     }
     partitions.push(part);
 
-    more = tokens[part.tokensUsed]?.type === 'break' ? 1 : 0;
+    more = tokens[part.tokensUsed]?.type === TOKEN_BREAK ? 1 : 0;
     tokens = tokens.slice(part.tokensUsed + more);
     i++;
   }
@@ -125,13 +126,12 @@ export function parsePattern (pattern) {
         // ...else it *seems* to follow logic based on first condition
         const cond = part1.condition;
         if (
-          cond[0] === '=' ||
-          (cond[1] >= 0 && (cond[0] === '>' || cond[0] === '>='))
+          cond && (
+            cond[0] === '=' ||
+            (cond[1] >= 0 && (cond[0] === '>' || cond[0] === '>='))
+          )
         ) {
-          part2.tokens.unshift({
-            type: 'minus',
-            volatile: true
-          });
+          part2.tokens.unshift({ type: TOKEN_MINUS, volatile: true });
         }
       }
     }
@@ -159,7 +159,7 @@ export function parsePattern (pattern) {
     // missing negative
     if (partitions.length < 2) {
       // the volatile minus only happens if there is a single pattern
-      const volMinus = { type: 'minus', volatile: true };
+      const volMinus: RenderToken = { type: TOKEN_MINUS, volatile: true };
       partitions.push(clonePart(partitions[0], volMinus));
     }
     // missing zero
@@ -180,7 +180,7 @@ export function parsePattern (pattern) {
 
     partitions[0].condition = [ '>', 0 ];
     partitions[1].condition = [ '<', 0 ];
-    partitions[2].condition = null;
+    partitions[2].condition = undefined;
   }
 
   return {
@@ -190,20 +190,19 @@ export function parsePattern (pattern) {
   };
 }
 
-export function parseCatch (pattern) {
+export function parseCatch (pattern: string): PatternParseData {
   try {
     return parsePattern(pattern);
   }
   catch (err) {
-    const errPart = {
-      tokens: [ { type: 'error' } ],
-      error: err.message
-    };
+    const message = err && typeof err === 'object' && 'message' in err ? String(err.message) : 'Unkown error';
+    const errPart = createPartition([ { type: TOKEN_ERROR } ]);
+    errPart.error = true;
     return {
       pattern: pattern,
       partitions: [ errPart, errPart, errPart, errPart ],
-      error: err.message,
-      locale: null
+      error: message,
+      locale: undefined
     };
   }
 }

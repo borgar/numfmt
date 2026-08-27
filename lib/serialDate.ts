@@ -1,4 +1,5 @@
 import { toYMD } from './toYMD.ts';
+
 const floor = Math.floor;
 const DAYSIZE = 86400;
 
@@ -17,14 +18,17 @@ const DAYSIZE = 86400;
  * dateToSerial("something else"); // null
  * ````
  *
- * @param {Date | Array<number>} date The date
- * @param {object} [options={}]  Options
- * @param {boolean} [options.ignoreTimezone=false]
+ * @param date The date
+ * @param [options={}]  Options
+ * @param [options.ignoreTimezone]
  *   Normally time zone will be taken into account. This makes the conversion to
  *   serial date ignore the timezone offset.
- * @returns {number | null} The date as a spreadsheet serial date, or null.
+ * @returns The date as a spreadsheet serial date, or null.
  */
-export function dateToSerial (date, options) {
+export function dateToSerial (
+  date: Date | number[],
+  options?: { ignoreTimezone?: boolean; }
+): number | null {
   let ts = null;
   if (Array.isArray(date)) {
     const [ y, m, d, hh, mm, ss ] = date;
@@ -32,7 +36,7 @@ export function dateToSerial (date, options) {
   }
   // dates are changed to serial
   else if (date instanceof Date) {
-    ts = date * 1;
+    ts = date.valueOf();
     if (!options?.ignoreTimezone) {
       // Many timezones are offset in seconds but getTimezoneOffset() returns
       // time "rounded" to minutes so it is basically usable. 😿
@@ -49,7 +53,7 @@ export function dateToSerial (date, options) {
         date.getMilliseconds()
       );
       // timestamp
-      ts = dt * 1;
+      ts = dt.valueOf();
     }
   }
   if (ts != null && isFinite(ts)) {
@@ -68,13 +72,18 @@ export function dateToSerial (date, options) {
  * dateFromSerial(28627); // [ 1978, 5, 17, 0, 0, 0 ]
  * ````
  *
- * @param {number} serialDate The date
- * @param {object} [options={}] The options
- * @param {boolean} [options.leap1900=true]
+ * @param serialDate The date
+ * @param [options={}] The options
+ * @param [options.leap1900=true]
  *   Simulate the Lotus 1-2-3 [1900 leap year bug](https://docs.microsoft.com/en-us/office/troubleshoot/excel/wrongly-assumes-1900-is-leap-year).
- * @returns {Array<number>} returns an array of date parts
+ * @returns returns an array of date parts
  */
-export function dateFromSerial (serialDate, options) {
+export function dateFromSerial (
+  serialDate: number,
+  options?: {
+    leap1900?: boolean;
+  }
+): [ number, number, number, number, number, number ] {
   let date = (serialDate | 0);
   const t = DAYSIZE * (serialDate - date);
   let time = floor(t); // in seconds

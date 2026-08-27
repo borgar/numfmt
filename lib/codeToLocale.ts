@@ -1,6 +1,6 @@
 /* eslint-disable @stylistic/indent */
 // https://docs.microsoft.com/en-us/office/vba/api/office.msolanguageid
-export default Object.freeze({
+export const codeToLocale: Readonly<Record<number, string>> =  Object.freeze({
    1078: 'af',    // Afrikaans
    1052: 'sq',    // Albanian
    1118: 'am',    // Amharic

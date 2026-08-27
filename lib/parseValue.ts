@@ -2,10 +2,32 @@ import { currencySymbols, reCurrencySymbols } from './constants.ts';
 import { defaultLocale, getLocale } from './locale.ts';
 
 /**
- * @typedef {object} ParseData
- * @property {number | boolean} v - the value
- * @property {string} [z] - number format pattern
+ * Output from the value parser.
  */
+export type ParseDataNum = {
+  /** A number value */
+  v: number;
+  /** A number format pattern */
+  z?: string;
+};
+
+/**
+ * Output from the value parser.
+ */
+export type ParseDataBool = {
+  /** A boolean value */
+  v: boolean;
+  /** A number format pattern */
+  z?: string;
+};
+
+type LData = {
+  mon: [string, number, string][],
+  mp: boolean,
+  day: [string, number, string][],
+  dp: boolean,
+  locale?: string,
+};
 
 /*
 This is a list of the allowed date formats. The test file contains
@@ -71,14 +93,15 @@ const okDateFormats = [
 ];
 
 // letter to excel
-const tx0 = { j: 'd', d: 'd', D: 'ddd', l: 'dddd', n: 'm', m: 'm', M: 'mmm', F: 'mmmm', y: 'yy', Y: 'yyyy' };
-const tx00 = { j: 'dd', d: 'dd', D: 'ddd', l: 'dddd', n: 'mm', m: 'mm', M: 'mmm', F: 'mmmm', y: 'yy', Y: 'yyyy' };
+const tx0: Record<string, string> = { j: 'd', d: 'd', D: 'ddd', l: 'dddd', n: 'm', m: 'm', M: 'mmm', F: 'mmmm', y: 'yy', Y: 'yyyy' };
+const tx00: Record<string, string> = { j: 'dd', d: 'dd', D: 'ddd', l: 'dddd', n: 'mm', m: 'mm', M: 'mmm', F: 'mmmm', y: 'yy', Y: 'yyyy' };
 
 // date formats are stored as a token-tree in a trie
 // for minimal looping and branching while parsing
-const dateTrieDM = {};
-const dateTrieMD = {};
-function packDate (f, node, allowType = 1) {
+type DateTrieNode = { $?: number } & { [token: string]: DateTrieNode };
+const dateTrieDM: DateTrieNode = {};
+const dateTrieMD: DateTrieNode = {};
+function packDate (f: string, node: DateTrieNode, allowType = 1) {
   if (f) {
     const char = f[0];
     const next = f.slice(1);
@@ -97,7 +120,7 @@ function packDate (f, node, allowType = 1) {
     node.$ = allowType;
   }
 }
-function addFormatToTrie (fmt, trie) {
+function addFormatToTrie (fmt: string, trie: DateTrieNode) {
   // add date to token tree
   packDate(fmt, trie);
   // add a variant of the date with time suffixed
@@ -127,12 +150,12 @@ const NS = ' ';
 const NN = ' ';
 const AP = "'";
 const AG = '٬';
-const dec2group = {
+const dec2group: Record<string, [ string, string, string, string, string ]> = {
   '.': [ CM, NS, NN, AP, AG ],
   ',': [ PT, NS, NN, AP, AG ],
   '٫': [ PT, NS, NN, AP, AG ]
 };
-const isDigit = d => d?.length === 1 && d >= '0' && d <= '9';
+const isDigit = (d: string) => d?.length === 1 && d >= '0' && d <= '9';
 
 /**
  * Parse a numeric string input and return its value and format. If the input
@@ -143,14 +166,14 @@ const isDigit = d => d?.length === 1 && d >= '0' && d <= '9';
  * * `z`: the number format of the input (if applicable).
  *
  * @see parseValue
- * @param {string} value The number to parse
- * @param {object} [options={}]  Options
- * @param {string} [options.locale=""]
+ * @param value The number to parse
+ * @param [options={}]  Options
+ * @param [options.locale=""]
  *    A BCP 47 string tag. Locale default is english with a `\u00a0`
  *    grouping symbol (see [addLocale](#addLocale))
- * @returns {ParseData | null} An object of the parsed value and a corresponding format string
+ * @returns An object of the parsed value and a corresponding format string
  */
-export function parseNumber (value, options = {}) {
+export function parseNumber (value: string, options: { locale?: string; } = {}): ParseDataNum | null {
   const l10n = getLocale(options.locale || '') || defaultLocale;
   // we base everything on the decimal separator
   const dec = l10n.decimal;
@@ -327,14 +350,15 @@ export function parseNumber (value, options = {}) {
       : '#,##0';
   }
   // we may want to lower the fidelity of the number: +num.toFixed(13)
-  const ret = { v: numberValue * sign };
+  const ret: ParseDataNum = { v: numberValue * sign };
   if (format) {
     ret.z = format;
   }
   return ret;
 }
 
-export function isValidDate (y, m, d) {
+// XXX: move to own file
+export function isValidDate (y: number, m: number, d: number) {
   // day can't be 0
   if (d < 1) {
     return false;
@@ -361,8 +385,12 @@ export function isValidDate (y, m, d) {
   return true;
 }
 
-// should really match { ’'   } and all whitespace
-const matchRec = (str, data, skipPeriod = false) => {
+// should really match { ’' } and all whitespace
+const matchRec = (
+  str: string,
+  data: [ string, number, string ][],
+  skipPeriod = false
+): [ string, [ string, number, string ] | null ] => {
   for (const item of data) {
     if (str.startsWith(item[0])) {
       // if the match is followed by a "." we'll skip it if the abbr. is by
@@ -377,11 +405,22 @@ const matchRec = (str, data, skipPeriod = false) => {
   return [ '', null ];
 };
 
-const nextToken = (str, node, data, lData) => {
+type DtData = {
+  path?: string,
+  sep?: string,
+  day?: string,
+  tf?: string,
+  _mon?: string,
+  month?: number,
+  year?: number,
+  time?: number,
+};
+
+const nextToken = (str: string, node: DateTrieNode, data: DtData, lData: LData): DtData | undefined => {
   const path = data.path || '';
   const matchOrder = Object.keys(node);
   for (const t of matchOrder) {
-    let r;
+    let r: DtData | undefined;
     if (!node[t]) {
       continue;
     }
@@ -466,15 +505,15 @@ const nextToken = (str, node, data, lData) => {
   }
 };
 
-const normDateStr = s => (
+const normDateStr = (s: string): string => (
   s.replace(/\s+/g, ' ').trim()
     .replace(/’/, "'")
     .replace(/\.$/, '')
     .toLowerCase()
 );
 
-const getLookups = (arr, sym) => {
-  const s = arr.map((d, i) => [ normDateStr(d), i + 1, sym ]);
+const getLookups = (arr: string[], sym: string) => {
+  const s: [ string, number, string ][] = arr.map((d, i) => [ normDateStr(d), i + 1, sym ]);
   s.sort((a, b) => b[0].length - a[0].length);
   return s;
 };
@@ -488,16 +527,16 @@ const getLookups = (arr, sym) => {
  * - `z`: the number format of the input (if applicable).
  *
  * @see parseValue
- * @param {string} value The date to parse
- * @param {object} [options={}]  Options
- * @param {string} [options.locale=""]
+ * @param value The date to parse
+ * @param [options={}]  Options
+ * @param [options.locale=""]
  *    A BCP 47 string tag. Locale default is english with a `\u00a0`
  *    grouping symbol (see [addLocale](#addLocale))
- * @returns {ParseData | null} An object of the parsed value and a corresponding format string
+ * @returns An object of the parsed value and a corresponding format string
  */
-export function parseDate (value, options = {}) {
+export function parseDate (value: string, options: { locale?: string; } = {}): ParseDataNum | null {
   const l10n = getLocale(options.locale || '') || defaultLocale;
-  const lData = {
+  const lData: LData = {
     mon: getLookups(l10n.mmmm, 'F').concat(getLookups(l10n.mmm, 'M')),
     mp: l10n.mmm[0].at(-1) === '.',
     day: getLookups(l10n.dddd, 'l').concat(getLookups(l10n.ddd, 'D')),
@@ -513,32 +552,32 @@ export function parseDate (value, options = {}) {
   );
   if (date) {
     // disallow matches where two tokens are separated by a period
-    if (date.sep === '.' && date.path.length === 3) {
+    if (date.sep === '.' && date.path?.length === 3) {
       return null;
     }
     const year = +(date.year ?? currentYear);
     if (!date.day) {
-      date.day = 1;
+      date.day = '1';
     }
     let epoch = -Infinity;
     if (year < 1900) {
       return null;
     }
-    else if (year <= 1900 && date.month <= 2) {
+    else if (year <= 1900 && (date.month ?? 0) <= 2) {
       epoch = 25568;
     }
     else if (year < 10000) {
       epoch = 25569;
     }
-    const dateValue = (Date.UTC(year, date.month - 1, date.day) / 864e5) + epoch + (date.time || 0);
+    const dateValue = (Date.UTC(year, (date.month ?? 1) - 1, +date.day) / 864e5) + epoch + (date.time || 0);
     if (dateValue >= 0 && dateValue <= 2958465) {
       const lead0 = (
         // either has a leading zero
-        (date._mon[0] === '0' || date.day[0] === '0') ||
+        ((date._mon?.startsWith('0')) || date.day?.startsWith('0')) ||
         // both are 2-digits long
-        (date._mon.length === 2 && date.day.length === 2)
+        (date._mon?.length === 2 && date.day.length === 2)
       );
-      const format = date.path.replace(/[jdlDnmMFyYx]/g, a => {
+      const format = (date.path ?? '').replace(/[jdlDnmMFyYx]/g, (a: string) => {
         if (a === 'x') {
           return date.tf || '';
         }
@@ -550,7 +589,7 @@ export function parseDate (value, options = {}) {
   return null;
 }
 
-const normAMPMStr = s => (
+const normAMPMStr = (s: string): string => (
   s.replace(/\s+/g, '').trim()
     .replace(/\./g, '')
     .toLowerCase()
@@ -565,14 +604,14 @@ const normAMPMStr = s => (
  * - `z`: the number format of the input (if applicable).
  *
  * @see parseValue
- * @param {string} value The date to parse
- * @param {object} [options={}]  Options
- * @param {string} [options.locale=""]
+ * @param value The date to parse
+ * @param [options={}]  Options
+ * @param [options.locale=""]
  *    A BCP 47 string tag. Locale default is english with a `\u00a0`
  *    grouping symbol (see [addLocale](#addLocale))
- * @returns {ParseData | null} An object of the parsed value and a corresponding format string
+ * @returns An object of the parsed value and a corresponding format string
  */
-export function parseTime (value, options = {}) {
+export function parseTime (value: string, options: { locale?: string; } = {}): ParseDataNum | null {
   const l10n = getLocale(options.locale || '') || defaultLocale;
   const parts = /^\s*([10]?\d|2[0-4])(?::([0-5]\d|\d))?(?::([0-5]\d|\d))?(\.\d{1,10})?(?=\s*[^\s\d]|$)/.exec(value);
   let ampm = '';
@@ -649,14 +688,14 @@ export function parseTime (value, options = {}) {
  * - `v`: the parsed value.
  *
  * @see parseValue
- * @param {string} value The supposed boolean to parse
- * @param {object} [options={}]  Options
- * @param {string} [options.locale=""]
+ * @param value The supposed boolean to parse
+ * @param [options={}]  Options
+ * @param [options.locale=""]
  *    A BCP 47 string tag. Locale default is english with a `\u00a0`
  *    grouping symbol (see [addLocale](#addLocale))
- * @returns {ParseData | null} An object of the parsed value and a corresponding format string
+ * @returns An object of the parsed value and a corresponding format string
  */
-export function parseBool (value, options = {}) {
+export function parseBool (value: string, options: { locale?: string; } = {}): ParseDataBool | null {
   const l10n = getLocale(options.locale || '') || defaultLocale;
   const v = value.trim().toLowerCase();
   const bT = l10n.bool[0].toLowerCase();
@@ -720,14 +759,14 @@ export function parseBool (value, options = {}) {
  * This may change in the future so be careful what options you pass the
  * functions.
  *
- * @param {string} value The value to parse
- * @param {object} [options={}]  Options
- * @param {string} [options.locale=""]
+ * @param value The value to parse
+ * @param [options={}]  Options
+ * @param [options.locale=""]
  *    A BCP 47 string tag. Locale default is english with a `\u00a0`
  *    grouping symbol (see [addLocale](#addLocale))
- * @returns {ParseData | null} An object of the parsed value and a corresponding format string
+ * @returns An object of the parsed value and a corresponding format string
  */
-export function parseValue (value, options) {
+export function parseValue (value: string, options?: { locale?: string; }): ParseDataNum | ParseDataBool | null {
   return (
     parseNumber(value, options) ??
     parseDate(value, options) ??

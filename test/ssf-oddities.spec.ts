@@ -46,7 +46,7 @@ test('Oddity: [Blue]General', () => {
 });
 
 test('Oddity: [Blue]G3neral', () => {
-  expect(() => format('[Blue]G3neral', '', 0)).toThrow();
+  expect(() => format('[Blue]G3neral', '')).toThrow();
 });
 
 test('Oddity: A"TODO"', () => {
@@ -240,7 +240,7 @@ test('Oddity: [hhh]', () => {
 });
 
 test('Oddity: [', () => {
-  expect(() => format('['), '[').toThrow();
+  expect(() => format('[', 0), '[').toThrow();
 });
 
 test('Oddity: A/P', () => {
@@ -589,5 +589,5 @@ test('Oddity: hh:mm:ss am/p', () => {
 });
 
 test('Oddity: "foo";"bar";"baz";"qux";"foobar"', () => {
-  expect(() => format('"foo";"bar";"baz";"qux";"foobar"'), '"foo";"bar";"baz";"qux";"foobar"').toThrow();
+  expect(() => format('"foo";"bar";"baz";"qux";"foobar"', 0), '"foo";"bar";"baz";"qux";"foobar"').toThrow();
 });

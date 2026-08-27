@@ -6,64 +6,65 @@ import {
   TOKEN_DATETIME, TOKEN_DBNUM, TOKEN_DIGIT, TOKEN_DURATION, TOKEN_ERROR, TOKEN_ESCAPED, TOKEN_EXP,
   TOKEN_FILL, TOKEN_GENERAL, TOKEN_GROUP, TOKEN_HASH, TOKEN_LOCALE, TOKEN_MINUS, TOKEN_NATNUM,
   TOKEN_PAREN, TOKEN_PERCENT, TOKEN_PLUS, TOKEN_POINT, TOKEN_QMARK, TOKEN_SCALE, TOKEN_SKIP,
-  TOKEN_SLASH, TOKEN_SPACE, TOKEN_STRING, TOKEN_TEXT, TOKEN_ZERO
+  TOKEN_SLASH, TOKEN_SPACE, TOKEN_STRING, TOKEN_TEXT, TOKEN_ZERO, TOKEN_MODIFIER,
+  T_TYPE_INT, T_TYPE_NUM, T_TYPE_DEN, T_TYPE_DIV, T_TYPE_FRAC, T_TYPE_MAN, T_TYPE_SUBSEC, T_TYPE_YEAR_S,
+  T_TYPE_YEAR, T_TYPE_B_YEAR_S, T_TYPE_B_YEAR, T_TYPE_DAY, T_TYPE_WEEKDAY_S, T_TYPE_WEEKDAY, T_TYPE_HOUR,
+  T_TYPE_MNAME_S, T_TYPE_MNAME_1, T_TYPE_MNAME, T_TYPE_MIN, T_TYPE_MON, T_TYPE_HOUR_E, T_TYPE_MIN_E,
+  T_TYPE_SEC_E, T_TYPE_SEC
 } from './constants.ts';
+import type { DateRenderToken, FormatToken, RenderToken, SectionType } from './types.ts';
+import { createPartition } from './createPartition.ts';
 
-function minMaxPad (str, part, prefix) {
-  part[prefix + '_max'] = str.length;
-  part[prefix + '_min'] = str.replace(/#/g, '').length;
-  return part;
-}
-
-function add (s, tokens) {
+function add (s: string | RenderToken, tokens: RenderToken[]): void {
   // allow adding string tokens without wrapping
   if (typeof s === 'string') {
-    tokens.push({ type: 'string', value: s });
+    tokens.push({ type: TOKEN_STRING, value: s });
   }
   else {
     tokens.push(s);
   }
 }
 
-function isNumOp (token, activePattern) {
+const countNonHash = (s: string): number => {
+  let n = 0;
+  for (let i = 0; i < s.length; i++) {
+    if (s.charCodeAt(i) !== 35) {
+      n++;
+    }
+  }
+  return n;
+};
+
+function isNumOp (token: FormatToken | RenderToken, activePattern: SectionType) {
   const type = token?.type;
   return (
     (type === TOKEN_HASH || type === TOKEN_ZERO || type === TOKEN_QMARK) ||
-    (type === TOKEN_DIGIT && activePattern === 'den')
+    (type === TOKEN_DIGIT && activePattern === T_TYPE_DEN)
   );
 }
 
-export function parseFormatSection (inputTokens) {
-  const outputTokens = [];
+export function parseFormatSection (inputTokens: FormatToken[]) {
+  const outputTokens: RenderToken[] = [];
+  const part = createPartition(outputTokens);
 
-  const part = {
-    scale: 1,
-    percent: false,
-    text: false,
-    date: 0,
-    date_eval: false,
-    date_system: EPOCH_1900,
-    sec_decimals: 0,
-    general: false,
-    clock: 24,
-    int_pattern: [],
-    frac_pattern: [],
-    man_pattern: [],
-    den_pattern: [],
-    num_pattern: [],
-    tokens: outputTokens
-  };
-
-  let currentPattern = 'int';
-  let lastNumberChunk = null;
-  const dateChunks = [];
-  let last;
+  let currentPattern: SectionType = T_TYPE_INT; // 'num' is unused here?
+  let lastNumberChunk: RenderToken | undefined;
+  const dateChunks: DateRenderToken[] = [];
+  let last: FormatToken | undefined;
   let haveLocale = false;
 
   let index = -1;
   let partOver = false;
   let patternSource = '';
   let haveSlash = false;
+
+  const getPattern = (p: SectionType) => {
+    if (p === T_TYPE_DEN) { return part.den_pattern; }
+    if (p === T_TYPE_INT) { return part.int_pattern; }
+    if (p === T_TYPE_FRAC) { return part.frac_pattern; }
+    if (p === T_TYPE_MAN) { return part.man_pattern; }
+    return [];
+  };
 
   while (++index < inputTokens.length && !partOver) {
     const token = inputTokens[index];
@@ -72,22 +73,24 @@ export function parseFormatSection (inputTokens) {
 
     if (type === TOKEN_GENERAL) {
       part.general = true;
-      add(token, outputTokens);
+      add({ type }, outputTokens);
     }
 
     // new partition
     else if (isNumOp(token, currentPattern)) {
-      const pt = part[currentPattern + '_pattern'];
-      if (isNumOp(last, currentPattern) || last?.type === TOKEN_GROUP) {
+      const pt = getPattern(currentPattern);
+      if (last && (isNumOp(last, currentPattern) || last.type === TOKEN_GROUP)) {
         // append to current
         pt.push((pt.pop() || '') + token.value);
-        lastNumberChunk.num += token.value;
+        if (lastNumberChunk && 'num' in lastNumberChunk) {
+          lastNumberChunk.num += token.value;
+        }
       }
       else {
         // new number section
         pt.push(token.value);
         lastNumberChunk = { type: currentPattern, num: token.value };
-        add(lastNumberChunk, outputTokens);
+        add(lastNumberChunk!, outputTokens);
       }
     }
 
@@ -105,17 +108,19 @@ export function parseFormatSection (inputTokens) {
     // vulgar fractions
     else if (type === TOKEN_SLASH) {
       haveSlash = true;
-      if (part[currentPattern + '_pattern'].length) {
+      const pt = getPattern(currentPattern);
+      if (pt.length) {
         if (!lastNumberChunk) { // need to have a numerator present
           throw new SyntaxError('Format pattern is missing a numerator');
         }
         part.fractions = true;
         // ... we just passed the numerator - correct that item
-        part.num_pattern.push(part[currentPattern + '_pattern'].pop());
-        lastNumberChunk.type = 'num';
+        const xx = pt.pop()!;
+        part.num_pattern.push(xx);
+        lastNumberChunk.type = T_TYPE_NUM;
         // next up... the denominator
-        currentPattern = 'den';
-        add({ type: 'div' }, outputTokens);
+        currentPattern = T_TYPE_DEN;
+        add({ type: T_TYPE_DIV }, outputTokens);
       }
       else {
         add(token.value, outputTokens);
@@ -129,17 +134,17 @@ export function parseFormatSection (inputTokens) {
       part.scale = 0.001 ** token.raw.length;
     }
     else if (type === TOKEN_GROUP) {
-      if (currentPattern === 'int') {
+      if (currentPattern === T_TYPE_INT) {
         part.grouping = true;
       }
-      if (currentPattern === 'den') {
+      if (currentPattern === T_TYPE_DEN) {
         throw new SyntaxError('Cannot group denominator digits');
       }
       // else we just ignore it!
     }
 
     else if (type === TOKEN_SPACE) {
-      add(token, outputTokens);
+      add({ type }, outputTokens);
     }
 
     else if (type === TOKEN_BREAK) {
@@ -149,10 +154,10 @@ export function parseFormatSection (inputTokens) {
 
     else if (type === TOKEN_TEXT) { // @
       part.text = true;
-      add(token, outputTokens);
+      add({ type, value: token.value }, outputTokens);
     }
     else if (type === TOKEN_PLUS || type === TOKEN_MINUS) {
-      add(token, outputTokens);
+      add({ type }, outputTokens);
     }
 
     // [h] [m] [s]
@@ -160,18 +165,15 @@ export function parseFormatSection (inputTokens) {
     else if (type === TOKEN_DURATION) {
       const tokenValue = token.value.toLowerCase(); // deal with in tokenizer
       const startsWith = tokenValue[0];
-      const bit = { type: '', size: 0, date: 1, pad: tokenValue.length };
+      let bit: RenderToken;
       if (startsWith === 'h') {
-        bit.size = u_HOUR;
-        bit.type = 'hour-elap';
+        bit = { type: T_TYPE_HOUR_E, size: u_HOUR, pad: tokenValue.length };
       }
       else if (startsWith === 'm') {
-        bit.size = u_MIN;
-        bit.type = 'min-elap';
+        bit = { type: T_TYPE_MIN_E, size: u_MIN, pad: tokenValue.length };
       }
       else {
-        bit.size = u_SEC;
-        bit.type = 'sec-elap';
+        bit = { type: T_TYPE_SEC_E, size: u_SEC, pad: tokenValue.length };
       }
       // signal date calc and track smallest needed unit
       part.date = part.date | bit.size;
@@ -201,12 +203,7 @@ export function parseFormatSection (inputTokens) {
       part.date = part.date | size;
       part.date_eval = true;
       part.sec_decimals = Math.max(part.sec_decimals, dec);
-      add({
-        type: 'subsec',
-        size: size,
-        decimals: dec,
-        date: 1
-      }, outputTokens);
+      add({ type: T_TYPE_SUBSEC, size: size, decimals: dec }, outputTokens);
     }
 
     else if (type === TOKEN_CALENDAR) {
@@ -232,101 +229,80 @@ export function parseFormatSection (inputTokens) {
       // date token. Which, if it was s or h, minutes is used. The same is true
       // if we hit m or s, and last is m.
       // m and mm are spurious, mmm is always month
-      const bit = { type: '', size: 0, date: 1 };
+      let bit: DateRenderToken | undefined;
       const value = token.value.toLowerCase(); // deal with in tokenizer?
       const startsWith = value[0];
       if (value === 'y' || value === 'yy') {
-        bit.size = u_YEAR;
-        bit.type = 'year-short';
+        bit = { type: T_TYPE_YEAR_S, size: u_YEAR };
       }
       else if (startsWith === 'y' || startsWith === 'e') {
-        bit.size = u_YEAR;
-        bit.type = 'year';
+        bit = { type: T_TYPE_YEAR, size: u_YEAR };
       }
       else if (value === 'b' || value === 'bb') {
-        bit.size = u_YEAR;
-        bit.type = 'b-year-short';
+        bit = { type: T_TYPE_B_YEAR_S, size: u_YEAR };
       }
       else if (startsWith === 'b') {
-        bit.size = u_YEAR;
-        bit.type = 'b-year';
+        bit = { type: T_TYPE_B_YEAR, size: u_YEAR };
       }
       else if (value === 'd' || value === 'dd') {
-        bit.size = u_DAY;
-        bit.type = 'day';
-        bit.pad = /dd/.test(value);
+        bit = { type: T_TYPE_DAY, size: u_DAY, pad: value === 'dd' };
       }
       else if (value === 'ddd' || value === 'aaa') {
-        bit.size = u_DAY;
-        bit.type = 'weekday-short';
+        bit = { type: T_TYPE_WEEKDAY_S, size: u_DAY };
       }
       else if (startsWith === 'd' || startsWith === 'a') {
-        bit.size = u_DAY;
-        bit.type = 'weekday';
+        bit = { type: T_TYPE_WEEKDAY, size: u_DAY };
       }
       else if (startsWith === 'h') {
-        bit.size = u_HOUR;
-        bit.type = 'hour';
-        bit.pad = /hh/i.test(value);
+        bit = { type: T_TYPE_HOUR, size: u_HOUR, pad: value.length > 1 };
       }
       else if (startsWith === 'm') {
         if (value.length === 3) {
-          bit.size = u_MONTH;
-          bit.type = 'monthname-short';
+          bit = { type: T_TYPE_MNAME_S, size: u_MONTH };
         }
         else if (value.length === 5) {
-          bit.size = u_MONTH;
-          bit.type = 'monthname-single';
+          bit = { type: T_TYPE_MNAME_1, size: u_MONTH };
         }
         else if (value.length >= 4) {
-          bit.size = u_MONTH;
-          bit.type = 'monthname';
+          bit = { type: T_TYPE_MNAME, size: u_MONTH };
         }
         // m or mm can be either minute or month based on context
         const last_date_chunk = dateChunks[dateChunks.length - 1];
-        if (!bit.type && last_date_chunk &&
-            !last_date_chunk.used &&
-            (last_date_chunk.size & (u_HOUR | u_SEC))) {
+        if (!bit && last_date_chunk && !last_date_chunk.used && (last_date_chunk.size & (u_HOUR | u_SEC))) {
           // if this value follows hour or second, it is a minute
           last_date_chunk.used = true;
-          bit.size = u_MIN;
-          bit.type = 'min';
-          bit.pad = /mm/.test(value);
+          bit = { type: T_TYPE_MIN, size: u_MIN, pad: value.length > 1 };
         }
-        // if we still don't know, we treat as a month
-        // and defer, a later 'sec' value may switch it
-        if (!bit.type) {
-          bit.size = u_MONTH;
-          bit.type = 'month';
-          bit.pad = /mm/.test(value);
-          bit.indeterminate = true;
+        // if we still don't know, we treat as a month and defer, a later 'sec' value may switch it
+        if (!bit) {
+          bit = { type: T_TYPE_MON, size: u_MONTH, pad: value.length > 1, indeterminate: true };
         }
       }
       else if (startsWith === 's') {
-        bit.size = u_SEC;
-        bit.type = 'sec';
-        bit.pad = /ss/.test(value);
+        bit = { type: T_TYPE_SEC, size: u_SEC, pad: value.length > 1 };
         // if last date chunk was m, flag this used
         const last_date_chunk = dateChunks[dateChunks.length - 1];
         if (last_date_chunk && last_date_chunk.size & u_MIN) {
           bit.used = true;
         }
         // if last date chunk is undecided, we know that it is a minute
-        else if (last_date_chunk?.indeterminate) {
+        else if (last_date_chunk && 'indeterminate' in last_date_chunk) {
           delete last_date_chunk.indeterminate;
           last_date_chunk.size = u_MIN;
-          last_date_chunk.type = 'min';
+          last_date_chunk.type = T_TYPE_MIN;
           bit.used = true;
         }
       }
       else if (startsWith === 'g') {
         // TODO: Don't know what this does? (yet!)
       }
-      // signal date calc and track smallest needed unit
-      part.date = part.date | bit.size;
-      part.date_eval = true;
-      dateChunks.push(bit);
-      add(bit, outputTokens);
+      if (bit) {
+        // signal date calc and track smallest needed unit
+        part.date = part.date | bit.size;
+        part.date_eval = true;
+        dateChunks.push(bit);
+        add(bit, outputTokens);
+      }
     }
 
     // AM/PM
@@ -335,9 +311,7 @@ export function parseFormatSection (inputTokens) {
       part.clock = 12;
       part.date = part.date | u_HOUR;
       part.date_eval = true;
-      // deal with in tokenizer?
-      token.short = token.value === 'A/P';
-      add(token, outputTokens);
+      add({ type, short: token.value === 'A/P' }, outputTokens);
     }
 
     // escaped character, string
@@ -353,7 +327,7 @@ export function parseFormatSection (inputTokens) {
       ];
     }
 
-    // locale code -- we allow std. "en-US" style codes
+    // locale code -- we extend to allow std. "en-US" style codes
     // https://stackoverflow.com/questions/54134729/what-does-the-130000-in-excel-locale-code-130000-mean/54540455#54540455
     else if (type === TOKEN_LOCALE) {
       const bits = token.value.split('-');
@@ -370,7 +344,9 @@ export function parseFormatSection (inputTokens) {
       if (isFinite(wincode) && (wincode & 0xff0000)) {
         const cal = (wincode >> 16) & 0xff;
         // only Hijri is supported atm.
-        if (cal === 6) { part.date_system = EPOCH_1317; }
+        if (cal === 6) {
+          part.date_system = EPOCH_1317;
+        }
       }
 
       haveLocale = true; // ignore any B2 & B1 tokens
@@ -378,7 +354,7 @@ export function parseFormatSection (inputTokens) {
 
     // color
     else if (type === TOKEN_COLOR) {
-      let cm;
+      let cm: RegExpExecArray | null;
       let v = token.value.toLowerCase();
       if ((cm = /^color\s*(\d+)$/i.exec(v))) {
         v = parseInt(cm[1], 10);
@@ -395,10 +371,10 @@ export function parseFormatSection (inputTokens) {
 
     // decimal fraction
     else if (type === TOKEN_POINT) {
-      add(token, outputTokens);
+      add({ type, value: token.value }, outputTokens);
       if (!part.date) {
         part.dec_fractions = true;
-        currentPattern = 'frac';
+        currentPattern = T_TYPE_FRAC;
       }
     }
 
@@ -407,28 +383,41 @@ export function parseFormatSection (inputTokens) {
       // Exponent pattern requires symbol to directly follow "E" but the
       // signature symbol, however, prefixes the first digit of the mantissa
       part.exponential = true;
-      part.exp_plus = token.value.includes('+');
-      currentPattern = 'man';
-      add({ type: 'exp', plus: part.exp_plus }, outputTokens);
+      const plus = token.value.includes('+');
+      part.exp_plus = plus;
+      currentPattern = T_TYPE_MAN;
+      add({ type: TOKEN_EXP, plus }, outputTokens);
     }
 
     // skip width
     else if (type === TOKEN_SKIP) {
-      add(token, outputTokens);
+      add({ type, value: token.value }, outputTokens);
     }
 
     // fill space with next char
     else if (type === TOKEN_FILL) {
-      add(token, outputTokens);
+      add({ type, value: token.value }, outputTokens);
     }
 
-    else if (type === TOKEN_DBNUM || type === TOKEN_NATNUM) {
+    else if (type === TOKEN_DBNUM) {
       // UNSUPPORTED:
       // - DBNum1 = NatNum4
       // - DBNum2 = NatNum5
       // - DBNum3 = either NatNum6 or NatNum3?
       // - DBNum3 = NatNum10
+      const n = parseInt(token.value.slice(5));
+      if (n < 1 || n > 4) {
+        throw new SyntaxError('Unknown modifier: ' + token.value);
+      }
+    }
+
+    else if (type === TOKEN_NATNUM) {
       // NatNum: https://www.openoffice.org/api/docs/common/ref/com/sun/star/i18n/NativeNumberMode.html
+      throw new SyntaxError('Unknown modifier: ' + token.value);
+    }
+
+    else if (type === TOKEN_MODIFIER) {
+      throw new SyntaxError('Unknown modifier: ' + token.value);
     }
 
     else if (type === TOKEN_ERROR) {
@@ -444,12 +433,6 @@ export function parseFormatSection (inputTokens) {
   }
   part.tokensUsed = index;
   part.pattern = patternSource;
-
-  // Quickly determine if this pattern is condition only
-  // if so, then add String(value) but using the condition
-  if (/^((?:\[[^\]]+\])+)(;|$)/.test(part.pattern) && !/^\[(?:h+|m+|s+)\]/.test(part.pattern)) {
-    add({ type: 'text' }, outputTokens);
-  }
 
   // Make sure we don't have an illegal pattern. We could support some of this
   // but we side with Excel and don't because they make no sense.
@@ -467,7 +450,9 @@ export function parseFormatSection (inputTokens) {
   const intPattern = part.int_pattern.join('');
   const manPattern = part.man_pattern.join('');
   const fracPattern = part.frac_pattern.join('');
-  minMaxPad(intPattern, part, 'int');
+  part.int_max = intPattern.length;
+  part.int_min = countNonHash(intPattern);
+
   let min = 0;
   for (let i = 0; i < intPattern.length; i++) {
     const ch = intPattern[intPattern.length - 1 - i];
@@ -476,9 +461,7 @@ export function parseFormatSection (inputTokens) {
     }
   }
   part.int_min = min;
-
-  minMaxPad(fracPattern, part, 'frac');
-  minMaxPad(manPattern, part, 'man');
+  part.frac_max = fracPattern.length;
 
   let num_pat = part.num_pattern.join('');
   // let den_pat = part.den_pattern.join('');
@@ -488,13 +471,15 @@ export function parseFormatSection (inputTokens) {
   if (enforce_padded) {
     den_pat = den_pat.replace(/\d/g, '?');
     den_pat = den_pat.replace(/#$/g, '?');
-    minMaxPad(num_pat, part, 'num');
-    minMaxPad(den_pat, part, 'den');
+    part.num_min = countNonHash(num_pat);
+    part.den_max = den_pat.length;
+    part.den_min = countNonHash(den_pat);
     num_pat = num_pat.replace(/#$/g, '?');
   }
   else {
-    minMaxPad(num_pat, part, 'num');
-    minMaxPad(den_pat, part, 'den');
+    part.num_min = countNonHash(num_pat);
+    part.den_max = den_pat.length;
+    part.den_min = countNonHash(den_pat);
   }
 
   part.int_p = intPattern;
@@ -511,11 +496,18 @@ export function parseFormatSection (inputTokens) {
 
   if (!part.integer && !part.exponential && fracPattern.length) {
     // if no integer has been found, we inject one
-    const pointIdx = part.tokens.findIndex(d => d.type === 'point');
-    part.tokens.splice(pointIdx, 0, { type: 'int', value: '#' });
+    const pointIdx = part.tokens.findIndex(d => d.type === TOKEN_POINT);
+    part.tokens.splice(pointIdx, 0, { type: T_TYPE_INT, num: '#' });
     part.integer = true;
     part.int_pattern = [ '#' ];
     part.int_p = '#';
+  }
+
+  // empty token list means that this is likely a directive only pattern (`[black]`)
+  // in which case we need to inject a general token
+  if (!part.tokens.length && /^\[(?!\$)/.test(part.pattern)) {
+    part.general = true;
+    add({ type: TOKEN_GENERAL }, outputTokens);
   }
 
   // extra whitespace rules for vulgar fractions
@@ -525,21 +517,18 @@ export function parseFormatSection (inputTokens) {
     // the div symbol, is removed if the bit is not shown
     for (let i = 0; i < outputTokens.length - 1; i++) {
       const tok = outputTokens[i];
-      if (tok.type !== 'string' && tok.type !== 'space') {
+      if (tok.type !== TOKEN_STRING && tok.type !== TOKEN_SPACE) {
         continue;
       }
       const nextType = outputTokens[i + 1].type;
-      if (nextType === 'num') {
+      if (nextType === T_TYPE_NUM) {
         tok.rule = 'num+int';
       }
-      else if (nextType === 'div') {
+      else if (nextType === T_TYPE_DIV) {
         tok.rule = 'num';
       }
-      else if (nextType === 'den') {
+      else if (nextType === T_TYPE_DEN) {
         tok.rule = 'den';
-      }
-      else {
-        // tok.rule = '???';
       }
     }
   }

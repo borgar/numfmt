@@ -27,6 +27,7 @@ test('option: invalid', () => {
   expect(format('h #', 0, { throws: false })).toBe('######');
   expect(format('h #', 0, { invalid: '🦂', throws: false })).toBe('🦂');
   expect(format('h #', 0, { invalid: '#VALUE!', throws: false })).toBe('#VALUE!');
+  // @ts-expect-error testing invalid input
   expect(format('h #', 0, { invalid: true, throws: false })).toBe('true');
 });
 
@@ -87,8 +88,8 @@ if (parseInt(process.version.replace(/^v/, ''), 10) >= 14) {
     const baseDate = new Date(2000, 0, 1);
     expect(baseDate.toUTCString(), 'Date has a timezone').toBe('Fri, 31 Dec 1999 18:30:00 GMT');
     const gmtStr = 'ddd, dd mmm yyyy hh:mm:ss "GMT"';
-    expect(format(gmtStr, baseDate, { nbsp: 0 })).toBe('Sat, 01 Jan 2000 00:00:00 GMT');
-    expect(format(gmtStr, baseDate, { nbsp: 0, ignoreTimezone: true })).toBe('Fri, 31 Dec 1999 18:30:00 GMT');
-    expect(format(gmtStr, baseDate, { nbsp: 0, ignoreTimezone: false })).toBe('Sat, 01 Jan 2000 00:00:00 GMT');
+    expect(format(gmtStr, baseDate, { nbsp: false })).toBe('Sat, 01 Jan 2000 00:00:00 GMT');
+    expect(format(gmtStr, baseDate, { nbsp: false, ignoreTimezone: true })).toBe('Fri, 31 Dec 1999 18:30:00 GMT');
+    expect(format(gmtStr, baseDate, { nbsp: false, ignoreTimezone: false })).toBe('Sat, 01 Jan 2000 00:00:00 GMT');
   });
 }

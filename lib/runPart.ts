@@ -3,26 +3,64 @@ import { clamp } from './clamp.ts';
 import { dec2frac } from './dec2frac.ts';
 import { general } from './general.ts';
 import { toYMD } from './toYMD.ts';
-import { defaultLocale } from './locale.ts';
+import { defaultLocale, type LocaleData } from './locale.ts';
 import {
   u_DSEC, u_CSEC, u_MSEC,
   EPOCH_1317,
   MIN_S_DATE, MAX_S_DATE,
-  MIN_L_DATE, MAX_L_DATE
+  MIN_L_DATE, MAX_L_DATE,
+  TOKEN_STRING,
+  TOKEN_SPACE,
+  TOKEN_POINT,
+  TOKEN_ERROR,
+  TOKEN_GENERAL,
+  TOKEN_EXP,
+  TOKEN_MINUS,
+  TOKEN_PLUS,
+  TOKEN_SKIP,
+  TOKEN_FILL,
+  TOKEN_TEXT,
+  T_TYPE_DIV,
+  T_TYPE_INT,
+  T_TYPE_FRAC,
+  T_TYPE_NUM,
+  T_TYPE_DEN,
+  T_TYPE_MAN,
+  TOKEN_AMPM,
+  T_TYPE_YEAR,
+  T_TYPE_YEAR_S,
+  T_TYPE_MON,
+  T_TYPE_MNAME_1,
+  T_TYPE_MNAME_S,
+  T_TYPE_MNAME,
+  T_TYPE_WEEKDAY_S,
+  T_TYPE_WEEKDAY,
+  T_TYPE_DAY,
+  T_TYPE_HOUR,
+  T_TYPE_MIN,
+  T_TYPE_SEC,
+  T_TYPE_SUBSEC,
+  T_TYPE_HOUR_E,
+  T_TYPE_MIN_E,
+  T_TYPE_SEC_E,
+  T_TYPE_B_YEAR,
+  T_TYPE_B_YEAR_S
 } from './constants.ts';
 import { pad } from './pad.ts';
 import { getExponent, getSignificand } from './numberProps.ts';
+import type { Partition } from './types.ts';
+import type { FormatOptions } from './options.ts';
 
 const DAYSIZE = 86400;
 
-const dateOverflows = (inputValue, roundedValue, bigRange) => {
+const dateOverflows = (inputValue: number, roundedValue: number, bigRange: boolean) => {
   if (bigRange) {
     return (inputValue < MIN_L_DATE || roundedValue >= MAX_L_DATE);
   }
   return (inputValue < MIN_S_DATE || roundedValue >= MAX_S_DATE);
 };
 
-export function runPart (value, part, opts, l10n_) {
+export function runPart (value: number | string | bigint, part: Partition, opts: FormatOptions, l10n_?: LocaleData) {
   let mantissa = '';
   let mantissa_sign = '';
   let numerator = '';
@@ -43,7 +81,7 @@ export function runPart (value, part, opts, l10n_) {
     }
     date = value;
   }
-  else {
+  else if (typeof value === 'number') {
     date = Math.trunc(value);
   }
   let time = 0;
@@ -59,12 +97,12 @@ export function runPart (value, part, opts, l10n_) {
   const l10n = l10n_ || defaultLocale;
 
   // scale number
-  if (!part.text && isFinite(part.scale) && part.scale !== 1) {
+  if (!part.text && isFinite(part.scale) && part.scale !== 1 && typeof value === 'number') {
     value = clamp(value * part.scale);
   }
 
   // calc exponent
-  if (part.exponential) {
+  if (part.exponential && typeof value === 'number') {
     let v = Math.abs(value);
     if (v) {
       exp = getExponent(v, part.int_max);
@@ -83,7 +121,7 @@ export function runPart (value, part, opts, l10n_) {
   }
 
   // integer to text
-  if (part.integer) {
+  if (part.integer && typeof value === 'number') {
     const i = Math.abs(round(value, part.fractions ? 1 : part.frac_max));
     integer += (i < 1) ? '' : Math.floor(i);
   }
@@ -92,7 +130,7 @@ export function runPart (value, part, opts, l10n_) {
   const group_sec = opts.grouping[1] ?? group_pri;
 
   // fraction to text
-  if (part.dec_fractions) {
+  if (part.dec_fractions && typeof value === 'number') {
     fraction = String(round(value, part.frac_max)).split('.')[1] || '';
   }
 
@@ -100,7 +138,7 @@ export function runPart (value, part, opts, l10n_) {
   const fixed_slash = !part.error && (part.num_p.includes('0') || part.den_p.includes('0'));
 
   let have_fraction = fixed_slash;
-  if (part.fractions) {
+  if (part.fractions && typeof value === 'number') {
     have_fraction = fixed_slash || !!(value % 1);
     const _dec = Math.abs(part.integer ? value % 1 : value);
     if (_dec) {
@@ -137,7 +175,7 @@ export function runPart (value, part, opts, l10n_) {
   }
 
   // using date/time
-  if (part.date) {
+  if (part.date && typeof value === 'number') {
     date = Math.trunc(value);
     const t = DAYSIZE * (value - date);
     time = Math.floor(t); // in seconds
@@ -191,7 +229,7 @@ export function runPart (value, part, opts, l10n_) {
       }
       if (opts.dateErrorNumber) {
         const _ret = value < 0 ? [ l10n.negative ] : [];
-        return general(_ret, {}, value, l10n).join('');
+        return general(_ret, value, l10n).join('');
       }
       return opts.overflow;
     }
@@ -209,7 +247,7 @@ export function runPart (value, part, opts, l10n_) {
 
   const ret = [];
 
-  const digitsStart = (numstr, pattern, prt, offset) => {
+  const digitsStart = (numstr: string, pattern: string, prt: string, offset: number) => {
     const l = (!offset && numstr.length > pattern.length)
       ? prt.length + numstr.length - pattern.length
       : prt.length;
@@ -227,9 +265,9 @@ export function runPart (value, part, opts, l10n_) {
   for (let ti = 0, tl = part.tokens.length; ti < tl; ti++) {
     const tok = part.tokens[ti];
     const tokenType = tok.type;
-    const len = tok.num ? tok.num.length : 0;
+    const len = 'num' in tok ? tok.num.length : 0;
 
-    if (tokenType === 'string') {
+    if (tokenType === TOKEN_STRING) {
       // special rules may apply if next or prev is numerator or denominator
       if (tok.rule) {
         if (tok.rule === 'num') {
@@ -262,7 +300,7 @@ export function runPart (value, part, opts, l10n_) {
         ret.push(tok.value.replace(/ /g, padQ));
       }
     }
-    else if (tokenType === 'space') {
+    else if (tokenType === TOKEN_SPACE) {
       if (tok.rule === 'num+int') {
         if (
           (have_fraction || part.num_min || part.den_min) &&
@@ -275,30 +313,30 @@ export function runPart (value, part, opts, l10n_) {
         ret.push(padQ);
       }
     }
-    else if (tokenType === 'error') {
+    else if (tokenType === TOKEN_ERROR) {
       // token used to define invalid pattern
       ret.push(opts.invalid);
     }
-    else if (tokenType === 'point') {
+    else if (tokenType === TOKEN_POINT) {
       // Excel always emits a period: TEXT(0, "#.#") => "."
       ret.push(part.date ? tok.value : l10n.decimal);
     }
-    else if (tokenType === 'general') {
-      general(ret, part, value, l10n);
+    else if (tokenType === TOKEN_GENERAL) {
+      general(ret, value, l10n);
     }
-    else if (tokenType === 'exp') {
+    else if (tokenType === TOKEN_EXP) {
       ret.push(l10n.exponent);
     }
-    else if (tokenType === 'minus') {
+    else if (tokenType === TOKEN_MINUS) {
       if (tok.volatile && part.date) {
         // don't emit the prepended minus if this is a date
       }
-      else if (tok.volatile && (value >= 0 || typeof value !== 'number')) {
+      else if (tok.volatile && (typeof value !== 'number' || value >= 0)) {
         // don't emit volatile minus for positive numbers
       }
       else if (tok.volatile && !part.fractions && (part.integer || part.dec_fractions)) {
         // minus is only shown if there is a non-zero digit present
-        if (value < 0 && (integer && integer !== '0') || fraction) {
+        if (typeof value === 'number' && value < 0 && (integer && integer !== '0') || fraction) {
           ret.push(l10n.negative);
         }
       }
@@ -306,13 +344,13 @@ export function runPart (value, part, opts, l10n_) {
         ret.push(l10n.negative);
       }
     }
-    else if (tokenType === 'plus') {
+    else if (tokenType === TOKEN_PLUS) {
       ret.push(l10n.positive);
     }
-    else if (tokenType === 'text') {
+    else if (tokenType === TOKEN_TEXT) {
       ret.push(value);
     }
-    else if (tokenType === 'fill') {
+    else if (tokenType === TOKEN_FILL) {
       // If user has provided a token to signal that next char is a fill char,
       // then emit the that plus the fill char. By default this does what the
       // TEXT function does in this case: Emits nothing.
@@ -320,7 +358,7 @@ export function runPart (value, part, opts, l10n_) {
         ret.push(opts.fillChar, tok.value);
       }
     }
-    else if (tokenType === 'skip') {
+    else if (tokenType === TOKEN_SKIP) {
       // If user has provided a token to signal that next char is a fill char,
       // then emit the that plus the fill char. By default this does what the
       // TEXT function does in this case: Emits a space.
@@ -331,7 +369,7 @@ export function runPart (value, part, opts, l10n_) {
         ret.push(opts.nbsp ? '\u00a0' : ' ');
       }
     }
-    else if (tokenType === 'div') {
+    else if (tokenType === T_TYPE_DIV) {
       if (have_fraction) {
         ret.push('/');
       }
@@ -342,7 +380,7 @@ export function runPart (value, part, opts, l10n_) {
         ret.push(pad('#', opts.nbsp));
       }
     }
-    else if (tokenType === 'int') {
+    else if (tokenType === T_TYPE_INT) {
       // number isn't fragmented
       if (part.int_pattern.length === 1) {
         const pt = part.int_p;
@@ -368,29 +406,30 @@ export function runPart (value, part, opts, l10n_) {
         counter.int += digitsStart(integer, part.int_p, tok.num, counter.int);
       }
     }
-    else if (tokenType === 'frac') {
+    else if (tokenType === T_TYPE_FRAC) {
       const o = counter.frac;
       for (let i = 0; i < len; i++) {
         ret.push(fraction[i + o] || pad(tok.num[i], opts.nbsp));
       }
       counter.frac += len;
     }
-    else if (tokenType === 'man') {
+    else if (tokenType === T_TYPE_MAN) {
       // mantissa sign is attached to the first digit, not the exponent symbol
       // "0E+ 0" will print as "1E +12"
-      if (!counter[tokenType] && !counter.man) {
+      if (!counter.man) {
         ret.push(mantissa_sign);
       }
       counter.man += digitsStart(mantissa, part.man_p, tok.num, counter.man);
     }
-    else if (tokenType === 'num') {
+    else if (tokenType === T_TYPE_NUM) {
       counter.num += digitsStart(numerator, part.num_p, tok.num, counter.num);
     }
-    else if (tokenType === 'den') {
+    else if (tokenType === T_TYPE_DEN) {
       const o = counter.den;
       for (let i = 0; i < len; i++) {
         let digit = denominator[i + o];
         if (!digit) {
+          // XXX: use charCodes
           const ch = tok.num[i];
           if (
             '123456789'.includes(ch) ||
@@ -415,18 +454,18 @@ export function runPart (value, part, opts, l10n_) {
       }
       counter.den += len;
     }
-    else if (tokenType === 'year') {
+    else if (tokenType === T_TYPE_YEAR) {
       if (year < 0) { ret.push(l10n.negative); }
       ret.push(String(Math.abs(year)).padStart(4, '0'));
     }
-    else if (tokenType === 'year-short') {
+    else if (tokenType === T_TYPE_YEAR_S) {
       const y = year % 100;
       ret.push(y < 10 ? '0' : '', y);
     }
-    else if (tokenType === 'month') {
+    else if (tokenType === T_TYPE_MON) {
       ret.push((tok.pad && month < 10 ? '0' : ''), month);
     }
-    else if (tokenType === 'monthname-single') {
+    else if (tokenType === T_TYPE_MNAME_1) {
       // This is what Excel does.
       // The Vietnamese list goes:
       //  from ["Tháng 1", "Tháng 2", ... ] to [ "T", "T", ... ]
@@ -439,7 +478,7 @@ export function runPart (value, part, opts, l10n_) {
         ret.push(l10n.mmmm[month - 1].charAt(0));
       }
     }
-    else if (tokenType === 'monthname-short') {
+    else if (tokenType === T_TYPE_MNAME_S) {
       if (part.date_system === EPOCH_1317) {
         ret.push(l10n.mmm6[month - 1]);
       }
@@ -447,7 +486,7 @@ export function runPart (value, part, opts, l10n_) {
         ret.push(l10n.mmm[month - 1]);
       }
     }
-    else if (tokenType === 'monthname') {
+    else if (tokenType === T_TYPE_MNAME) {
       if (part.date_system === EPOCH_1317) {
         ret.push(l10n.mmmm6[month - 1]);
       }
@@ -455,33 +494,33 @@ export function runPart (value, part, opts, l10n_) {
         ret.push(l10n.mmmm[month - 1]);
       }
     }
-    else if (tok.type === 'weekday-short') {
+    else if (tok.type === T_TYPE_WEEKDAY_S) {
       ret.push(l10n.ddd[weekday]);
     }
-    else if (tokenType === 'weekday') {
+    else if (tokenType === T_TYPE_WEEKDAY) {
       ret.push(l10n.dddd[weekday]);
     }
-    else if (tokenType === 'day') {
+    else if (tokenType === T_TYPE_DAY) {
       ret.push((tok.pad && day < 10 ? '0' : ''), day);
     }
-    else if (tokenType === 'hour') {
+    else if (tokenType === T_TYPE_HOUR) {
       const h = hour % part.clock || (part.clock < 24 ? part.clock : 0);
       ret.push((tok.pad && h < 10 ? '0' : ''), h);
     }
-    else if (tokenType === 'min') {
+    else if (tokenType === T_TYPE_MIN) {
       ret.push((tok.pad && minute < 10 ? '0' : ''), minute);
     }
-    else if (tokenType === 'sec') {
+    else if (tokenType === T_TYPE_SEC) {
       ret.push((tok.pad && second < 10 ? '0' : ''), second);
     }
-    else if (tokenType === 'subsec') {
+    else if (tokenType === T_TYPE_SUBSEC) {
       ret.push(l10n.decimal);
       // decimals is pre-determined by longest subsec token
       // but the number emitted is per-token
       const f = subsec.toFixed(part.sec_decimals);
       ret.push(f.slice(2, 2 + tok.decimals));
     }
-    else if (tokenType === 'ampm') {
+    else if (tokenType === TOKEN_AMPM) {
       const idx = hour < 12 ? 0 : 1;
       if (tok.short && !l10n_) {
         ret.push('AP'[idx]);
@@ -490,25 +529,31 @@ export function runPart (value, part, opts, l10n_) {
         ret.push(l10n.ampm[idx]);
       }
     }
-    else if (tokenType === 'hour-elap') {
-      if (value < 0) { ret.push(l10n.negative); }
+    else if (tokenType === T_TYPE_HOUR_E && typeof value === 'number') {
+      if (value < 0) {
+        ret.push(l10n.negative);
+      }
       const hh = (date * 24) + Math.floor(Math.abs(time) / (60 * 60));
       ret.push(String(Math.abs(hh)).padStart(tok.pad, '0'));
     }
-    else if (tokenType === 'min-elap') {
-      if (value < 0) { ret.push(l10n.negative); }
+    else if (tokenType === T_TYPE_MIN_E && typeof value === 'number') {
+      if (value < 0) {
+        ret.push(l10n.negative);
+      }
       const mm = (date * 1440) + Math.floor(Math.abs(time) / 60);
       ret.push(String(Math.abs(mm)).padStart(tok.pad, '0'));
     }
-    else if (tokenType === 'sec-elap') {
-      if (value < 0) { ret.push(l10n.negative); }
+    else if (tokenType === T_TYPE_SEC_E && typeof value === 'number') {
+      if (value < 0) {
+        ret.push(l10n.negative);
+      }
       const ss = (date * DAYSIZE) + Math.abs(time);
       ret.push(String(Math.abs(ss)).padStart(tok.pad, '0'));
     }
-    else if (tokenType === 'b-year') {
+    else if (tokenType === T_TYPE_B_YEAR) {
       ret.push(year + 543);
     }
-    else if (tokenType === 'b-year-short') {
+    else if (tokenType === T_TYPE_B_YEAR_S) {
       const y = (year + 543) % 100;
       ret.push(y < 10 ? '0' : '', y);
     }

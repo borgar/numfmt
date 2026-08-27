@@ -1,17 +1,65 @@
-import codeToLocale from './codeToLocale.ts';
+import { codeToLocale } from './codeToLocale.ts';
 
 // Locale: [language[_territory][.codeset][@modifier]]
 const re_locale = /^([a-z\d]+)(?:[_-]([a-z\d]+))?(?:\.([a-z\d]+))?(?:@([a-z\d]+))?$/i;
-const locales = {};
+const locales: Record<string, LocaleData> = {};
+
+/** An object of properties used by a formatter when printing a number in a certain locale. */
+export type LocaleData = {
+  /** Symbol used as a grouping separator (`1,000,000` uses `,`) */
+  group: string;
+  /** Symbol used to separate integers from fractions (usually `.`) */
+  decimal: string;
+  /** Symbol used to indicate positive numbers (usually `+`) */
+  positive: string;
+  /** Symbol used to indicate positive numbers (usually `-`) */
+  negative: string;
+  /** Symbol used to indicate a percentage (usually `%`) */
+  percent: string;
+  /** Symbol used to indicate an exponent (usually `E`) */
+  exponent: string;
+  /** Symbol used to indicate NaN values (`NaN`) */
+  nan: string;
+  /** Symbol used to indicate infinite values (`∞`) */
+  infinity: string;
+  /** How AM and PM should be presented */
+  ampm: string[];
+  /** Long month names for the Islamic calendar (`Rajab`) */
+  mmmm6: string[];
+  /** Short month names for the Islamic calendar (`Raj.`) */
+  mmm6: string[];
+  /** Long month names for the Gregorian calendar (`November`) */
+  mmmm: string[];
+  /** Short month names for the Gregorian calendar (`Nov`) */
+  mmm: string[];
+  /** Long day names (`Wednesday`) */
+  dddd: string[];
+  /** Shortened day names (`Wed`) */
+  ddd: string[];
+  /** How TRUE and FALSE should be presented */
+  bool: string[];
+  /** Is the prefered date format month first (12/31/2025) or day first (31/12/2025) */
+  preferMDY: boolean;
+};
+
+/** An object of properties for a locale tag. */
+export type LocaleToken = {
+  /** The basic tag such as `zh_CN` or `fi` */
+  lang: string;
+  /** The language section (`zh` for `zh_CN`) */
+  language: string;
+  /** The territory section (`CN` for `zh_CN`) */
+  territory: string;
+};
 
 /**
  * Split a semicolon delimited string and replace instances of characters
- * @ignore
- * @param {string} str Semicolon delimited string
- * @param {string} [tilde=''] String to be inserted on every instance of ~
- * @returns {string[]} Array of strings
+ * @internal
+ * @param str Semicolon delimited string
+ * @param [tilde] String to be inserted on every instance of ~
+ * @returns Array of strings
  */
-const _ = (str, tilde = '') => str.replace(/~/g, tilde).split(';');
+const _ = (str: string, tilde = ''): string[] => str.replace(/~/g, tilde).split(';');
 
 /**
  * Generate mmm and ddd properties as needed for locales. Many of them
@@ -24,13 +72,13 @@ const _ = (str, tilde = '') => str.replace(/~/g, tilde).split(';');
  * - 1...9 - shorten to N many characters
  * - 11...19 - shorten to 1...9 characters and add periods
  *
- * @ignore
- * @param {object} o Locale object
- * @param {number} [ml=0] Month list rule
- * @param {number} [dl=0] Day list rule
- * @returns {object} The same input object, but with ddd and mmm filled in.
+ * @internal
+ * @param o Locale object
+ * @param [ml] Month list rule
+ * @param [dl] Day list rule
+ * @returns The same input object, but with ddd and mmm filled in.
  */
-const xm = (o, ml = 0, dl = 0) => {
+const xm = (o: Partial<LocaleData> & Pick<LocaleData, 'mmmm' | 'dddd'>, ml: number = 0, dl: number = 0): Partial<LocaleData> => {
   if (!o.mmm) {
     o.mmm = ml < 1
       ? o.mmmm.concat()
@@ -53,33 +101,8 @@ const xm = (o, ml = 0, dl = 0) => {
   return o;
 };
 
-/**
- * @typedef {object} LocaleData
- *   An object of properties used by a formatter when printing a number in a certain locale.
- * @property {string} group - Symbol used as a grouping separator (`1,000,000` uses `,`)
- * @property {string} decimal - Symbol used to separate integers from fractions (usually `.`)
- * @property {string} positive - Symbol used to indicate positive numbers (usually `+`)
- * @property {string} negative - Symbol used to indicate positive numbers (usually `-`)
- * @property {string} percent - Symbol used to indicate a percentage (usually `%`)
- * @property {string} exponent - Symbol used to indicate an exponent (usually `E`)
- * @property {string} nan - Symbol used to indicate NaN values (`NaN`)
- * @property {string} infinity - Symbol used to indicate infinite values (`∞`)
- * @property {Array<string>} ampm - How AM and PM should be presented
- * @property {Array<string>} mmmm6 - Long month names for the Islamic calendar (`Rajab`)
- * @property {Array<string>} mmm6 - Short month names for the Islamic calendar (`Raj.`)
- * @property {Array<string>} mmmm - Long month names for the Gregorian calendar (`November`)
- * @property {Array<string>} mmm - Short month names for the Gregorian calendar (`Nov`)
- * @property {Array<string>} dddd - Long day names (`Wednesday`)
- * @property {Array<string>} ddd - Shortened day names (`Wed`)
- * @property {Array<string>} bool - How TRUE and FALSE should be presented
- * @property {boolean} preferMDY - Is the prefered date format month first (12/31/2025) or day first (31/12/2025)
- */
-
-/**
- * @ignore
- * @type {LocaleData}
- */
-const baseLocaleData = {
+/** @ignore */
+const baseLocaleData: LocaleData = {
   group: '\u00A0',
   decimal: '.',
   positive: '+',
@@ -100,20 +123,13 @@ const baseLocaleData = {
 };
 
 /**
- * @typedef {object} LocaleToken - An object of properties for a locale tag.
- * @property {string} lang - The basic tag such as `zh_CN` or `fi`
- * @property {string} language - The language section (`zh` for `zh_CN`)
- * @property {string} territory - The territory section (`CN` for `zh_CN`)
- */
-
-/**
  * Parse a regular IETF BCP 47 locale tag and emit an object of its parts.
  * Irregular tags and subtags are not supported.
  *
- * @param {string} locale - A BCP 47 string tag of the locale.
- * @returns {LocaleToken} - An object describing the locale.
+ * @param locale A BCP 47 string tag of the locale.
+ * @returns An object describing the locale.
  */
-export function parseLocale (locale) {
+export function parseLocale (locale: string): LocaleToken {
   const lm = re_locale.exec(locale);
   if (!lm) {
     throw new SyntaxError(`Malformed locale: ${locale}`);
@@ -129,18 +145,18 @@ export function parseLocale (locale) {
 // aa = numerical style (optional, 00 if absent)
 // bb = calendar format (optional, 00 if absent)
 // cc = language code
-export function resolveLocale (l4e) {
+export function resolveLocale (l4e: number | string): string | undefined {
   if (typeof l4e === 'number') {
-    return codeToLocale[l4e & 0xffff] || null;
+    return codeToLocale[l4e & 0xffff] || undefined;
   }
   const wincode = parseInt(l4e, 16);
   if (isFinite(wincode) && codeToLocale[wincode & 0xffff]) {
-    return codeToLocale[wincode & 0xffff] || null;
+    return codeToLocale[wincode & 0xffff] || undefined;
   }
   if (re_locale.test(l4e)) {
     return l4e;
   }
-  return null;
+  return undefined;
 }
 
 /**
@@ -149,21 +165,21 @@ export function resolveLocale (l4e) {
  * So if `en-CA` is not found, the formatter tries to find `en` else it
  * returns a `null`.
  *
- * @param {string} locale - A BCP 47 string tag of the locale, or an Excel locale code.
- * @returns {LocaleData | null} - An object of format date properties.
+ * @param locale A BCP 47 string tag of the locale, or an Excel locale code.
+ * @returns An object of format date properties.
  */
-export function getLocale (locale) {
+export function getLocale (locale: string | number): LocaleData | undefined {
   const tag = resolveLocale(locale);
-  let obj = null;
+  let obj;
   if (tag) {
     const c = parseLocale(tag);
-    obj = locales[c.lang] || locales[c.language] || null;
+    obj = locales[c.lang] || locales[c.language] || undefined;
   }
   return obj;
 }
 
 // creates a new locale options object
-export function createLocale (data) {
+export function createLocale (data: Partial<LocaleData>): LocaleData {
   return Object.assign({}, baseLocaleData, data);
 }
 
@@ -173,45 +189,45 @@ export function createLocale (data) {
  * Any partial set of properties may be returned to have the defaults used where properties are missing.
  *
  * @see {LocaleData}
- * @param {object} localeSettings - A collection of settings for a locale.
- * @param {string} [localeSettings.group="\u00a0"]
+ * @param localeSettings - A collection of settings for a locale.
+ * @param [localeSettings.group="\u00a0"]
  *    Symbol used as a grouping separator (`1,000,000` uses `,`)
- * @param {string} [localeSettings.decimal="."]
+ * @param [localeSettings.decimal="."]
  *    Symbol used to separate integers from fractions (usually `.`)
- * @param {string} [localeSettings.positive="+"]
+ * @param [localeSettings.positive="+"]
  *    Symbol used to indicate positive numbers (usually `+`)
- * @param {string} [localeSettings.negative="-"]
+ * @param [localeSettings.negative="-"]
  *    Symbol used to indicate positive numbers (usually `-`)
- * @param {string} [localeSettings.percent="%"]
+ * @param [localeSettings.percent="%"]
  *    Symbol used to indicate a percentage (usually `%`)
- * @param {string} [localeSettings.exponent="E"]
+ * @param [localeSettings.exponent="E"]
  *    Symbol used to indicate an exponent (usually `E`)
- * @param {string} [localeSettings.nan="NaN"]
+ * @param [localeSettings.nan="NaN"]
  *    Symbol used to indicate NaN values (`NaN`)
- * @param {string} [localeSettings.infinity="∞"]
+ * @param [localeSettings.infinity="∞"]
  *    Symbol used to indicate infinite values (`∞`)
- * @param {Array<string>} [localeSettings.ampm=["AM","PM"]]
+ * @param [localeSettings.ampm=["AM","PM"]]
  *    How AM and PM should be presented.
- * @param {Array<string>} [localeSettings.mmmm6=["Muharram", "Safar", "Rabiʻ I", "Rabiʻ II", "Jumada I", "Jumada II", "Rajab", "Shaʻban", "Ramadan", "Shawwal", "Dhuʻl-Qiʻdah", "Dhuʻl-Hijjah"]]
+ * @param [localeSettings.mmmm6=["Muharram", "Safar", "Rabiʻ I", "Rabiʻ II", "Jumada I", "Jumada II", "Rajab", "Shaʻban", "Ramadan", "Shawwal", "Dhuʻl-Qiʻdah", "Dhuʻl-Hijjah"]]
  *    Long month names for the Islamic calendar (e.g. `Rajab`)
- * @param {Array<string>} [localeSettings.mmm6=["Muh.", "Saf.", "Rab. I", "Rab. II", "Jum. I", "Jum. II", "Raj.", "Sha.", "Ram.", "Shaw.", "Dhuʻl-Q.", "Dhuʻl-H."]]
+ * @param [localeSettings.mmm6=["Muh.", "Saf.", "Rab. I", "Rab. II", "Jum. I", "Jum. II", "Raj.", "Sha.", "Ram.", "Shaw.", "Dhuʻl-Q.", "Dhuʻl-H."]]
  *    Short month names for the Islamic calendar (e.g. `Raj.`)
- * @param {Array<string>} [localeSettings.mmmm=["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]]
+ * @param [localeSettings.mmmm=["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]]
  *    Long month names for the Gregorian calendar (e.g. `November`)
- * @param {Array<string>} [localeSettings.mmm=["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]]
+ * @param [localeSettings.mmm=["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]]
  *    Short month names for the Gregorian calendar (e.g. `Nov`)
- * @param {Array<string>} [localeSettings.dddd=["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]]
+ * @param [localeSettings.dddd=["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]]
  *    Long day names (e.g. `Wednesday`)
- * @param {Array<string>} [localeSettings.ddd=["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]]
+ * @param [localeSettings.ddd=["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]]
  *    Shortened day names (e.g. `Wed`)
- * @param {Array<string>} [localeSettings.bool=["TRUE", "FALSE"]]
+ * @param [localeSettings.bool=["TRUE", "FALSE"]]
  *    How TRUE and FALSE should be presented.
  * @param {boolean} [localeSettings.preferMDY=false]
  *    Is the prefered date format month first (12/31/2025) or day first (31/12/2025)
- * @param {string} l4e - A string BCP 47 tag of the locale.
- * @returns {LocaleData} - A full collection of settings for a locale
+ * @param l4e - A string BCP 47 tag of the locale.
+ * @returns A full collection of settings for a locale
  */
-export function addLocale (localeSettings, l4e) {
+export function addLocale (localeSettings: Partial<LocaleData>, l4e: string): LocaleData {
   // parse language tag
   const c = typeof l4e === 'object' ? l4e : parseLocale(l4e);
   // add the language
@@ -227,7 +243,7 @@ export function listLocales () {
   return Object.keys(locales);
 }
 
-export const defaultLocale = createLocale({ group: ',', preferMDY: true });
+export const defaultLocale: LocaleData & { isDefault?: boolean } = createLocale({ group: ',', preferMDY: true });
 defaultLocale.isDefault = true;
 
 addLocale({
@@ -744,4 +760,3 @@ addLocale({
   ddd:  _('रवि;सोम;मंगल;बुध;गुरु;शुक्र;शनि'),
   ampm: _('am;pm')
 }, 'hi');
-

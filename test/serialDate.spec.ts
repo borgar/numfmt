@@ -8,13 +8,13 @@ function round (n: number): number {
   return Math.round(n * 1e10) / 1e10;
 }
 
-test('dateToSerial (Date):', () => {
+test('dateToSerial (Date)', () => {
   process.env.TZ = 'Asia/Calcutta';
   expect(getTimeZoneName(), 'Timezone is IST').toBe('India Standard Time');
 
   const testYMD = (y: number, m: number, d: number, hh: number, mm: number, ss: number, tz = false) => {
     const dt = new Date(y, m - 1, d, hh, mm, ss);
-    return round(dateToSerial(dt, { ignoreTimezone: tz }));
+    return round(dateToSerial(dt, { ignoreTimezone: tz }) ?? 0);
   };
 
   expect(testYMD(1978, 5, 17, 10, 25, 30, true), '[1978, 5, 17, 10, 25, 30] ignoreTimezone').toBe(28627.2052083333);
@@ -33,12 +33,12 @@ test('dateToSerial (Date):', () => {
   expect(testYMD(2000, 1, 1, 0, 0, 0, true), '[2000, 1, 1, 0, 0, 0] ignoreTimezone').toBe(36525.7708333333);
 });
 
-test('dateToSerial (Array):', () => {
+test('dateToSerial (Array)', () => {
   const testYMD = (y: number, m: number, d: number, hh: number, mm: number, ss: number, tz = false) => {
     return round(dateToSerial(
       [ y, m, d, hh, mm, ss ],
       { ignoreTimezone: tz }
-    ));
+    ) ?? 0);
   };
   expect(testYMD(1978, 5, 17, 10, 25, 30, false), '[1978, 5, 17, 10, 25, 30]').toBe(28627.434375);
   expect(testYMD(1978, 5, 17, 10, 25, 30, true), '[1978, 5, 17, 10, 25, 30]').toBe(28627.434375);
@@ -52,7 +52,7 @@ test('dateToSerial (Array):', () => {
   expect(testYMD(2000, 1, 1, 0, 0, 0, true), '[2000, 1, 1, 0, 0, 0]').toBe(36526);
 });
 
-test('dateFromSerial:', () => {
+test('dateFromSerial', () => {
   process.env.TZ = 'Europe/Amsterdam';
   expect(
     /^Central European (Standard|Summer) Time$/.test(getTimeZoneName()),

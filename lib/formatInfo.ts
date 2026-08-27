@@ -1,6 +1,7 @@
-import { u_YEAR, u_MONTH, u_DAY, u_HOUR, u_MIN, u_SEC, reCurrencySymbols } from './constants.ts';
+import { u_YEAR, u_MONTH, u_DAY, u_HOUR, u_MIN, u_SEC, reCurrencySymbols, TOKEN_STRING, T_TYPE_YEAR, T_TYPE_YEAR_S, T_TYPE_B_YEAR, T_TYPE_B_YEAR_S, T_TYPE_MON, T_TYPE_MNAME, T_TYPE_MNAME_S, T_TYPE_MNAME_1, T_TYPE_WEEKDAY, T_TYPE_WEEKDAY_S, T_TYPE_DAY, T_TYPE_HOUR, T_TYPE_MIN, T_TYPE_SEC, TOKEN_AMPM } from './constants.ts';
+import type { FormatDateInfo, FormatInfo, Partition } from './types.ts';
 
-export function isPercent (partitions) {
+export function isPercent (partitions: Partition[]): boolean {
   return !!(
     (partitions[0]?.percent) ||
     (partitions[1]?.percent) ||
@@ -9,7 +10,7 @@ export function isPercent (partitions) {
   );
 }
 
-export function isDate (partitions) {
+export function isDate (partitions: Partition[]): boolean {
   return !!(
     (partitions[0]?.date) ||
     (partitions[1]?.date) ||
@@ -18,7 +19,7 @@ export function isDate (partitions) {
   );
 }
 
-export function isText (partitions) {
+export function isText (partitions: Partition[]): boolean {
   const [ part1, part2, part3, part4 ] = partitions;
   return !!(
     (!part1 || part1.generated) &&
@@ -55,50 +56,10 @@ const dateCodes = [
   [ 'hm', 9 ]
 ];
 
-/**
- * @typedef {object} FormatInfo
- *   An object of information properties based on a format pattern.
- * @property {(
- *   "currency" | "date" | "datetime" |
- *   "error" | "fraction" | "general" |
- *   "grouped" | "number" | "percent" |
- *   "scientific" | "text" | "time"
- * )} type
- *     A string identifier for the type of the number formatter.
- * @property {boolean} isDate
- *     Corresponds to the output from isDateFormat.
- * @property {boolean} isText
- *     Corresponds to the output from isTextFormat.
- * @property {boolean} isPercent
- *     Corresponds to the output from isPercentFormat.
- * @property {number} maxDecimals
- *     The maximum number of decimals this format will emit.
- * @property {0|1} color
- *     1 if the format uses color on the negative portion of the string, else
- *     a 0. This replicates Excel's `CELL("color")` functionality.
- * @property {0|1} parentheses
- *     1 if the positive portion of the number format contains an open
- *     parenthesis, else a 0. This is replicates Excel's `CELL("parentheses")`
- *     functionality.
- * @property {0|1} grouped
- *     1 if the positive portion of the format uses a thousands separator,
- *     else a 0.
- * @property {string} code
- *     Corresponds to Excel's `CELL("format")` functionality. It should match
- *     Excel's esoteric behaviour fairly well.
- *     [See Microsoft's documentation.](https://support.microsoft.com/en-us/office/cell-function-51bd39a5-f338-4dbe-a33f-955d67c2b2cf)
- * @property {number} scale
- *     The multiplier used when formatting the number (100 for percentages).
- * @property {number} level
- *     An arbirarty number that represents the format's specificity if you want
- *     to compare one to another. Integer comparisons roughly match Excel's
- *     resolutions when it determines which format wins out.
- */
-
-export function info (partitions, currencyId = null) {
+export function info (partitions: Partition[], currencyId?: string): FormatInfo {
   const [ partPos, partNeg ] = partitions;
   const frac_max = partPos.frac_max;
-  const output = {
+  const output: FormatInfo = {
     type: 'general',
     isDate: isDate(partitions),
     isText: isText(partitions),
@@ -107,13 +68,15 @@ export function info (partitions, currencyId = null) {
     scale: partPos.scale ?? 1,
     color: 0,
     parentheses: 0,
-    grouped: partPos.grouping ? 1 : 0
+    grouped: partPos.grouping ? 1 : 0,
+    code: '',
+    level: 0
   };
 
   // currency identifier may be passed in, but otherwise we report
   // if we find any known glyph in the tokens
   const isCurrency = (!output.isDate && !output.isText && !partPos.error) && partPos.tokens.some(tok => (
-    tok.type === 'string' &&
+    tok.type === TOKEN_STRING &&
     (currencyId
       ? tok.value === currencyId
       : reCurrencySymbols.test(tok.value))
@@ -150,24 +113,37 @@ export function info (partitions, currencyId = null) {
     // So:  "mmm dd yyyy" matches "mdy" = D4
     // But: "mmm dd dd yyyy" matches "md" = D5
     partPos.tokens.forEach(tok => {
+      // XXX: can we not detemine this by token.date && token.size?
       const type = tok.type;
       // 'year' || 'year-short' || 'b-year' || 'b-year-short'
-      if (/^(b-)?year/.test(type)) {
+      if (type === T_TYPE_YEAR || type === T_TYPE_YEAR_S || type === T_TYPE_B_YEAR || type === T_TYPE_B_YEAR_S) {
         order += 'Y';
         haveDate++;
       }
       // 'month' || 'monthname-single' || 'monthname-short' || 'monthname'
-      else if (type.startsWith('month')) {
+      else if (type === T_TYPE_MON || type === T_TYPE_MNAME || type === T_TYPE_MNAME_S || type === T_TYPE_MNAME_1) {
         order += 'M';
         haveDate++;
       }
       // 'weekday-short' || 'weekday' || 'day'
-      else if (/^(week)?day/.test(type)) {
+      else if (type === T_TYPE_WEEKDAY || type === T_TYPE_WEEKDAY_S || type === T_TYPE_DAY) {
         order += 'D';
         haveDate++;
       }
-      else if (type === 'hour' || type === 'min' || type === 'sec' || type === 'ampm') {
-        order += type[0];
+      else if (type === T_TYPE_HOUR) {
+        order += 'h';
+        haveTime++;
+      }
+      else if (type === T_TYPE_MIN) {
+        order += 'm';
+        haveTime++;
+      }
+      else if (type === T_TYPE_SEC) {
+        order += 's';
+        haveTime++;
+      }
+      else if (type === TOKEN_AMPM) {
+        order += 'a';
         haveTime++;
       }
     });
@@ -178,7 +154,7 @@ export function info (partitions, currencyId = null) {
     else if (!haveDate && haveTime) {
       output.type = 'time';
     }
-    const code = dateCodes.find(d => order.startsWith(/** @type {string} */(d[0])));
+    const code = dateCodes.find(d => order.startsWith(d[0] as string));
     codeType = code ? 'D' : 'G';
     codeNum = code ? code[1] : '';
   }
@@ -222,31 +198,12 @@ export function info (partitions, currencyId = null) {
   // the "first" one wins out.
   output.level = level[output.type];
 
-  return Object.freeze(output);
+  return output;
 }
 
-/**
- * @typedef {object} FormatDateInfo
- *   An object detailing which date specifiers are used in a format pattern.
- * @property {boolean} year
- *   true if the pattern uses years else false.
- * @property {boolean} month
- *   true if the pattern uses months else false.
- * @property {boolean} day
- *   true if the pattern uses day of the month else false.
- * @property {boolean} hours
- *   true if the pattern uses hours else false.
- * @property {boolean} minutes
- *   true if the pattern uses minutes else false.
- * @property {boolean} seconds
- *   true if the pattern uses seconds else false.
- * @property {12|24} clockType
- *   12 if the pattern uses AM/PM clock else 24.
- */
-
-export function dateInfo (partitions) {
+export function dateInfo (partitions: Partition[]): FormatDateInfo {
   const [ partPos ] = partitions;
-  const r = {
+  const r: FormatDateInfo = {
     year: !!(partPos.date & u_YEAR),
     month: !!(partPos.date & u_MONTH),
     day: !!(partPos.date & u_DAY),

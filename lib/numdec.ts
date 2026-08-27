@@ -1,15 +1,25 @@
 import { round } from './round.ts';
 
-const zero = {
+export type NumInfo = {
+  total: number,
+  sign: number,
+  digits: number,
+  period: number,
+  int: number,
+  frac: number
+};
+
+const zero: NumInfo = {
   total: 1,
   sign: 0,
+  digits: 1,
   period: 0,
   int: 1,
   frac: 0
 };
 
-// returns the count of digits (including - and .) need to represent the number
-export default function numdec (value, incl_sign = true) {
+// returns the count of digits (including - and .) needed to represent the number
+export default function numdec (value: number, incl_sign = true): NumInfo {
   const v = Math.abs(value);
 
   // shortcut zero

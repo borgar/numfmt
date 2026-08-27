@@ -3,7 +3,7 @@ import { format } from '../lib/index.ts';
 
 test('Errors', () => {
   // no more than a single text section
-  expect(() => format('@;@'), '@;@').toThrow();
+  expect(() => format('@;@', 0), '@;@').toThrow();
 });
 
 test('Repeated @ in same pattern', () => {

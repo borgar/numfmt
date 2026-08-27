@@ -18,5 +18,5 @@ test('Robust mode', () => {
   expect(format('y 0', 1, opts), 'format does not throw with "dddd, dd. mmmm yyy"').toBe('######');
 
   expect(formatColor('a;b;c;d;', 0, opts), 'formatColor does not throw').toBe(null);
-  expect(isDateFormat('a;b;c;d;', opts), 'isDateFormat does not throw').toBe(false);
+  expect(isDateFormat('a;b;c;d;'), 'isDateFormat does not throw').toBe(false);
 });

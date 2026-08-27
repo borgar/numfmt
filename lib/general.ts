@@ -1,14 +1,15 @@
+import type { LocaleData } from './locale.ts';
 import { getExponent, getSignificand } from './numberProps.ts';
 import numdec from './numdec.ts';
 import { round } from './round.ts';
 
-const fixLocale = (s, l10n) => {
+const fixLocale = (s: string, l10n: LocaleData): string => {
   return s.replace(/\./, l10n.decimal);
 };
 
-const getExp = (n, exp, l10n) => {
+const getExp = (n: number, exp: number, l10n: LocaleData): [ string, string, string, string, number ] => {
   const x = Math.abs(exp);
-  let m;
+  let m: number;
   if (n === 1) {
     m = n;
   }
@@ -24,59 +25,61 @@ const getExp = (n, exp, l10n) => {
   ];
 };
 
-export function general (ret, part, value, l10n) {
-  const int = value | 0;
-
+export function general (ret: (string | number)[], value: number | string, l10n: LocaleData) {
   if (typeof value === 'string') {
     // special case for: [<-25]General;[>25]General;General;General
     ret.push(value);
   }
-  else if (value === int) {
-    ret.push(Math.abs(int));
-  }
   else {
-    const v = Math.abs(value);
-    let exp = getExponent(v);
-    let n = getSignificand(v, exp);
-    if (n === 10) {
-      n = 1;
-      exp++;
-    }
-
-    // The application shall attempt to display the full number
-    // up to 11 digits (inc. decimal point).
-    const num_dig = numdec(v);
-    if (exp >= -4 && exp <= -1) {
-      const o = v.toPrecision(10 + exp).replace(/\.?0+$/, '');
-      ret.push(fixLocale(o, l10n));
-    }
-    else if (exp === 10) {
-      const o = v.toFixed(10)
-        .slice(0, 12)
-        .replace(/\.$/, '');
-      ret.push(fixLocale(o, l10n));
-    }
-    else if (Math.abs(exp) <= 9) {
-      if (num_dig.total <= 11) {
-        const o = round(v, 9).toFixed(num_dig.frac);
-        ret.push(fixLocale(o, l10n));
-      }
-      else if (exp === 9) {
-        ret.push(Math.floor(v));
-      }
-      else if (exp >= 0 && exp < 9) {
-        ret.push(fixLocale(String(round(v, 9 - exp)), l10n));
-      }
-      else {
-        ret.push(...getExp(n, exp, l10n));
-      }
-    }
-    else if (num_dig.total >= 12) {
-      ret.push(...getExp(n, exp, l10n));
+    const int = value | 0;
+    if (value === int) {
+      ret.push(Math.abs(int));
     }
     else {
-      ret.push(fixLocale(round(v, 9).toFixed(num_dig.frac), l10n));
+      const v = Math.abs(value);
+      let exp = getExponent(v);
+      let n = getSignificand(v, exp);
+      if (n === 10) {
+        n = 1;
+        exp++;
+      }
+
+      // The application shall attempt to display the full number
+      // up to 11 digits (inc. decimal point).
+      const num_dig = numdec(v);
+      if (exp >= -4 && exp <= -1) {
+        const o = v.toPrecision(10 + exp).replace(/\.?0+$/, '');
+        ret.push(fixLocale(o, l10n));
+      }
+      else if (exp === 10) {
+        const o = v.toFixed(10)
+          .slice(0, 12)
+          .replace(/\.$/, '');
+        ret.push(fixLocale(o, l10n));
+      }
+      else if (Math.abs(exp) <= 9) {
+        if (num_dig.total <= 11) {
+          const o = round(v, 9).toFixed(num_dig.frac);
+          ret.push(fixLocale(o, l10n));
+        }
+        else if (exp === 9) {
+          ret.push(Math.floor(v));
+        }
+        else if (exp >= 0 && exp < 9) {
+          ret.push(fixLocale(String(round(v, 9 - exp)), l10n));
+        }
+        else {
+          ret.push(...getExp(n, exp, l10n));
+        }
+      }
+      else if (num_dig.total >= 12) {
+        ret.push(...getExp(n, exp, l10n));
+      }
+      else {
+        ret.push(fixLocale(round(v, 9).toFixed(num_dig.frac), l10n));
+      }
     }
   }
+
   return ret;
 }
