@@ -988,7 +988,7 @@ A list of the names of the months of the year.
 ```ts
 type ParseDataBool = {
   v: boolean;
-  z?: string;
+  z?: never;
 };
 ```
 
@@ -999,7 +999,7 @@ Output from the boolean value parser.
 | Property | Type | Description |
 | ------ | ------ | ------ |
 | <a id="property-v"></a> `v` | `boolean` | A boolean value |
-| <a id="property-z"></a> `z?` | `string` | A number format pattern |
+| <a id="property-z"></a> `z?` | `never` | A number format pattern |
 
 
 <a name="type-aliasesparsedatanummd"></a>

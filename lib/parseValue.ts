@@ -19,7 +19,7 @@ export type ParseDataBool = {
   /** A boolean value */
   v: boolean;
   /** A number format pattern */
-  z?: string;
+  z?: never;
 };
 
 type LData = {
