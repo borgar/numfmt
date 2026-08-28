@@ -52,6 +52,8 @@ import type { Partition } from './types.ts';
 import type { FormatOptions } from './options.ts';
 
 const DAYSIZE = 86400;
+const CHAR_0 = 48;
+const CHAR_9 = 57;
 
 const dateOverflows = (inputValue: number, roundedValue: number, bigRange: boolean) => {
   if (bigRange) {
@@ -266,38 +268,27 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
     const tok = part.tokens[ti];
     const tokenType = tok.type;
     const len = 'num' in tok ? tok.num.length : 0;
-
     if (tokenType === TOKEN_STRING) {
       // special rules may apply if next or prev is numerator or denominator
-      if (tok.rule) {
-        if (tok.rule === 'num') {
-          if (have_fraction) {
-            ret.push(tok.value.replace(/ /g, padQ));
-          }
-          else if (part.num_min > 0 || part.den_min > 0) {
-            // FIXME: ret.push(''.repeat(tok.value.length))
-            ret.push(tok.value.replace(/./g, padQ));
-          }
+      const rule = tok.rule;
+      if (rule) {
+        if (
+          (rule === 'num' && have_fraction) ||
+          (rule === 'num+int' && have_fraction && integer) ||
+          (rule === 'den' && have_fraction)
+        ) {
+          ret.push(tok.value.replaceAll(' ', padQ));
         }
-        else if (tok.rule === 'num+int') {
-          if (have_fraction && integer) {
-            ret.push(tok.value.replace(/ /g, padQ));
-          }
-          else if ((part.den_min > 0) && (integer || part.num_min)) {
-            ret.push(tok.value.replace(/./g, padQ));
-          }
-        }
-        else if (tok.rule === 'den') {
-          if (have_fraction) {
-            ret.push(tok.value.replace(/ /g, padQ));
-          }
-          else if (part.den_min > 0 || part.den_min > 0) {
-            ret.push(tok.value.replace(/./g, padQ));
-          }
+        else if (
+          (rule === 'num' && part.num_min > 0 || part.den_min > 0) ||
+          (rule === 'num+int' && part.den_min > 0 && (integer || part.num_min)) ||
+          (rule === 'den' && part.den_min > 0 || part.den_min > 0)
+        ) {
+          ret.push(padQ.repeat(tok.value.length));
         }
       }
       else {
-        ret.push(tok.value.replace(/ /g, padQ));
+        ret.push(tok.value.replaceAll(' ', padQ));
       }
     }
     else if (tokenType === TOKEN_SPACE) {
@@ -429,25 +420,21 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
       for (let i = 0; i < len; i++) {
         let digit = denominator[i + o];
         if (!digit) {
-          // XXX: use charCodes
-          const ch = tok.num[i];
-          if (
-            '123456789'.includes(ch) ||
-            (denominator_fixed && ch === '0')
-          ) {
+          const c = tok.num.charCodeAt(i);
+          if ((c > CHAR_0 && c <= CHAR_9) || (denominator_fixed && c === CHAR_0)) {
             denominator_fixed = true;
             digit = opts.nbsp ? '\u00a0' : ' ';
           }
           else if (
             !denominator_fixed &&
             (i === len - 1) &&
-            ch === '0' &&
+            c === CHAR_0 &&
             !denominator
           ) {
             digit = '1';
           }
           else {
-            digit = pad(ch, opts.nbsp);
+            digit = pad(tok.num[i], opts.nbsp);
           }
         }
         ret.push(digit);

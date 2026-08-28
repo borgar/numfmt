@@ -113,19 +113,15 @@ export function info (partitions: Partition[], currencyId?: string): FormatInfo 
     // So:  "mmm dd yyyy" matches "mdy" = D4
     // But: "mmm dd dd yyyy" matches "md" = D5
     partPos.tokens.forEach(tok => {
-      // XXX: can we not detemine this by token.date && token.size?
       const type = tok.type;
-      // 'year' || 'year-short' || 'b-year' || 'b-year-short'
       if (type === T_TYPE_YEAR || type === T_TYPE_YEAR_S || type === T_TYPE_B_YEAR || type === T_TYPE_B_YEAR_S) {
         order += 'Y';
         haveDate++;
       }
-      // 'month' || 'monthname-single' || 'monthname-short' || 'monthname'
       else if (type === T_TYPE_MON || type === T_TYPE_MNAME || type === T_TYPE_MNAME_S || type === T_TYPE_MNAME_1) {
         order += 'M';
         haveDate++;
       }
-      // 'weekday-short' || 'weekday' || 'day'
       else if (type === T_TYPE_WEEKDAY || type === T_TYPE_WEEKDAY_S || type === T_TYPE_DAY) {
         order += 'D';
         haveDate++;

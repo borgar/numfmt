@@ -11,6 +11,5 @@ export function pad (c: string, nbsp = false): string {
   else if (c === '?') {
     return nbsp ? '\u00a0' : ' ';
   }
-  // if (c === '#')
   return '';
 }
