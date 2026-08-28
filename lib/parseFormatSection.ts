@@ -321,10 +321,16 @@ export function parseFormatSection (inputTokens: Token[]) {
 
     // condition
     else if (type === TOKEN_CONDITION) {
-      part.condition = [
-        token.value[0], // operator
-        parseFloat(token.value[1]) // operand
-      ];
+      const parts = /^(<[=>]?|>=?|=)\s*(-?[.\d]+)$/.exec(token.value);
+      if (parts) {
+        part.condition = [
+          parts[1], // operator
+          parseFloat(parts[2]) // operand
+        ];
+      }
+      else {
+        throw new Error('Invalid condition: ' + token.value);
+      }
     }
 
     // locale code -- we extend to allow std. "en-US" style codes
@@ -355,11 +361,13 @@ export function parseFormatSection (inputTokens: Token[]) {
     // color
     else if (type === TOKEN_COLOR) {
       let cm: RegExpExecArray | null;
-      let v = token.value.toLowerCase();
+      const v = token.value.toLowerCase();
       if ((cm = /^color\s*(\d+)$/i.exec(v))) {
-        v = parseInt(cm[1], 10);
+        part.color = parseInt(cm[1], 10);
       }
-      part.color = v;
+      else {
+        part.color = v;
+      }
     }
 
     // percentage

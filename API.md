@@ -1031,7 +1031,7 @@ Output from a number or date value parser.
 type Token = {
   raw: string;
   type: TokenType;
-  value: any;
+  value: string;
 };
 ```
 
@@ -1043,7 +1043,7 @@ A token emitted by the tokenizer.
 | ------ | ------ | ------ |
 | <a id="property-raw"></a> `raw` | `string` | Raw token source. |
 | <a id="property-type"></a> `type` | [`TokenType`](#type-aliasestokentypemd) | Token type. |
-| <a id="property-value"></a> `value` | `any` | The value of the token, cleaned of extra characters. |
+| <a id="property-value"></a> `value` | `string` | The value of the token, cleaned of extra characters. |
 
 
 <a name="type-aliasestokentypemd"></a>

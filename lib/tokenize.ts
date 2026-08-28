@@ -8,7 +8,7 @@ import {
 } from './constants.ts';
 import type { Token, TokenType } from './types.ts';
 
-const tokenHandlers: [ TokenType, RegExp, 0 | 1 | number[] ][] = [
+const tokenHandlers: [ TokenType, RegExp, number ][] = [
   [ TOKEN_GENERAL, /^General/i, 0 ],
   [ TOKEN_HASH, /^#/, 0 ],
   [ TOKEN_ZERO, /^0/, 0 ],
@@ -31,7 +31,7 @@ const tokenHandlers: [ TokenType, RegExp, 0 | 1 | number[] ][] = [
   [ TOKEN_ERROR, /^B$/, 0 ], // pattern must not end in a "B"
   [ TOKEN_DATETIME, /^(?:[hH]+|[mM]+|[sS]+|[yY]+|[bB]+|[dD]+|[gG]+|[aA]{3,}|e+)/, 0 ],
   [ TOKEN_DURATION, /^(?:\[(h+|m+|s+)\])/i, 1 ],
-  [ TOKEN_CONDITION, /^\[(<[=>]?|>=?|=)\s*(-?[.\d]+)\]/, [ 1, 2 ] ],
+  [ TOKEN_CONDITION, /^\[((?:<[=>]?|>=?|=)\s*(?:-?[.\d]+))\]/, 1 ],
   [ TOKEN_DBNUM, /^\[(DBNum[0-4]?\d)\]/i, 1 ],
   [ TOKEN_NATNUM, /^\[(NatNum[0-4]?\d)\]/i, 1 ],
   [ TOKEN_LOCALE, /^\[\$([^\]]+)\]/, 1 ],
@@ -133,10 +133,7 @@ export function tokenize (pattern: string): Token[] {
       for (const [ type, expr, group ] of tokenHandlers) {
         const m = expr.exec(curr);
         if (m) {
-          const value = Array.isArray(group)
-            ? group.map(d => m[d])
-            : m[group || 0];
-          token = { type, value, raw: m[0] };
+          token = { type, value: m[group || 0], raw: m[0] };
           tokens.push(token);
           step = m[0].length;
           break;

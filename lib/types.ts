@@ -69,7 +69,7 @@ export type Token = {
   /** Token type. */
   type: TokenType,
   /** The value of the token, cleaned of extra characters. */
-  value: any,
+  value: string,
   /** Raw token source. */
   raw: string,
 };
@@ -126,7 +126,7 @@ export type SectionType =
 export type Partition = {
   generated?: boolean,
   clock: 12 | 24,
-  color?: number,
+  color?: number | string,
   condition?: [ string, number ],
   date: number,
   den_min: number,
