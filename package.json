@@ -4,7 +4,7 @@
   "author": "Borgar Þorsteinsson <borgar@borgar.net>",
   "version": "3.2.6",
   "scripts": {
-    "build": "NODE_ENV=production rollup -c",
+    "build": "NODE_ENV=production tsdown",
     "build:all": "npm run build && npm run docs",
     "docs": "typedoc && concat-md tempdocs > API.md && rm -rf tempdocs",
     "check": "npm run test && npm run lint && npm run typecheck",
@@ -14,16 +14,30 @@
     "test-all": "vitest run",
     "typecheck": "tsc --noEmit"
   },
-  "main": "dist/numfmt.js",
-  "types": "dist/numfmt.d.ts",
-  "module": "lib/index.ts",
+  "main": "dist/index.cjs",
+  "types": "dist/index.d.cts",
+  "module": "dist/index.js",
   "exports": {
     ".": {
-      "require": "./dist/numfmt.js",
-      "types": "./dist/numfmt.d.ts",
-      "default": "./lib/index.ts"
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.cts",
+      "default": "./dist/index.js"
     }
   },
+  "files": [
+    "dist",
+    "API.md",
+    "LICENSE",
+    "README.md"
+  ],
+  "tsdown": [
+    {
+      "entry": [ "lib/index.ts" ],
+      "platform": "neutral",
+      "format": [ "esm", "cjs" ],
+      "sourcemap": true
+    }
+  ],
   "preferGlobal": false,
   "repository": {
     "type": "git",
@@ -39,25 +53,21 @@
     "xls",
     "xlsx",
     "number",
+    "numberformat",
     "date",
     "format",
     "formatter"
   ],
   "license": "MIT",
   "devDependencies": {
-    "@babel/core": "^7.29.7",
-    "@babel/preset-env": "~7.29.7",
     "@borgar/eslint-config": "~4.1.0",
     "@eslint/js": "~10.0.1",
-    "@rollup/plugin-babel": "~7.1.0",
-    "@rollup/plugin-terser": "~1.0.0",
     "@types/node": "~26.3.0",
     "concat-md": "~0.5.1",
     "eslint": "~10.9.1",
     "globals": "~17.11.0",
-    "jsdoc": "~4.0.5",
-    "rollup": "~4.62.5",
     "typedoc": "~0.28.20",
+    "tsdown": "~0.22.14",
     "typedoc-plugin-markdown": "~4.12.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "~8.68.0",
