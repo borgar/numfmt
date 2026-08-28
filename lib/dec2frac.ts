@@ -5,10 +5,9 @@ const PRECISION = 1e-13;
  * Split a fractional number into a numerator and denominator for display as
  * vulgar fractions.
  *
- * @internal
  * @param number The value to split
- * @param [numeratorMaxDigits=2] The maxdigits number
- * @param [denominatorMaxDigits=2] The maxdigits de
+ * @param [numeratorMaxDigits=2] Maximum digits the numerator may have.
+ * @param [denominatorMaxDigits=2] Maximum digits the denominator may have.
  * @returns Tuple of two numbers, numerator and denominator.
  */
 export function dec2frac (

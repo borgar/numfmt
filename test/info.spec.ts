@@ -33,7 +33,7 @@ function assertDateInfo (fmtString: string, expectProps: object) {
     .toEqual({ ...commonDateProps, ...expectProps });
 }
 
-test('numfmt.info', () => {
+test('getFormatInfo', () => {
   const i1 = { ...getFormatInfo('0') };
   expect(typeof i1, 'getFormatInfo emits object').toBe('object');
   expect(i1, 'numfmt.info object is what we expect').toEqual({

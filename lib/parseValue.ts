@@ -160,7 +160,7 @@ const isDigit = (d: string) => d?.length === 1 && d >= '0' && d <= '9';
 
 /**
  * Parse a numeric string input and return its value and format. If the input
- * was not recognized or valid, the function returns a `undefined`, for valid input
+ * was not recognized or valid, the function returns an `undefined`, for valid input
  * it returns an object with two properties:
  *
  * * `v`: the parsed value.
@@ -568,13 +568,13 @@ const normAMPMStr = (s: string): string => (
 
 /**
  * Parse a time string input and return its value and format. If the input was
- * not recognized or valid, the function returns a `undefined`, for valid input it
+ * not recognized or valid, the function returns an `undefined`, for valid input it
  * returns an object with two properties:
  *
  * - `v`: the parsed value.
  * - `z`: the number format of the input (if applicable).
  *
- * @param value The date to parse
+ * @param value The string to parse
  * @param [options]  Options for the parser
  * @param [options.locale]
  *    A BCP 47 string tag. Locale default is english with a `\u00a0`
@@ -662,7 +662,7 @@ export function parseTime (value: string, options: { locale?: string; } = {}): P
  * @param [options.locale]
  *    A BCP 47 string tag. Locale default is english with a `\u00a0`
  *    grouping symbol (see [addLocale](#addLocale))
- * @returns An object of the parsed value and a corresponding format string
+ * @returns An object of the parsed value
  */
 export function parseBool (value: string, options: { locale?: string; } = {}): ParseDataBool | undefined {
   const l10n = getLocale(options.locale || '') || defaultLocale;

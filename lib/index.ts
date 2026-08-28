@@ -12,12 +12,14 @@ import { TOKEN_ERROR } from './constants.ts';
 export {
   getLocale,
   parseLocale,
-  addLocale
+  addLocale,
+  listLocales
 } from './locale.ts';
 
 import { defaultOptions, type FormatOptions } from './options.ts';
 
 export { round } from './round.ts';
+export { dec2frac } from './dec2frac.ts';
 export type { FormatOptions } from './options.ts';
 export type { ParseDataBool, ParseDataNum } from './parseValue.ts';
 export type {
@@ -29,7 +31,7 @@ export type {
 /**
  * @ignore
  */
-export type {
+export {
   TOKEN_GENERAL, TOKEN_HASH, TOKEN_ZERO, TOKEN_QMARK, TOKEN_SLASH, TOKEN_GROUP, TOKEN_SCALE, TOKEN_COMMA, TOKEN_BREAK,
   TOKEN_TEXT, TOKEN_PLUS, TOKEN_MINUS, TOKEN_POINT, TOKEN_SPACE, TOKEN_PERCENT, TOKEN_DIGIT, TOKEN_CALENDAR,
   TOKEN_ERROR, TOKEN_DATETIME, TOKEN_DURATION, TOKEN_CONDITION, TOKEN_DBNUM, TOKEN_NATNUM, TOKEN_LOCALE, TOKEN_COLOR,
@@ -39,7 +41,7 @@ export type {
 import { dateToSerial as handleDates } from './serialDate.ts';
 export { dateToSerial, dateFromSerial } from './serialDate.ts';
 
-export type { LocaleData, LocaleToken } from './locale.ts';
+export type { LocaleData, LocaleToken, MonthNames, DayNames } from './locale.ts';
 
 export {
   parseNumber,
@@ -52,19 +54,21 @@ export {
 import { formatColor as fmtColor, formatValue as fmtValue } from './formatNumber.ts';
 import { info, dateInfo, isDate, isPercent, isText } from './formatInfo.ts';
 import { parsePattern } from './parsePattern.ts';
-import type { FormatDateInfo, FormatInfo } from './types.ts';
+import type { FormatDateInfo, FormatInfo, PatternParseData } from './types.ts';
+import { createPartition } from './createPartition.ts';
 
 export { tokenize } from './tokenize.ts';
 
-const _parseDataCache = Object.create({});
-function prepareFormatterData (pattern: string, shouldThrow = false) {
+type CacheData = PatternParseData & { dateInfo?: FormatDateInfo, info?: FormatInfo };
+const _parseDataCache = new Map<string, CacheData>();
+function prepareFormatterData (pattern: string, shouldThrow = false): CacheData {
   if (!pattern) { pattern = 'General'; }
 
-  let parseData = _parseDataCache[pattern];
+  let parseData = _parseDataCache.get(pattern);
   if (!parseData) {
     try {
       parseData = parsePattern(pattern);
-      _parseDataCache[pattern] = parseData;
+      _parseDataCache.set(pattern, parseData);
     }
     catch (err) {
       // if the options say to throw errors, then do so
@@ -72,16 +76,14 @@ function prepareFormatterData (pattern: string, shouldThrow = false) {
         throw err;
       }
       // else we set the parsedata to error
-      const message = err && typeof err === 'object' && 'message' in err ? err.message : 'Unknown error';
-      const errPart = {
-        tokens: [ { type: TOKEN_ERROR } ],
-        error: message
-      };
+      const message = err && typeof err === 'object' && 'message' in err ? String(err.message) : 'Unknown error';
+      const errPart = createPartition([ { type: TOKEN_ERROR } ]);
+      errPart.error = true;
       parseData = {
         pattern: pattern,
         partitions: [ errPart, errPart, errPart, errPart ],
         error: message,
-        locale: null
+        locale: undefined
       };
     }
   }
@@ -92,7 +94,8 @@ function prepareFormatterData (pattern: string, shouldThrow = false) {
  * Formats a value as a string and returns the result.
  *
  * - Dates are normalized to spreadsheet style serial dates and then formatted.
- * - Booleans are emitted as uppercase `TRUE` or `FALSE`.
+ * - Booleans are emitted as uppercase `TRUE` or `FALSE` by default, but will
+ *   be subject to locale (see {@link LocaleData}).
  * - `null` and `undefined` will return an empty string `""`.
  * - Any non number values will be stringified and passed through the text section of the format pattern.
  * - `NaN`s and `Infinite`s will use the corresponding strings from the active locale.
@@ -133,7 +136,7 @@ export function format (
  * @param [options.throws=true]
  *    Should the formatter throw an error if a provided pattern is invalid.
  *    If false, a formatter will be constructed which instead outputs an error
- *    string (see _invalid_ in this table).
+ *    string (see _invalid_ in {@link FormatOptions}).
  *    `true` by default.
  * @param [options.ignoreTimezone=false]
  *    Normally when date objects are used with the formatter, time zone is taken
@@ -152,6 +155,7 @@ export function format (
 export function formatColor (
   pattern: string,
   value: any,
+  // XXX: use Pick<FormatOptions, 'throws' | 'ignoreTimezone' | 'indexColors'> ?
   options?: {
     throws?: boolean;
     ignoreTimezone?: boolean;
@@ -172,7 +176,7 @@ export function formatColor (
  * _either_ a number or date format.
  *
  * @param pattern A format pattern in the ECMA-376 number format.
- * @returns True if the specified pattern is date pattern, False otherwise.
+ * @returns True if the specified pattern is a date pattern, False otherwise.
  */
 export function isDateFormat (pattern: string): boolean {
   const data = prepareFormatterData(pattern, false);
@@ -186,7 +190,7 @@ export function isDateFormat (pattern: string): boolean {
  * contains an unescaped percentage symbol.
  *
  * @param pattern A format pattern in the ECMA-376 number format.
- * @returns True if the specified pattern is date pattern, False otherwise.
+ * @returns True if the specified pattern is a percent pattern, False otherwise.
  */
 export function isPercentFormat (pattern: string): boolean {
   const data = prepareFormatterData(pattern, false);
@@ -202,7 +206,7 @@ export function isPercentFormat (pattern: string): boolean {
  * For example `@` or `@" USD"` are text patterns but `#;@` is not.
  *
  * @param pattern A format pattern in the ECMA-376 number format.
- * @returns True if the specified pattern is date pattern, False otherwise.
+ * @returns True if the specified pattern is a text pattern, False otherwise.
  */
 export function isTextFormat (pattern: string): boolean {
   const data = prepareFormatterData(pattern, false);
@@ -229,6 +233,9 @@ export function isValidFormat (pattern: string): boolean {
  * Returns an object detailing the properties and internals of a format parsed
  * format pattern.
  *
+ * Note that output will always be a format info, even in the case where the
+ * format pattern is invalid and would cause the formatter to throw.
+ *
  * @param pattern A format pattern in the ECMA-376 number format.
  * @param [options={}]  Options for the method
  * @param [options.currency]
@@ -247,6 +254,9 @@ export function getFormatInfo (pattern: string, options: { currency?: string; } 
 
 /**
  * Gets information about how date codes are used in a format string.
+ *
+ * Note that output will always be a format info, even in the case where the
+ * format pattern is invalid and would cause the formatter to throw.
  *
  * @param pattern A format pattern in the ECMA-376 number format.
  * @returns An object of format date properties.

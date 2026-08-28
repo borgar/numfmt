@@ -9,11 +9,13 @@ software does.
 
 ## Type Aliases
 
+- [DayNames](#type-aliasesdaynamesmd)
 - [FormatDateInfo](#type-aliasesformatdateinfomd)
 - [FormatInfo](#type-aliasesformatinfomd)
 - [FormatOptions](#type-aliasesformatoptionsmd)
 - [LocaleData](#type-aliaseslocaledatamd)
 - [LocaleToken](#type-aliaseslocaletokenmd)
+- [MonthNames](#type-aliasesmonthnamesmd)
 - [ParseDataBool](#type-aliasesparsedataboolmd)
 - [ParseDataNum](#type-aliasesparsedatanummd)
 - [Token](#type-aliasestokenmd)
@@ -24,6 +26,7 @@ software does.
 - [addLocale](#functionsaddlocalemd)
 - [dateFromSerial](#functionsdatefromserialmd)
 - [dateToSerial](#functionsdatetoserialmd)
+- [dec2frac](#functionsdec2fracmd)
 - [format](#functionsformatmd)
 - [formatColor](#functionsformatcolormd)
 - [getFormatDateInfo](#functionsgetformatdateinfomd)
@@ -33,6 +36,7 @@ software does.
 - [isPercentFormat](#functionsispercentformatmd)
 - [isTextFormat](#functionsistextformatmd)
 - [isValidFormat](#functionsisvalidformatmd)
+- [listLocales](#functionslistlocalesmd)
 - [parseBool](#functionsparseboolmd)
 - [parseDate](#functionsparsedatemd)
 - [parseLocale](#functionsparselocalemd)
@@ -48,19 +52,19 @@ software does.
 # addLocale()
 
 ```ts
-function addLocale(localeSettings: Partial<LocaleData>, l4e: string): LocaleData;
+function addLocale(localeSettings: Partial<LocaleData>, l4e: string | LocaleToken): LocaleData;
 ```
 
 Register locale data for a language to use when formatting.
 
-Any partial set of properties may be returned to have the defaults used where properties are missing.
+Any partial set of properties may be provided to have the defaults used where properties are missing.
 
 ## Parameters
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
 | `localeSettings` | `Partial`\<[`LocaleData`](#type-aliaseslocaledatamd)\> | A collection of settings for a locale. |
-| `l4e` | `string` | A string BCP 47 tag of the locale. |
+| `l4e` | `string` \| [`LocaleToken`](#type-aliaseslocaletokenmd) | A string BCP 47 tag of the locale. |
 
 ## Returns
 
@@ -99,7 +103,7 @@ dateFromSerial(28627); // [ 1978, 5, 17, 0, 0, 0 ]
 
 \[`number`, `number`, `number`, `number`, `number`, `number`\]
 
-returns an array of date parts with parts in descending order: [ year, month, day, hour, minute, second ]
+An array of date parts with parts in descending order: [ year, month, day, hour, minute, second ]
 
 
 <a name="functionsdatetoserialmd"></a>
@@ -115,7 +119,7 @@ function dateToSerial(date: number[] | Date, options?: {
 Convert a native JavaScript Date, or an array of date parts to an spreadsheet serial date.
 
 Returns a serial date number if input was a Date object or an array of
-numbers, else a null.
+numbers, else an undefined.
 
 ```js
 // input as Date
@@ -123,7 +127,7 @@ dateToSerial(new Date(1978, 5, 17)); // 28627
 // input as [ Y, M, D, h, m, s ]
 dateToSerial([ 1978, 5, 17 ]); // 28627
 // other input
-dateToSerial("something else"); // null
+dateToSerial("something else"); // undefined
 ```
 
 ## Parameters
@@ -141,6 +145,35 @@ dateToSerial("something else"); // null
 The date as a spreadsheet serial date, or undefined.
 
 
+<a name="functionsdec2fracmd"></a>
+
+# dec2frac()
+
+```ts
+function dec2frac(
+   number: number, 
+   numeratorMaxDigits?: number, 
+   denominatorMaxDigits?: number): [number, number];
+```
+
+Split a fractional number into a numerator and denominator for display as
+vulgar fractions.
+
+## Parameters
+
+| Parameter | Type | Default value | Description |
+| ------ | ------ | ------ | ------ |
+| `number` | `number` | `undefined` | The value to split |
+| `numeratorMaxDigits?` | `number` | `2` | Maximum digits the numerator may have. |
+| `denominatorMaxDigits?` | `number` | `2` | Maximum digits the denominator may have. |
+
+## Returns
+
+\[`number`, `number`\]
+
+Tuple of two numbers, numerator and denominator.
+
+
 <a name="functionsformatmd"></a>
 
 # format()
@@ -155,7 +188,8 @@ function format(
 Formats a value as a string and returns the result.
 
 - Dates are normalized to spreadsheet style serial dates and then formatted.
-- Booleans are emitted as uppercase `TRUE` or `FALSE`.
+- Booleans are emitted as uppercase `TRUE` or `FALSE` by default, but will
+  be subject to locale (see [LocaleData](#type-aliaseslocaledatamd)).
 - `null` and `undefined` will return an empty string `""`.
 - Any non number values will be stringified and passed through the text section of the format pattern.
 - `NaN`s and `Infinite`s will use the corresponding strings from the active locale.
@@ -211,7 +245,7 @@ console.log(color); // undefined
 | `options?` | \{ `ignoreTimezone?`: `boolean`; `indexColors?`: `boolean`; `throws?`: `boolean`; \} | Formatter options |
 | `options.ignoreTimezone?` | `boolean` | Normally when date objects are used with the formatter, time zone is taken into account. This makes the formatter ignore the timezone offset. `false` by default. |
 | `options.indexColors?` | `boolean` | When indexed color modifiers are used (`[Color 1]`) the formatter will convert the index into the corresponding hex color of the default palette. When this option is set to false, the number will instead by emitted allowing you to index against a custom palette. `true` by default. |
-| `options.throws?` | `boolean` | Should the formatter throw an error if a provided pattern is invalid. If false, a formatter will be constructed which instead outputs an error string (see _invalid_ in this table). `true` by default. |
+| `options.throws?` | `boolean` | Should the formatter throw an error if a provided pattern is invalid. If false, a formatter will be constructed which instead outputs an error string (see _invalid_ in [FormatOptions](#type-aliasesformatoptionsmd)). `true` by default. |
 
 ## Returns
 
@@ -230,6 +264,9 @@ function getFormatDateInfo(pattern: string): FormatDateInfo;
 ```
 
 Gets information about how date codes are used in a format string.
+
+Note that output will always be a format info, even in the case where the
+format pattern is invalid and would cause the formatter to throw.
 
 ## Parameters
 
@@ -256,6 +293,9 @@ function getFormatInfo(pattern: string, options?: {
 
 Returns an object detailing the properties and internals of a format parsed
 format pattern.
+
+Note that output will always be a format info, even in the case where the
+format pattern is invalid and would cause the formatter to throw.
 
 ## Parameters
 
@@ -295,7 +335,11 @@ returns `undefined`.
 
 [`LocaleData`](#type-aliaseslocaledatamd) \| `undefined`
 
-An object of format date properties if one was found.
+An object of locale properties if one was found.
+
+## Throws
+
+If the locale tag is invalid.
 
 
 <a name="functionsisdateformatmd"></a>
@@ -322,7 +366,7 @@ _either_ a number or date format.
 
 `boolean`
 
-True if the specified pattern is date pattern, False otherwise.
+True if the specified pattern is a date pattern, False otherwise.
 
 
 <a name="functionsispercentformatmd"></a>
@@ -348,7 +392,7 @@ contains an unescaped percentage symbol.
 
 `boolean`
 
-True if the specified pattern is date pattern, False otherwise.
+True if the specified pattern is a percent pattern, False otherwise.
 
 
 <a name="functionsistextformatmd"></a>
@@ -376,7 +420,7 @@ For example `@` or `@" USD"` are text patterns but `#;@` is not.
 
 `boolean`
 
-True if the specified pattern is date pattern, False otherwise.
+True if the specified pattern is a text pattern, False otherwise.
 
 
 <a name="functionsisvalidformatmd"></a>
@@ -400,6 +444,23 @@ Determine if a given format pattern is valid.
 `boolean`
 
 True if the specified pattern is valid, False otherwise.
+
+
+<a name="functionslistlocalesmd"></a>
+
+# listLocales()
+
+```ts
+function listLocales(): string[];
+```
+
+Get a list of locales that are registered with the formatter.
+
+## Returns
+
+`string`[]
+
+A list of locale tags
 
 
 <a name="functionsparseboolmd"></a>
@@ -430,7 +491,7 @@ returns an object with a single property:
 
 [`ParseDataBool`](#type-aliasesparsedataboolmd) \| `undefined`
 
-An object of the parsed value and a corresponding format string
+An object of the parsed value
 
 
 <a name="functionsparsedatemd"></a>
@@ -488,6 +549,10 @@ Irregular tags and subtags are not supported.
 
 An object describing the locale.
 
+## Throws
+
+If the locale tag is invalid.
+
 
 <a name="functionsparsenumbermd"></a>
 
@@ -500,7 +565,7 @@ function parseNumber(value: string, options?: {
 ```
 
 Parse a numeric string input and return its value and format. If the input
-was not recognized or valid, the function returns a `undefined`, for valid input
+was not recognized or valid, the function returns an `undefined`, for valid input
 it returns an object with two properties:
 
 * `v`: the parsed value.
@@ -532,7 +597,7 @@ function parseTime(value: string, options?: {
 ```
 
 Parse a time string input and return its value and format. If the input was
-not recognized or valid, the function returns a `undefined`, for valid input it
+not recognized or valid, the function returns an `undefined`, for valid input it
 returns an object with two properties:
 
 - `v`: the parsed value.
@@ -542,7 +607,7 @@ returns an object with two properties:
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `value` | `string` | The date to parse |
+| `value` | `string` | The string to parse |
 | `options?` | \{ `locale?`: `string`; \} | Options for the parser |
 | `options.locale?` | `string` | A BCP 47 string tag. Locale default is english with a `\u00a0` grouping symbol (see [addLocale](#addLocale)) |
 
@@ -686,6 +751,17 @@ The returned output will be an array of objects representing the tokens:
 A list of tokens
 
 
+<a name="type-aliasesdaynamesmd"></a>
+
+# DayNames
+
+```ts
+type DayNames = [string, string, string, string, string, string, string];
+```
+
+A list of the names of the days of the week, starting with Sunday.
+
+
 <a name="type-aliasesformatdateinfomd"></a>
 
 # FormatDateInfo
@@ -804,7 +880,7 @@ Options that control the behavior of the formatter.
 | <a id="property-dateerrorthrows"></a> `dateErrorThrows` | `boolean` | Should the formatter throw an error when trying to format a date that is out of bounds? **Default** `false` |
 | <a id="property-datespanlarge"></a> `dateSpanLarge` | `boolean` | Extends the allowed range of dates from Excel bounds (1900–9999) to Google Sheet bounds (0–99999). **Default** `true` |
 | <a id="property-fillchar"></a> `fillChar` | `string` | When the formatter encounters `*` it normally emits nothing instead of the `*` and the next character (like Excel TEXT function does). Setting this to a character will make the formatter emit that followed by the next one. **Default** `''` |
-| <a id="property-grouping"></a> `grouping` | \[`number`, `number`\] \| \[`number`\] | Integer grouping sizes. You may desire to emit numbers in standards other than the common 3 digits per group (e.g. "123,456,789"). The first grouping size is used for the least significant integer group, and the second grouping size is used for more significant groups (e.g. `[3, 2]` => "12,34,56,789"). **Default** `[ 3 ]` |
+| <a id="property-grouping"></a> `grouping` | \[`number`, `number`\] \| \[`number`\] | Integer grouping sizes. You may desire to emit numbers in standards other than the common 3 digits per group (e.g. "123,456,789"). The first grouping size is used for the least significant integer group, and the second grouping size is used for more significant groups (e.g. `[3, 2]` => "12,34,56,789"). **Default** `[ 3, 3 ]` |
 | <a id="property-ignoretimezone"></a> `ignoreTimezone` | `boolean` | Normally when date objects are used with the formatter, time zone is taken into account and the date is adjusted into UTC. This option makes the formatter ignore the timezone offset. **Default** `false` |
 | <a id="property-indexcolors"></a> `indexColors` | `boolean` | Automatically resolve indexed colors to hex when outputting colors (red => #f00); When indexed color modifiers are used (`[Color 1]`) the formatter will convert the index into the corresponding hex color of the default palette. When this option is set to false, the number will instead by emitted allowing you to index against a custom palette. **Default** `true` |
 | <a id="property-invalid"></a> `invalid` | `string` | The string emitted when formatter fails to parse a pattern and has been instructed not to throw an error. **Default** `'######'` |
@@ -813,7 +889,7 @@ Options that control the behavior of the formatter.
 | <a id="property-nbsp"></a> `nbsp` | `boolean` | Emit regular vs. non-breaking spaces. By default the output will use a regular space, but in many cases you may desire a non-breaking-space instead. **Default** `false` |
 | <a id="property-overflow"></a> `overflow` | `string` | The string emitted when a formatter fails to format a date that is out of bounds. Both `dateErrorThrows` and `dateErrorNumber` override this setting. **Default** `'######'` |
 | <a id="property-skipchar"></a> `skipChar` | `string` | When the formatter encounters `_` it normally emits a single space instead of the `_` and the next character (like Excel TEXT function does). Setting this to a character will make the formatter emit that followed by the next one. **Default** `''` |
-| <a id="property-throws"></a> `throws` | `boolean` | Should the formatter throw an error if a provided pattern is invalid. If false, a formatter will be constructed which instead outputs an error string (see _invalid_ in this table). **Default** `true` |
+| <a id="property-throws"></a> `throws` | `boolean` | Should the formatter throw an error if a provided pattern is invalid. If false, a formatter will be constructed which instead outputs an error string (see _invalid_ in this type). **Default** `true` |
 
 
 <a name="type-aliaseslocaledatamd"></a>
@@ -822,18 +898,18 @@ Options that control the behavior of the formatter.
 
 ```ts
 type LocaleData = {
-  ampm: string[];
-  bool: string[];
-  ddd: string[];
-  dddd: string[];
+  ampm: [string, string];
+  bool: [string, string];
+  ddd: DayNames;
+  dddd: DayNames;
   decimal: string;
   exponent: string;
   group: string;
   infinity: string;
-  mmm: string[];
-  mmm6: string[];
-  mmmm: string[];
-  mmmm6: string[];
+  mmm: MonthNames;
+  mmm6: MonthNames;
+  mmmm: MonthNames;
+  mmmm6: MonthNames;
   nan: string;
   negative: string;
   percent: string;
@@ -848,23 +924,23 @@ An object of properties used by a formatter when printing a number in a certain 
 
 | Property | Type | Description |
 | ------ | ------ | ------ |
-| <a id="property-ampm"></a> `ampm` | `string`[] | How AM and PM should be presented |
-| <a id="property-bool"></a> `bool` | `string`[] | How TRUE and FALSE should be presented |
-| <a id="property-ddd"></a> `ddd` | `string`[] | Shortened day names (`Wed`) |
-| <a id="property-dddd"></a> `dddd` | `string`[] | Long day names (`Wednesday`) |
-| <a id="property-decimal"></a> `decimal` | `string` | Symbol used to separate integers from fractions (usually `.`) |
-| <a id="property-exponent"></a> `exponent` | `string` | Symbol used to indicate an exponent (usually `E`) |
-| <a id="property-group"></a> `group` | `string` | Symbol used as a grouping separator (`1,000,000` uses `,`) |
-| <a id="property-infinity"></a> `infinity` | `string` | Symbol used to indicate infinite values (`∞`) |
-| <a id="property-mmm"></a> `mmm` | `string`[] | Short month names for the Gregorian calendar (`Nov`) |
-| <a id="property-mmm6"></a> `mmm6` | `string`[] | Short month names for the Islamic calendar (`Raj.`) |
-| <a id="property-mmmm"></a> `mmmm` | `string`[] | Long month names for the Gregorian calendar (`November`) |
-| <a id="property-mmmm6"></a> `mmmm6` | `string`[] | Long month names for the Islamic calendar (`Rajab`) |
-| <a id="property-nan"></a> `nan` | `string` | Symbol used to indicate NaN values (`NaN`) |
-| <a id="property-negative"></a> `negative` | `string` | Symbol used to indicate positive numbers (usually `-`) |
-| <a id="property-percent"></a> `percent` | `string` | Symbol used to indicate a percentage (usually `%`) |
-| <a id="property-positive"></a> `positive` | `string` | Symbol used to indicate positive numbers (usually `+`) |
-| <a id="property-prefermdy"></a> `preferMDY` | `boolean` | Is the prefered date format month first (12/31/2025) or day first (31/12/2025) |
+| <a id="property-ampm"></a> `ampm` | \[`string`, `string`\] | How AM and PM should be presented. **Default** `["AM", "PM"]` |
+| <a id="property-bool"></a> `bool` | \[`string`, `string`\] | How TRUE and FALSE should be presented. **Default** `["TRUE", "FALSE"]` |
+| <a id="property-ddd"></a> `ddd` | [`DayNames`](#type-aliasesdaynamesmd) | Shortened day names (`Wed`). **Default** `["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]` |
+| <a id="property-dddd"></a> `dddd` | [`DayNames`](#type-aliasesdaynamesmd) | Long day names (`Wednesday`). **Default** `["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]` |
+| <a id="property-decimal"></a> `decimal` | `string` | Symbol used to separate integers from fractions (usually `.`). **Default** `"."` |
+| <a id="property-exponent"></a> `exponent` | `string` | Symbol used to indicate an exponent (usually `E`). **Default** `"E"` |
+| <a id="property-group"></a> `group` | `string` | Symbol used as a grouping separator (`1,000,000` uses `,`). **Default** `"\u00a0"` |
+| <a id="property-infinity"></a> `infinity` | `string` | Symbol used to indicate infinite values (`∞`). **Default** `"∞"` |
+| <a id="property-mmm"></a> `mmm` | [`MonthNames`](#type-aliasesmonthnamesmd) | Short month names for the Gregorian calendar (`Nov`). **Default** `["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]` |
+| <a id="property-mmm6"></a> `mmm6` | [`MonthNames`](#type-aliasesmonthnamesmd) | Short month names for the Islamic calendar (`Raj.`). **Default** `["Muh.", "Saf.", "Rab. I", "Rab. II", "Jum. I", "Jum. II", "Raj.", "Sha.", "Ram.", "Shaw.", "Dhuʻl-Q.", "Dhuʻl-H."]` |
+| <a id="property-mmmm"></a> `mmmm` | [`MonthNames`](#type-aliasesmonthnamesmd) | Long month names for the Gregorian calendar (`November`). **Default** `["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]` |
+| <a id="property-mmmm6"></a> `mmmm6` | [`MonthNames`](#type-aliasesmonthnamesmd) | Long month names for the Islamic calendar (`Rajab`). **Default** `["Muharram", "Safar", "Rabiʻ I", "Rabiʻ II", "Jumada I", "Jumada II", "Rajab", "Shaʻban", "Ramadan", "Shawwal", "Dhuʻl-Qiʻdah", "Dhuʻl-Hijjah"]` |
+| <a id="property-nan"></a> `nan` | `string` | Symbol used to indicate NaN values (`NaN`). **Default** `"NaN"` |
+| <a id="property-negative"></a> `negative` | `string` | Symbol used to indicate positive numbers (usually `-`). **Default** `"-"` |
+| <a id="property-percent"></a> `percent` | `string` | Symbol used to indicate a percentage (usually `%`). **Default** `"%"` |
+| <a id="property-positive"></a> `positive` | `string` | Symbol used to indicate positive numbers (usually `+`). **Default** `"+"` |
+| <a id="property-prefermdy"></a> `preferMDY` | `boolean` | Is the prefered date format month first (12/31/2025) or day first (31/12/2025). **Default** `false` |
 
 
 <a name="type-aliaseslocaletokenmd"></a>
@@ -892,6 +968,17 @@ An object of properties for a locale tag.
 | <a id="property-lang"></a> `lang` | `string` | The basic tag such as `zh-CN` or `fi` |
 | <a id="property-language"></a> `language` | `string` | The language section (`zh` for `zh-CN`) |
 | <a id="property-territory"></a> `territory` | `string` | The territory section (`CN` for `zh-CN`) |
+
+
+<a name="type-aliasesmonthnamesmd"></a>
+
+# MonthNames
+
+```ts
+type MonthNames = [string, string, string, string, string, string, string, string, string, string, string, string];
+```
+
+A list of the names of the months of the year.
 
 
 <a name="type-aliasesparsedataboolmd"></a>

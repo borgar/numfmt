@@ -7,7 +7,7 @@ const DAYSIZE = 86400;
  * Convert a native JavaScript Date, or an array of date parts to an spreadsheet serial date.
  *
  * Returns a serial date number if input was a Date object or an array of
- * numbers, else a null.
+ * numbers, else an undefined.
  *
  * ```js
  * // input as Date
@@ -15,7 +15,7 @@ const DAYSIZE = 86400;
  * // input as [ Y, M, D, h, m, s ]
  * dateToSerial([ 1978, 5, 17 ]); // 28627
  * // other input
- * dateToSerial("something else"); // null
+ * dateToSerial("something else"); // undefined
  * ```
  *
  * @param date A Date instance or an array of date parts in descending order.
@@ -77,7 +77,7 @@ export function dateToSerial (
  * @param [options.leap1900]
  *   Simulate the Lotus 1-2-3 [1900 leap year bug](https://docs.microsoft.com/en-us/office/troubleshoot/excel/wrongly-assumes-1900-is-leap-year).
  *   True by default.
- * @returns returns an array of date parts with parts in descending order: [ year, month, day, hour, minute, second ]
+ * @returns An array of date parts with parts in descending order: [ year, month, day, hour, minute, second ]
  */
 export function dateFromSerial (
   serialDate: number,

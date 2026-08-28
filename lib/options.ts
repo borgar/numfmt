@@ -50,7 +50,7 @@ export type FormatOptions = {
   /**
    * Should the formatter throw an error if a provided pattern is invalid.
    * If false, a formatter will be constructed which instead outputs an error
-   * string (see _invalid_ in this table).
+   * string (see _invalid_ in this type).
    * @default true
    */
   throws: boolean,
@@ -81,7 +81,7 @@ export type FormatOptions = {
    * Integer grouping sizes. You may desire to emit numbers in standards other than the common 3 digits
    * per group (e.g. "123,456,789"). The first grouping size is used for the least significant integer
    * group, and the second grouping size is used for more significant groups (e.g. `[3, 2]` => "12,34,56,789").
-   * @default [ 3 ]
+   * @default [ 3, 3 ]
    */
   grouping: [ number, number ] | [ number ],
 

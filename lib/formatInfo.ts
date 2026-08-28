@@ -44,7 +44,7 @@ const level = {
   error: 0
 };
 
-const dateCodes = [
+const dateCodes: [ string, number ][] = [
   [ 'DMY', 1 ],
   [ 'DM', 2 ],
   [ 'MY', 3 ],
@@ -83,7 +83,7 @@ export function info (partitions: Partition[], currencyId?: string): FormatInfo 
   ));
 
   let codeType = 'G';
-  let codeNum = (frac_max >= 0) ? Math.min(15, frac_max) : '';
+  let codeNum = (frac_max >= 0) ? Math.min(15, frac_max) : 0;
   let codeParens = '';
   let codeDash = '';
 
@@ -150,25 +150,22 @@ export function info (partitions: Partition[], currencyId?: string): FormatInfo 
     else if (!haveDate && haveTime) {
       output.type = 'time';
     }
-    const code = dateCodes.find(d => order.startsWith(d[0] as string));
+    const code = dateCodes.find(d => order.startsWith(d[0]));
     codeType = code ? 'D' : 'G';
-    codeNum = code ? code[1] : '';
+    codeNum = code ? code[1] : 0;
   }
   else if (output.isText) {
     codeType = 'G';
     output.type = 'text';
-    codeNum = '';
     output.maxDecimals = 0;
   }
   else if (partPos.general) {
     codeType = 'G';
     output.type = 'general';
-    codeNum = '';
   }
   else if (partPos.fractions) {
     codeType = 'G';
     output.type = 'fraction';
-    codeNum = '';
   }
   else if (partPos.exponential) {
     codeType = 'S';
@@ -187,7 +184,7 @@ export function info (partitions: Partition[], currencyId?: string): FormatInfo 
     output.type = 'number';
   }
 
-  output.code = codeType + codeNum + codeDash + codeParens;
+  output.code = codeType + (codeType === 'G' ? '' : codeNum) + codeDash + codeParens;
 
   // Excel can combine some codes, but not all.
   // When integer value of two is equal and it can't combine,
