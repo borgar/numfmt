@@ -12,7 +12,7 @@ import {
   T_TYPE_MNAME_S, T_TYPE_MNAME_1, T_TYPE_MNAME, T_TYPE_MIN, T_TYPE_MON, T_TYPE_HOUR_E, T_TYPE_MIN_E,
   T_TYPE_SEC_E, T_TYPE_SEC
 } from './constants.ts';
-import type { DateRenderToken, FormatToken, RenderToken, SectionType } from './types.ts';
+import type { DateRenderToken, Token, RenderToken, SectionType } from './types.ts';
 import { createPartition } from './createPartition.ts';
 
 function add (s: string | RenderToken, tokens: RenderToken[]): void {
@@ -35,7 +35,7 @@ const countNonHash = (s: string): number => {
   return n;
 };
 
-function isNumOp (token: FormatToken | RenderToken, activePattern: SectionType) {
+function isNumOp (token: Token | RenderToken, activePattern: SectionType) {
   const type = token?.type;
   return (
     (type === TOKEN_HASH || type === TOKEN_ZERO || type === TOKEN_QMARK) ||
@@ -43,14 +43,14 @@ function isNumOp (token: FormatToken | RenderToken, activePattern: SectionType) 
   );
 }
 
-export function parseFormatSection (inputTokens: FormatToken[]) {
+export function parseFormatSection (inputTokens: Token[]) {
   const outputTokens: RenderToken[] = [];
   const part = createPartition(outputTokens);
 
   let currentPattern: SectionType = T_TYPE_INT; // 'num' is unused here?
   let lastNumberChunk: RenderToken | undefined;
   const dateChunks: DateRenderToken[] = [];
-  let last: FormatToken | undefined;
+  let last: Token | undefined;
   let haveLocale = false;
 
   let index = -1;

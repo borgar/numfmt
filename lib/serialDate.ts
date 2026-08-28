@@ -4,10 +4,10 @@ const floor = Math.floor;
 const DAYSIZE = 86400;
 
 /**
- * Convert a native JavaScript Date, or array to an spreadsheet serial date.
+ * Convert a native JavaScript Date, or an array of date parts to an spreadsheet serial date.
  *
  * Returns a serial date number if input was a Date object or an array of
- * numbers, a null.
+ * numbers, else a null.
  *
  * ```js
  * // input as Date
@@ -16,20 +16,20 @@ const DAYSIZE = 86400;
  * dateToSerial([ 1978, 5, 17 ]); // 28627
  * // other input
  * dateToSerial("something else"); // null
- * ````
+ * ```
  *
- * @param date The date
- * @param [options={}]  Options
+ * @param date A Date instance or an array of date parts in descending order.
+ * @param [options={}]  Options for this method
  * @param [options.ignoreTimezone]
  *   Normally time zone will be taken into account. This makes the conversion to
  *   serial date ignore the timezone offset.
- * @returns The date as a spreadsheet serial date, or null.
+ * @returns The date as a spreadsheet serial date, or undefined.
  */
 export function dateToSerial (
   date: Date | number[],
   options?: { ignoreTimezone?: boolean; }
-): number | null {
-  let ts = null;
+): number | undefined {
+  let ts = undefined;
   if (Array.isArray(date)) {
     const [ y, m, d, hh, mm, ss ] = date;
     ts = Date.UTC(y, m == null ? 0 : m - 1, d ?? 1, hh || 0, mm || 0, ss || 0);
@@ -60,7 +60,7 @@ export function dateToSerial (
     const d = (ts / 864e5);
     return d - (d <= -25509 ? -25568 : -25569);
   }
-  return null;
+  return;
 }
 
 /**
@@ -70,13 +70,14 @@ export function dateToSerial (
  * ```js
  * // output as [ Y, M, D, h, m, s ]
  * dateFromSerial(28627); // [ 1978, 5, 17, 0, 0, 0 ]
- * ````
+ * ```
  *
  * @param serialDate The date
- * @param [options={}] The options
- * @param [options.leap1900=true]
+ * @param [options] Options for this method
+ * @param [options.leap1900]
  *   Simulate the Lotus 1-2-3 [1900 leap year bug](https://docs.microsoft.com/en-us/office/troubleshoot/excel/wrongly-assumes-1900-is-leap-year).
- * @returns returns an array of date parts
+ *   True by default.
+ * @returns returns an array of date parts with parts in descending order: [ year, month, day, hour, minute, second ]
  */
 export function dateFromSerial (
   serialDate: number,

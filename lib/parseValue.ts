@@ -3,7 +3,7 @@ import { isValidDate } from './isValidDate.ts';
 import { defaultLocale, getLocale } from './locale.ts';
 
 /**
- * Output from the value parser.
+ * Output from a number or date value parser.
  */
 export type ParseDataNum = {
   /** A number value */
@@ -13,7 +13,7 @@ export type ParseDataNum = {
 };
 
 /**
- * Output from the value parser.
+ * Output from the boolean value parser.
  */
 export type ParseDataBool = {
   /** A boolean value */
@@ -160,21 +160,20 @@ const isDigit = (d: string) => d?.length === 1 && d >= '0' && d <= '9';
 
 /**
  * Parse a numeric string input and return its value and format. If the input
- * was not recognized or valid, the function returns a `null`, for valid input
+ * was not recognized or valid, the function returns a `undefined`, for valid input
  * it returns an object with two properties:
  *
  * * `v`: the parsed value.
  * * `z`: the number format of the input (if applicable).
  *
- * @see parseValue
  * @param value The number to parse
- * @param [options={}]  Options
- * @param [options.locale=""]
+ * @param [options]  Options for the parser
+ * @param [options.locale]
  *    A BCP 47 string tag. Locale default is english with a `\u00a0`
  *    grouping symbol (see [addLocale](#addLocale))
  * @returns An object of the parsed value and a corresponding format string
  */
-export function parseNumber (value: string, options: { locale?: string; } = {}): ParseDataNum | null {
+export function parseNumber (value: string, options: { locale?: string; } = {}): ParseDataNum | undefined {
   const l10n = getLocale(options.locale || '') || defaultLocale;
   // we base everything on the decimal separator
   const dec = l10n.decimal;
@@ -201,28 +200,28 @@ export function parseNumber (value: string, options: { locale?: string; } = {}):
     const char = value[i];
     if (char === '-') {
       if (minus || openParen) {
-        return null;
+        return undefined;
       }
       minus = true;
       sign = -1;
     }
     else if (reCurrencySymbols.test(char)) {
       if (currency) {
-        return null;
+        return undefined;
       }
       currency = true;
       currencySymbol = char;
     }
     else if (char === '(') {
       if (openParen || minus) {
-        return null;
+        return undefined;
       }
       openParen = true;
       sign = -1;
     }
     else if (char === '%') {
       if (percent) {
-        return null;
+        return undefined;
       }
       percent = true;
     }
@@ -274,7 +273,7 @@ export function parseNumber (value: string, options: { locale?: string; } = {}):
     }
     if (d === i) {
       // contains no digits
-      return null;
+      return undefined;
     }
   }
   // suffix
@@ -284,7 +283,7 @@ export function parseNumber (value: string, options: { locale?: string; } = {}):
     // only 1 occurance of these is allowed
     if (reCurrencySymbols.test(char)) {
       if (currency) {
-        return null;
+        return undefined;
       }
       currency = true;
       currencySymbol = char;
@@ -292,13 +291,13 @@ export function parseNumber (value: string, options: { locale?: string; } = {}):
     }
     else if (char === ')') {
       if (closeParen || !openParen) {
-        return null;
+        return undefined;
       }
       closeParen = true;
     }
     else if (char === '%') {
       if (percent) {
-        return null;
+        return undefined;
       }
       percent = true;
     }
@@ -306,18 +305,18 @@ export function parseNumber (value: string, options: { locale?: string; } = {}):
   }
 
   if (i !== value.length) {
-    return null;
+    return undefined;
   }
 
   // is number ok?
   let numberValue = parseFloat(num + exp);
   if (!isFinite(numberValue)) {
-    return null;
+    return undefined;
   }
 
   if (exp) {
     if (percent || currency) {
-      return null;
+      return undefined;
     }
     // allow parens and minus, but not %$
     format = '0.00E+00';
@@ -325,7 +324,7 @@ export function parseNumber (value: string, options: { locale?: string; } = {}):
   else if (percent) {
     if (currency) {
       // Sheets allows this: $123% => $1.23 (Excel does not)
-      return null;
+      return undefined;
     }
     // numpart dictates how "deep" the format is: "0" vs "0.00"
     format = num.includes('.')
@@ -493,21 +492,20 @@ const getLookups = (arr: string[], sym: string) => {
 
 /**
  * Parse a date or datetime string input and return its value and format. If
- * the input was not recognized or valid, the function returns a `null`, for
+ * the input was not recognized or valid, the function returns an `undefined`, for
  * valid input it returns an object with two properties:
  *
  * - `v`: the parsed value.
  * - `z`: the number format of the input (if applicable).
  *
- * @see parseValue
- * @param value The date to parse
- * @param [options={}]  Options
+ * @param value The string to parse
+ * @param [options={}]  Options for the parser
  * @param [options.locale=""]
  *    A BCP 47 string tag. Locale default is english with a `\u00a0`
  *    grouping symbol (see [addLocale](#addLocale))
  * @returns An object of the parsed value and a corresponding format string
  */
-export function parseDate (value: string, options: { locale?: string; } = {}): ParseDataNum | null {
+export function parseDate (value: string, options: { locale?: string; } = {}): ParseDataNum | undefined {
   const l10n = getLocale(options.locale || '') || defaultLocale;
   const lData: LData = {
     mon: getLookups(l10n.mmmm, 'F').concat(getLookups(l10n.mmm, 'M')),
@@ -526,7 +524,7 @@ export function parseDate (value: string, options: { locale?: string; } = {}): P
   if (date) {
     // disallow matches where two tokens are separated by a period
     if (date.sep === '.' && date.path?.length === 3) {
-      return null;
+      return undefined;
     }
     const year = +(date.year ?? currentYear);
     if (!date.day) {
@@ -534,7 +532,7 @@ export function parseDate (value: string, options: { locale?: string; } = {}): P
     }
     let epoch = -Infinity;
     if (year < 1900) {
-      return null;
+      return undefined;
     }
     else if (year <= 1900 && (date.month ?? 0) <= 2) {
       epoch = 25568;
@@ -559,7 +557,7 @@ export function parseDate (value: string, options: { locale?: string; } = {}): P
       return { v: dateValue, z: format };
     }
   }
-  return null;
+  return undefined;
 }
 
 const normAMPMStr = (s: string): string => (
@@ -570,21 +568,20 @@ const normAMPMStr = (s: string): string => (
 
 /**
  * Parse a time string input and return its value and format. If the input was
- * not recognized or valid, the function returns a `null`, for valid input it
+ * not recognized or valid, the function returns a `undefined`, for valid input it
  * returns an object with two properties:
  *
  * - `v`: the parsed value.
  * - `z`: the number format of the input (if applicable).
  *
- * @see parseValue
  * @param value The date to parse
- * @param [options={}]  Options
- * @param [options.locale=""]
+ * @param [options]  Options for the parser
+ * @param [options.locale]
  *    A BCP 47 string tag. Locale default is english with a `\u00a0`
  *    grouping symbol (see [addLocale](#addLocale))
  * @returns An object of the parsed value and a corresponding format string
  */
-export function parseTime (value: string, options: { locale?: string; } = {}): ParseDataNum | null {
+export function parseTime (value: string, options: { locale?: string; } = {}): ParseDataNum | undefined {
   const l10n = getLocale(options.locale || '') || defaultLocale;
   const parts = /^\s*([10]?\d|2[0-4])(?::([0-5]\d|\d))?(?::([0-5]\d|\d))?(\.\d{1,10})?(?=\s*[^\s\d]|$)/.exec(value);
   let ampm = '';
@@ -605,24 +602,24 @@ export function parseTime (value: string, options: { locale?: string; } = {}): P
       }
     }
     else if (tail) {
-      return null;
+      return undefined;
     }
   }
   if (parts) {
     const [ , h, m, s, f ] = parts;
     // don't allow milliseconds without seconds
     if (f && !s) {
-      return null;
+      return undefined;
     }
     // single number must also include AM/PM part
     if (!ampm && !m && !s) {
-      return null;
+      return undefined;
     }
     // AM/PM part must align with hours
     let hrs = +(h || 0) * 1;
     if (ampm) {
       if (hrs >= 13) {
-        return null;
+        return undefined;
       }
       // 00:00 AM - 12:00 AM
       if (ampm === 'a') {
@@ -650,25 +647,24 @@ export function parseTime (value: string, options: { locale?: string; } = {}): P
       )
     };
   }
-  return null;
+  return undefined;
 }
 
 /**
- * Parse a string input and return its boolean value. If the input was not
- * recognized or valid, the function returns a `null`, for valid input it
- * returns an object with one property:
+ * Parse a string input and return its equivalent boolean value. If the input was not
+ * recognized or valid, the function returns an `undefined`, for valid input it
+ * returns an object with a single property:
  *
  * - `v`: the parsed value.
  *
- * @see parseValue
  * @param value The supposed boolean to parse
- * @param [options={}]  Options
- * @param [options.locale=""]
+ * @param [options] Options for the parser
+ * @param [options.locale]
  *    A BCP 47 string tag. Locale default is english with a `\u00a0`
  *    grouping symbol (see [addLocale](#addLocale))
  * @returns An object of the parsed value and a corresponding format string
  */
-export function parseBool (value: string, options: { locale?: string; } = {}): ParseDataBool | null {
+export function parseBool (value: string, options: { locale?: string; } = {}): ParseDataBool | undefined {
   const l10n = getLocale(options.locale || '') || defaultLocale;
   const v = value.trim().toLowerCase();
   const bT = l10n.bool[0].toLowerCase();
@@ -679,13 +675,13 @@ export function parseBool (value: string, options: { locale?: string; } = {}): P
   if (v === 'false' || v === bF) {
     return { v: false };
   }
-  return null;
+  return undefined;
 }
 
 /**
  * Attempt to parse a "spreadsheet input" string input and return its value and
- * format. If the input was not recognized or valid, the function returns a
- * `null`, for valid input it returns an object with two properties:
+ * format. If the input was not recognized or valid, the function returns an
+ * `undefined`, for valid input it returns an object with two properties:
  *
  * - `v`: The parsed value. For dates, this will be an Excel style serial date.
  * - `z`: (Optionally) the number format string of the input. This property will
@@ -718,28 +714,22 @@ export function parseBool (value: string, options: { locale?: string; } = {}): P
  * - Decimal fractions are always represented by `.00` regardless of how many
  *   digits were shown in the input.
  * - Negatives denoted by parentheses [`(1,234)`] will not include the
- *   parentheses in the format string (the value will still by negative.)
+ *   parentheses in the format string (the value will still be negative.)
  * - All "scientific notation" returns the same format: `0.00E+00`.
  *
  * Internally the parser calls, `parseNumber`, `parseDate`,
  * `parseTime` and `parseBool`. They work in the same way except
- * with a more limited scope. You may want those function if you are limiting
+ * with a more limited scope. You may prefer those functions if you are limiting
  * input to a smaller scope.
  *
- * Be warned that the parser do not (yet) take locale into account so all input
- * is assumed to be in "en-US". This means that `1,234.5` will parse, but
- * `1.234,5` will not. Similarly, the order of date parts will be US centric.
- * This may change in the future so be careful what options you pass the
- * functions.
- *
  * @param value The value to parse
- * @param [options={}]  Options
- * @param [options.locale=""]
+ * @param [options] Options for the parser
+ * @param [options.locale]
  *    A BCP 47 string tag. Locale default is english with a `\u00a0`
- *    grouping symbol (see [addLocale](#addLocale))
+ *    grouping symbol (see {@link addLocale})
  * @returns An object of the parsed value and a corresponding format string
  */
-export function parseValue (value: string, options?: { locale?: string; }): ParseDataNum | ParseDataBool | null {
+export function parseValue (value: string, options?: { locale?: string; }): ParseDataNum | ParseDataBool | undefined {
   return (
     parseNumber(value, options) ??
     parseDate(value, options) ??

@@ -4,7 +4,9 @@ import { codeToLocale } from './codeToLocale.ts';
 const re_locale = /^([a-z\d]+)(?:[_-]([a-z\d]+))?(?:\.([a-z\d]+))?(?:@([a-z\d]+))?$/i;
 const locales: Record<string, LocaleData> = {};
 
-/** An object of properties used by a formatter when printing a number in a certain locale. */
+/**
+ * An object of properties used by a formatter when printing a number in a certain locale.
+ */
 export type LocaleData = {
   /** Symbol used as a grouping separator (`1,000,000` uses `,`) */
   group: string;
@@ -42,13 +44,19 @@ export type LocaleData = {
   preferMDY: boolean;
 };
 
-/** An object of properties for a locale tag. */
+/**
+ * An object of properties for a locale tag.
+ *
+ * ```js
+ * { lang: 'zh-CN', language: 'zh', territory: 'CN' }
+ * ```
+ */
 export type LocaleToken = {
-  /** The basic tag such as `zh_CN` or `fi` */
+  /** The basic tag such as `zh-CN` or `fi` */
   lang: string;
-  /** The language section (`zh` for `zh_CN`) */
+  /** The language section (`zh` for `zh-CN`) */
   language: string;
-  /** The territory section (`CN` for `zh_CN`) */
+  /** The territory section (`CN` for `zh-CN`) */
   territory: string;
 };
 
@@ -123,7 +131,7 @@ const baseLocaleData: LocaleData = {
 };
 
 /**
- * Parse a regular IETF BCP 47 locale tag and emit an object of its parts.
+ * Parse a regular IETF BCP 47 locale tag (`en-US`) and emit an object of its parts.
  * Irregular tags and subtags are not supported.
  *
  * @param locale A BCP 47 string tag of the locale.
@@ -135,7 +143,7 @@ export function parseLocale (locale: string): LocaleToken {
     throw new SyntaxError(`Malformed locale: ${locale}`);
   }
   return {
-    lang: lm[1] + (lm[2] ? '_' + lm[2] : ''),
+    lang: lm[1] + (lm[2] ? '-' + lm[2] : ''),
     language: lm[1],
     territory: lm[2] || ''
   };
@@ -161,12 +169,12 @@ export function resolveLocale (l4e: number | string): string | undefined {
 
 /**
  * Used by the formatter to pull a locate from its registered locales. If
- * subtag isn't available but the base language is, the base language is used.
+ * subtag isn't available but the base language is, the base language is used:
  * So if `en-CA` is not found, the formatter tries to find `en` else it
- * returns a `null`.
+ * returns `undefined`.
  *
  * @param locale A BCP 47 string tag of the locale, or an Excel locale code.
- * @returns An object of format date properties.
+ * @returns An object of format date properties if one was found.
  */
 export function getLocale (locale: string | number): LocaleData | undefined {
   const tag = resolveLocale(locale);
@@ -184,11 +192,10 @@ export function createLocale (data: Partial<LocaleData>): LocaleData {
 }
 
 /**
- * Register locale data for a language so for use when formatting.
+ * Register locale data for a language to use when formatting.
  *
  * Any partial set of properties may be returned to have the defaults used where properties are missing.
  *
- * @see {LocaleData}
  * @param localeSettings - A collection of settings for a locale.
  * @param [localeSettings.group="\u00a0"]
  *    Symbol used as a grouping separator (`1,000,000` uses `,`)
@@ -253,7 +260,7 @@ addLocale({
   mmm: _('1月;2月;3月;4月;5月;6月;7月;8月;9月;10月;11月;12月'),
   dddd: _('~日;~一;~二;~三;~四;~五;~六', '星期'),
   ddd: _('周日;周一;周二;周三;周四;周五;周六')
-}, 'zh_CN');
+}, 'zh-CN');
 const _zh = {
   group: ',',
   ampm: _('上午;下午'),
@@ -266,11 +273,11 @@ addLocale({
   ..._zh,
   nan: '非數值',
   dddd: _('~日;~一;~二;~三;~四;~五;~六', '星期')
-}, 'zh_TW');
+}, 'zh-TW');
 addLocale({
   ..._zh,
   dddd: _('~日;~一;~二;~三;~四;~五;~六', '星期')
-}, 'zh_HK');
+}, 'zh-HK');
 
 addLocale({
   ..._zh,
@@ -325,11 +332,11 @@ addLocale(xm({
 }, -1, 2), 'nl');
 
 addLocale({ group: ',', preferMDY: true }, 'en');
-addLocale({ group: ',', preferMDY: true }, 'en_US');
-addLocale({ group: ',' }, 'en_AU');
-addLocale({ group: ',' }, 'en_CA');
-addLocale({ group: ',' }, 'en_GB');
-addLocale({ group: ',', mmm: _('Jan;Feb;Mar;Apr;May;Jun;Jul;Aug;Sept;Oct;Nov;Dec') }, 'en_IE');
+addLocale({ group: ',', preferMDY: true }, 'en-US');
+addLocale({ group: ',' }, 'en-AU');
+addLocale({ group: ',' }, 'en-CA');
+addLocale({ group: ',' }, 'en-GB');
+addLocale({ group: ',', mmm: _('Jan;Feb;Mar;Apr;May;Jun;Jul;Aug;Sept;Oct;Nov;Dec') }, 'en-IE');
 
 addLocale(xm({
   decimal: ',',
@@ -350,8 +357,8 @@ const _fr = xm({
   bool: _('VRAI;FAUX')
 }, -1, 13);
 addLocale({ ..._fr }, 'fr');
-addLocale({ ..._fr, mmm: _('janv.;févr.;mars;avr.;mai;juin;juill.;août;sept.;oct.;nov.;déc.') }, 'fr_CA');
-addLocale({ group: "'", decimal: '.', ..._fr }, 'fr_CH');
+addLocale({ ..._fr, mmm: _('janv.;févr.;mars;avr.;mai;juin;juill.;août;sept.;oct.;nov.;déc.') }, 'fr-CA');
+addLocale({ group: "'", decimal: '.', ..._fr }, 'fr-CH');
 
 const _de = xm({
   mmmm: _('Januar;Februar;März;April;Mai;Juni;Juli;August;September;Oktober;November;Dezember'),
@@ -360,7 +367,7 @@ const _de = xm({
   bool: _('WAHR;FALSCH')
 }, -1, 12);
 addLocale({ group: '.', decimal: ',', ..._de }, 'de');
-addLocale({ group: "'", decimal: '.', ..._de }, 'de_CH');
+addLocale({ group: "'", decimal: '.', ..._de }, 'de-CH');
 
 addLocale(xm({
   group: '.',
@@ -402,7 +409,7 @@ const _it = xm({
   bool: _('VERO;FALSO')
 }, 3, 3);
 addLocale({ group: '.', decimal: ',', ..._it }, 'it');
-addLocale({ group: "'", decimal: '.', ..._it }, 'it_CH');
+addLocale({ group: "'", decimal: '.', ..._it }, 'it-CH');
 
 const _no = {
   decimal: ',',
@@ -431,7 +438,7 @@ const _pt = {
   bool: _('VERDADEIRO;FALSO')
 };
 addLocale(xm(_pt, 13, 13), 'pt');
-addLocale(xm(_pt, 13, 13), 'pt_BR');
+addLocale(xm(_pt, 13, 13), 'pt-BR');
 
 addLocale({
   decimal: ',',
@@ -464,15 +471,15 @@ const _es = {
 const _esM3 = _('ene;feb;mar;abr;may;jun;jul;ago;sep;oct;nov;dic');
 const _esM13 = _('ene.;feb.;mar.;abr.;may.;jun.;jul.;ago.;sept.;oct.;nov.;dic.');
 addLocale({ ..._es }, 'es');
-addLocale({ ..._es }, 'es_AR');
-addLocale({ ..._es }, 'es_BO');
-addLocale({ ..._es }, 'es_CL');
-addLocale({ ..._es }, 'es_CO');
-addLocale({ ..._es }, 'es_EC');
-addLocale({ ..._es, mmm: _esM3, ampm: _('a.m.;p.m.') }, 'es_MX');
-addLocale({ ..._es, mmm: _esM13 }, 'es_PY');
-addLocale({ ..._es, mmm: _esM13 }, 'es_UY');
-addLocale({ ..._es, mmm: _esM13, mmmm: _('enero;febrero;marzo;abril;mayo;junio;julio;agosto;setiembre;octubre;noviembre;diciembre') }, 'es_VE');
+addLocale({ ..._es }, 'es-AR');
+addLocale({ ..._es }, 'es-BO');
+addLocale({ ..._es }, 'es-CL');
+addLocale({ ..._es }, 'es-CO');
+addLocale({ ..._es }, 'es-EC');
+addLocale({ ..._es, mmm: _esM3, ampm: _('a.m.;p.m.') }, 'es-MX');
+addLocale({ ..._es, mmm: _esM13 }, 'es-PY');
+addLocale({ ..._es, mmm: _esM13 }, 'es-UY');
+addLocale({ ..._es, mmm: _esM13, mmmm: _('enero;febrero;marzo;abril;mayo;junio;julio;agosto;setiembre;octubre;noviembre;diciembre') }, 'es-VE');
 
 addLocale({
   decimal: ',',

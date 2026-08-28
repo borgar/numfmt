@@ -6,7 +6,7 @@ import {
   TOKEN_AMPM, TOKEN_ESCAPED, TOKEN_STRING, TOKEN_SKIP, TOKEN_EXP, TOKEN_FILL, TOKEN_PAREN,
   TOKEN_CHAR
 } from './constants.ts';
-import type { FormatToken, TokenType } from './types.ts';
+import type { Token, TokenType } from './types.ts';
 
 const tokenHandlers: [ TokenType, RegExp, 0 | 1 | number[] ][] = [
   [ TOKEN_GENERAL, /^General/i, 0 ],
@@ -66,22 +66,22 @@ const isNumOp = (char: string) => {
  *
  * ```js
  * [
- *   { type: 'zero', value: '0', raw: '0' },
- *   { type: 'point', value: '.', raw: '.' },
- *   { type: 'zero', value: '0', raw: '0' },
- *   { type: 'percent', value: '%', raw: '%' }
+ *   { type: TOKEN_ZERO, value: '0', raw: '0' },
+ *   { type: TOKEN_POINT, value: '.', raw: '.' },
+ *   { type: TOKEN_ZERO, value: '0', raw: '0' },
+ *   { type: TOKEN_PERCENT, value: '%', raw: '%' }
  * ]
  * ```
  *
- * Token types may be found as an Object as the
- * [`tokenTypes` export]{@link tokenTypes} of the package.
+ * As well as exported individually, the token type descriptors may be found as
+ * an object collection at the {@link tokenTypes} export of the package.
  *
  * @param pattern The format pattern
- * @returns a list of tokens
+ * @returns A list of tokens
  */
-export function tokenize (pattern: string): FormatToken[] {
+export function tokenize (pattern: string): Token[] {
   let i = 0;
-  const tokens: FormatToken[] = [];
+  const tokens: Token[] = [];
   const unresolvedCommas = [];
   while (i < pattern.length) {
     const curr = pattern.slice(i);
@@ -122,7 +122,7 @@ export function tokenize (pattern: string): FormatToken[] {
       else if (maybeGROUP && maybeSCALE) {
         // this token will be set to scale, but switched to group if we hit a
         // num token later on in the pattern...
-        const t: FormatToken = { type: TOKEN_SCALE, value: ',', raw };
+        const t: Token = { type: TOKEN_SCALE, value: ',', raw };
         tokens.push(t);
         unresolvedCommas.push(t);
       }
@@ -132,7 +132,7 @@ export function tokenize (pattern: string): FormatToken[] {
     }
     // all other symbols are matched using
     else {
-      let token: FormatToken | undefined;
+      let token: Token | undefined;
       for (const [ type, expr, group ] of tokenHandlers) {
         const m = expr.exec(curr);
         if (m) {

@@ -1,15 +1,15 @@
 /**
  * Return a number rounded to the specified amount of places. This is the
  * rounding function used internally by the formatter (symmetric arithmetic
- * rounding).
+ * rounding). It rounds the same way Excel does.
  *
- * @param number - The number to round.
- * @param [places=0] - The number of decimals to round to.
+ * @param number The number to round.
+ * @param [places] The number of decimals to round to.
  * @returns A rounded number.
  */
 export function round (number: number, places: number = 0): number {
   if (typeof number !== 'number') {
-    return number;
+    return NaN;
   }
   if (number < 0) {
     return -round(-number, places);

@@ -553,11 +553,11 @@ test('parseNumber', () => {
   expect(
     parseNumber('1999.10.01'),
     'parseNumber does not parse invalid numbers'
-  ).toEqual(null);
+  ).toEqual(undefined);
   expect(
     parseNumber('1999-10-01'),
     'parseNumber does not parse non-numbers'
-  ).toEqual(null);
+  ).toEqual(undefined);
 
   expect(
     parseDate('1999-10-01 12:00:00'),
@@ -566,7 +566,7 @@ test('parseNumber', () => {
   expect(
     parseDate('-123'),
     'parseDate does not parse non-dates'
-  ).toEqual(null);
+  ).toEqual(undefined);
 
   expect(
     parseTime('09:18 PM'),
@@ -575,7 +575,7 @@ test('parseNumber', () => {
   expect(
     parseTime('-123'),
     'parseTime does not parse non-time'
-  ).toEqual(null);
+  ).toEqual(undefined);
 
   expect(
     parseBool('False'),
@@ -584,7 +584,7 @@ test('parseNumber', () => {
   expect(
     parseBool('-123'),
     'parseBool does not parse non-booleans'
-  ).toEqual(null);
+  ).toEqual(undefined);
 
   expect(
     parseBool('False'),
@@ -593,12 +593,12 @@ test('parseNumber', () => {
   expect(
     parseBool('-123'),
     'parseBool does not parse non-booleans'
-  ).toEqual(null);
+  ).toEqual(undefined);
 
   expect(
     parseDate('5.2022'),
     'parseDate does not parse "decimals"'
-  ).toEqual(null);
+  ).toEqual(undefined);
 
   // test value parsing
   tests.forEach(ts => {
@@ -628,12 +628,12 @@ test('parseNumber', () => {
 test('parseNumber locale support', () => {
   // can parse numbers in any language
   expect(parseNumber('1,234,567.89', { locale: 'en' })).toEqual({ v: 1234567.89, z: '#,##0.00' });
-  expect(parseNumber('1.234.567,89', { locale: 'en' })).toEqual(null);
+  expect(parseNumber('1.234.567,89', { locale: 'en' })).toEqual(undefined);
 
-  expect(parseNumber('1,234,567.89', { locale: 'de' })).toEqual(null);
+  expect(parseNumber('1,234,567.89', { locale: 'de' })).toEqual(undefined);
   expect(parseNumber('1.234.567,89', { locale: 'de' })).toEqual({ v: 1234567.89, z: '#,##0.00' });
 
-  expect(parseNumber('1,234,567.89', { locale: 'de' })).toEqual(null);
+  expect(parseNumber('1,234,567.89', { locale: 'de' })).toEqual(undefined);
   expect(parseNumber('1.234.567,89', { locale: 'de' })).toEqual({ v: 1234567.89, z: '#,##0.00' });
 
   addLocale({
@@ -691,12 +691,12 @@ test('parseDate locale support', () => {
     const MDY = getLocale(l)?.preferMDY;
     if (MDY) {
       expect(parseDate('07/05/82', opt), `${l} prefers MDY (07/05/82)`).toEqual({ v: 30137, z: 'mm/dd/yy' });
-      expect(parseDate('31/05/82', opt), `${l} prefers MDY (31/05/82)`).toEqual(null);
+      expect(parseDate('31/05/82', opt), `${l} prefers MDY (31/05/82)`).toEqual(undefined);
       expect(parseDate('05/31/82', opt), `${l} prefers MDY (05/31/82)`).toEqual({ v: 30102, z: 'mm/dd/yy' });
     }
     else {
       expect(parseDate('07/05/82', opt), `${l} prefers DMY (07/05/82)`).toEqual({ v: 30078, z: 'dd/mm/yy' });
-      expect(parseDate('07/31/82', opt), `${l} prefers DMY (07/31/82)`).toEqual(null);
+      expect(parseDate('07/31/82', opt), `${l} prefers DMY (07/31/82)`).toEqual(undefined);
       expect(parseDate('31/05/82', opt), `${l} prefers MDY (31/05/82)`).toEqual({ v: 30102, z: 'dd/mm/yy' });
     }
   }

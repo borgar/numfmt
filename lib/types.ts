@@ -10,6 +10,46 @@ import {
 
 } from './constants.ts';
 
+/**
+ * A valid token type.
+ *
+ * | Token type      | Description
+ * |---------------- |----------------
+ * | TOKEN_AMPM      | AM/PM operator (`AM/PM`, `A/P`)
+ * | TOKEN_BREAK     | Semicolon operator indicating a break between format sections (`;`)
+ * | TOKEN_CALENDAR  | Calendar modifier (`B2`)
+ * | TOKEN_CHAR      | Single non-operator character (`m`)
+ * | TOKEN_COLOR     | Color modifier (`[Black]`, `[color 5]`)
+ * | TOKEN_COMMA     | Plain non-operator comma (`,`)
+ * | TOKEN_CONDITION | Condition modifier for a section (`[>=10]`)
+ * | TOKEN_DATETIME  | Date-time operator (`mmmm`, `YY`)
+ * | TOKEN_DBNUM     | Number display modifier (`[DBNum23]`)
+ * | TOKEN_DIGIT     | A digit between 1 and 9 (`3`)
+ * | TOKEN_DURATION  | Time duration (`[ss]`)
+ * | TOKEN_ERROR     | Unidentifiable or illegal character (`Ň`)
+ * | TOKEN_ESCAPED   | Escaped character (`\E`)
+ * | TOKEN_EXP       | Exponent operator (`E+`)
+ * | TOKEN_FILL      | Fill with char operator and operand (`*_`)
+ * | TOKEN_GENERAL   | General format operator (`General`)
+ * | TOKEN_GROUP     | Number grouping operator (`,`)
+ * | TOKEN_HASH      | Hash operator (digit if available) (`#`)
+ * | TOKEN_LOCALE    | Locale modifier (`[$-1E020404]`)
+ * | TOKEN_MINUS     | Minus sign (`-`)
+ * | TOKEN_MODIFIER  | An unidentified modifier (`[Lorem]`)
+ * | TOKEN_NATNUM    | Number display modifier (`[NatNum3]`)
+ * | TOKEN_PAREN     | Parenthesis character (`)`)
+ * | TOKEN_PERCENT   | Percent operator (`%`)
+ * | TOKEN_PLUS      | Plus sign (`+`)
+ * | TOKEN_POINT     | Decimal point operator (`.`)
+ * | TOKEN_QMARK     | Question mark operator (digit or space if not available) (`?`)
+ * | TOKEN_SCALE     | Scaling operator (`,`)
+ * | TOKEN_SKIP      | Skip with char operator and operand (`*_`)
+ * | TOKEN_SLASH     | Slash operator (`/`)
+ * | TOKEN_SPACE     | Space (` `)
+ * | TOKEN_STRING    | Quoted string (`"days"`)
+ * | TOKEN_TEXT      | Text output operator (`@`)
+ * | TOKEN_ZERO      | Zero operator (digit or zero if not available) (`0`) *
+ */
 export type TokenType = (
   typeof TOKEN_GENERAL | typeof TOKEN_HASH | typeof TOKEN_ZERO | typeof TOKEN_QMARK |
   typeof TOKEN_SLASH | typeof TOKEN_GROUP | typeof TOKEN_SCALE | typeof TOKEN_COMMA |
@@ -22,7 +62,10 @@ export type TokenType = (
   typeof TOKEN_PAREN | typeof TOKEN_CHAR
 );
 
-export type FormatToken = {
+/**
+ * A token emitted by the tokenizer.
+ */
+export type Token = {
   /** Token type. */
   type: TokenType,
   /** The value of the token, cleaned of extra characters. */
@@ -130,7 +173,10 @@ export type PatternParseData = {
   error?: string
 };
 
-/** An object of information properties based on a format pattern. */
+/**
+ * An object of information properties based on a format pattern.
+ * See the {@link getFormatInfo} method.
+ */
 export type FormatInfo = {
   /** A string identifier for the type of the number formatter. */
   type: ('currency' | 'date' | 'datetime' | 'error' | 'fraction' | 'general' | 'grouped' | 'number' | 'percent' | 'scientific' | 'text' | 'time');
@@ -170,7 +216,10 @@ export type FormatInfo = {
   level: number;
 };
 
-/** An object detailing which date specifiers are used in a format pattern. */
+/**
+ * An object detailing which date specifiers are used in a format pattern.
+ * See the {@link getFormatDateInfo} method.
+ */
 export type FormatDateInfo = {
   /** true if the pattern uses years else false. */
   year: boolean;

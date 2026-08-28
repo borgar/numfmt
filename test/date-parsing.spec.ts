@@ -162,4 +162,3 @@ test('Date specifiers: month vs. minute', () => {
   expect(format('yyyy-mm-dd\\Thh-mm-ss.000', 60)).toBe('1900-02-29T00-00-00.000');
   expect(format('yyyy-mm-dd\\Thh-mm-ss.000', 61)).toBe('1900-03-01T00-00-00.000');
 });
-

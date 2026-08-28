@@ -40,10 +40,10 @@ export function formatColor (
   value: unknown,
   parseData: PatternParseData,
   opts: Pick<FormatOptions, 'indexColors'>
-): string | number | null {
+): string | number | undefined {
   const parts = parseData.partitions;
   let part: Partition | undefined = parts[3];
-  let color = null;
+  let color: string | number | undefined;
   if ((typeof value === 'number' || typeof value === 'bigint') && Number.isFinite(value)) {
     part = getPart(value, parts);
   }
