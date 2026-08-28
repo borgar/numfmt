@@ -673,9 +673,6 @@ The returned output will be an array of objects representing the tokens:
 ]
 ```
 
-As well as exported individually, the token type descriptors may be found as
-an object collection at the tokenTypes export of the package.
-
 ## Parameters
 
 | Parameter | Type | Description |

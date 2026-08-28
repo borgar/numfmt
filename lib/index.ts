@@ -7,14 +7,7 @@
  * @module numfmt
  */
 
-import {
-  TOKEN_GENERAL, TOKEN_HASH, TOKEN_ZERO, TOKEN_QMARK, TOKEN_SLASH, TOKEN_GROUP, TOKEN_SCALE,
-  TOKEN_COMMA, TOKEN_BREAK, TOKEN_TEXT, TOKEN_PLUS, TOKEN_MINUS, TOKEN_POINT, TOKEN_SPACE,
-  TOKEN_PERCENT, TOKEN_DIGIT, TOKEN_CALENDAR, TOKEN_ERROR, TOKEN_DATETIME, TOKEN_DURATION,
-  TOKEN_CONDITION, TOKEN_DBNUM, TOKEN_NATNUM, TOKEN_LOCALE, TOKEN_COLOR, TOKEN_MODIFIER,
-  TOKEN_AMPM, TOKEN_ESCAPED, TOKEN_STRING, TOKEN_SKIP, TOKEN_EXP, TOKEN_FILL, TOKEN_PAREN,
-  TOKEN_CHAR
-} from './constants.ts';
+import { TOKEN_ERROR } from './constants.ts';
 
 export {
   getLocale,
@@ -25,7 +18,6 @@ export {
 import { defaultOptions, type FormatOptions } from './options.ts';
 
 export { round } from './round.ts';
-export { dec2frac } from './dec2frac.ts';
 export type { FormatOptions } from './options.ts';
 export type { ParseDataBool, ParseDataNum } from './parseValue.ts';
 export type {
@@ -60,7 +52,7 @@ export {
 import { formatColor as fmtColor, formatValue as fmtValue } from './formatNumber.ts';
 import { info, dateInfo, isDate, isPercent, isText } from './formatInfo.ts';
 import { parsePattern } from './parsePattern.ts';
-import type { FormatDateInfo, FormatInfo, TokenType } from './types.ts';
+import type { FormatDateInfo, FormatInfo } from './types.ts';
 
 export { tokenize } from './tokenize.ts';
 
@@ -266,79 +258,3 @@ export function getFormatDateInfo (pattern: string): FormatDateInfo {
   }
   return data.dateInfo;
 }
-
-// /**
-//  * A dictionary of the types used to identify token variants.
-//  *
-//  * @property AMPM - AM/PM operator (`AM/PM`, `A/P`)
-//  * @property BREAK - Semicolon operator indicating a break between format sections (`;`)
-//  * @property CALENDAR - Calendar modifier (`B2`)
-//  * @property CHAR - Single non-operator character (`m`)
-//  * @property COLOR - Color modifier (`[Black]`, `[color 5]`)
-//  * @property COMMA - Plain non-operator comma (`,`)
-//  * @property CONDITION - Condition modifier for a section (`[>=10]`)
-//  * @property DATETIME - Date-time operator (`mmmm`, `YY`)
-//  * @property DBNUM - Number display modifier (`[DBNum23]`)
-//  * @property DIGIT - A digit between 1 and 9 (`3`)
-//  * @property DURATION - Time duration (`[ss]`)
-//  * @property ERROR - Unidentifiable or illegal character (`Ň`)
-//  * @property ESCAPED - Escaped character (`\E`)
-//  * @property EXP - Exponent operator (`E+`)
-//  * @property FILL - Fill with char operator and operand (`*_`)
-//  * @property GENERAL - General format operator (`General`)
-//  * @property GROUP - Number grouping operator (`,`)
-//  * @property HASH - Hash operator (digit if available) (`#`)
-//  * @property LOCALE - Locale modifier (`[$-1E020404]`)
-//  * @property MINUS - Minus sign (`-`)
-//  * @property MODIFIER - An unidentified modifier (`[Schwarz]`)
-//  * @property NATNUM - Number display modifier (`[NatNum3]`)
-//  * @property PAREN - Parenthesis character (`)`)
-//  * @property PERCENT - Percent operator (`%`)
-//  * @property PLUS - Plus sign (`+`)
-//  * @property POINT - Decimal point operator (`.`)
-//  * @property QMARK - Question mark operator (digit or space if not available) (`?`)
-//  * @property SCALE - Scaling operator (`,`)
-//  * @property SKIP - Skip with char operator and operand (`*_`)
-//  * @property SLASH - Slash operator (`/`)
-//  * @property SPACE - Space (` `)
-//  * @property STRING - Quoted string (`"days"`)
-//  * @property TEXT - Text output operator (`@`)
-//  * @property ZERO - Zero operator (digit or zero if not available) (`0`)
-//  * @see tokenize
-//  */
-// export const tokenTypes: Readonly<Record<TokenType, TokenType>> = Object.freeze({
-//   [TOKEN_AMPM]: TOKEN_AMPM,
-//   [TOKEN_BREAK]: TOKEN_BREAK,
-//   [TOKEN_CALENDAR]: TOKEN_CALENDAR,
-//   [TOKEN_CHAR]: TOKEN_CHAR,
-//   [TOKEN_COLOR]: TOKEN_COLOR,
-//   [TOKEN_COMMA]: TOKEN_COMMA,
-//   [TOKEN_CONDITION]: TOKEN_CONDITION,
-//   [TOKEN_DATETIME]: TOKEN_DATETIME,
-//   [TOKEN_DBNUM]: TOKEN_DBNUM,
-//   [TOKEN_DIGIT]: TOKEN_DIGIT,
-//   [TOKEN_DURATION]: TOKEN_DURATION,
-//   [TOKEN_ERROR]: TOKEN_ERROR,
-//   [TOKEN_ESCAPED]: TOKEN_ESCAPED,
-//   [TOKEN_EXP]: TOKEN_EXP,
-//   [TOKEN_FILL]: TOKEN_FILL,
-//   [TOKEN_GENERAL]: TOKEN_GENERAL,
-//   [TOKEN_GROUP]: TOKEN_GROUP,
-//   [TOKEN_HASH]: TOKEN_HASH,
-//   [TOKEN_LOCALE]: TOKEN_LOCALE,
-//   [TOKEN_MINUS]: TOKEN_MINUS,
-//   [TOKEN_MODIFIER]: TOKEN_MODIFIER,
-//   [TOKEN_NATNUM]: TOKEN_NATNUM,
-//   [TOKEN_PAREN]: TOKEN_PAREN,
-//   [TOKEN_PERCENT]: TOKEN_PERCENT,
-//   [TOKEN_PLUS]: TOKEN_PLUS,
-//   [TOKEN_POINT]: TOKEN_POINT,
-//   [TOKEN_QMARK]: TOKEN_QMARK,
-//   [TOKEN_SCALE]: TOKEN_SCALE,
-//   [TOKEN_SKIP]: TOKEN_SKIP,
-//   [TOKEN_SLASH]: TOKEN_SLASH,
-//   [TOKEN_SPACE]: TOKEN_SPACE,
-//   [TOKEN_STRING]: TOKEN_STRING,
-//   [TOKEN_TEXT]: TOKEN_TEXT,
-//   [TOKEN_ZERO]: TOKEN_ZERO
-// });

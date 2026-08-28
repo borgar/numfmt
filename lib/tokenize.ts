@@ -73,9 +73,6 @@ const isNumOp = (char: string) => {
  * ]
  * ```
  *
- * As well as exported individually, the token type descriptors may be found as
- * an object collection at the {@link tokenTypes} export of the package.
- *
  * @param pattern The format pattern
  * @returns A list of tokens
  */
