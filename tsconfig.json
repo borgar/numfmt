@@ -2,7 +2,7 @@
   "include": [
     "lib/**/*",
     "test/**/*",
-    "eslint.config.js"
+    "eslint.config.mjs"
   ],
   "types": [ "node" ],
   "compilerOptions": {

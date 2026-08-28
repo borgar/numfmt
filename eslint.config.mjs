@@ -8,15 +8,15 @@ export default tseslint.config(
     files: [
       '**/*.js',
       '**/*.ts',
-      '**/*.mjs',
+      '**/*.mjs'
     ],
     ignores: [
-      'dist/*',
+      'dist/*'
     ],
     languageOptions: {
       globals: { ...globals.browser },
-      parserOptions: { projectService: { allowDefaultProject: [] } },
-    },
+      parserOptions: { projectService: { allowDefaultProject: [] } }
+    }
   },
   eslint.configs.recommended,
   tseslint.configs.recommendedTypeChecked,
@@ -25,7 +25,7 @@ export default tseslint.config(
   borgarLint.config.stylistic({
     commaDangle: false,
     singleBlocks: true,
-    lineLength: 120,
+    lineLength: 120
   }),
   {
     rules: {
@@ -34,6 +34,6 @@ export default tseslint.config(
       '@typescript-eslint/no-unsafe-call': 'off',
       // rule is currently bugged
       'no-useless-assignment': 'off'
-    },
-  },
+    }
+  }
 );
