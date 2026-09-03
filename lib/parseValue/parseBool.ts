@@ -1,5 +1,7 @@
 import { defaultLocale, getLocale } from '../locale.ts';
-import type { ParseDataBool } from './types.ts';
+import { parseBoolNf } from './parseBoolNf.ts';
+import { parseBoolXl } from './parseBoolXl.ts';
+import type { ParseDataBool, ParseValueOptions } from './types.ts';
 
 /**
  * Parse a string input and return its equivalent boolean value. If the input was not
@@ -10,21 +12,12 @@ import type { ParseDataBool } from './types.ts';
  *
  * @param value The supposed boolean to parse
  * @param [options] Options for the parser
- * @param [options.locale]
- *    A BCP 47 string tag. Locale default is english with a `\u00a0`
- *    grouping symbol (see [addLocale](#addLocale))
  * @returns An object of the parsed value
  */
-export function parseBool (value: string, options: { locale?: string; } = {}): ParseDataBool | undefined {
-  const l10n = getLocale(options.locale || '') || defaultLocale;
-  const v = value.trim().toLowerCase();
-  const bT = l10n.bool[0].toLowerCase();
-  if (v === 'true' || v === bT) {
-    return { v: true };
+export function parseBool (value: string, options?: ParseValueOptions): ParseDataBool | undefined {
+  const l10n = getLocale(options?.locale || '') || defaultLocale;
+  if (options?.mode === 1) {
+    return parseBoolNf(value, l10n);
   }
-  const bF = l10n.bool[1].toLowerCase();
-  if (v === 'false' || v === bF) {
-    return { v: false };
-  }
-  return undefined;
+  return parseBoolXl(value, l10n);
 }

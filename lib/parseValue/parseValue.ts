@@ -1,8 +1,13 @@
-import { parseBool } from './parseBool.ts';
-import { parseDate } from './parseDate.ts';
-import { parseNumber } from './parseNumber.ts';
-import { parseTime } from './parseTime.ts';
-import type { ParseDataBool, ParseDataNum } from './types.ts';
+import { defaultLocale, getLocale } from '../locale.ts';
+import { parseBoolNf } from './parseBoolNf.ts';
+import { parseBoolXl } from './parseBoolXl.ts';
+import { parseDateNf } from './parseDateNf.ts';
+import { parseDateXl } from './parseDateXl.ts';
+import { parseNumberNf } from './parseNumberNf.ts';
+import { parseNumberXl } from './parseNumberXl.ts';
+import { parseTimeNf } from './parseTimeNf.ts';
+import { parseTimeXl } from './parseTimeXl.ts';
+import type { ParseDataBool, ParseDataNum, ParseValueOptions } from './types.ts';
 
 /**
  * Attempt to parse a "spreadsheet input" string input and return its value and
@@ -50,16 +55,22 @@ import type { ParseDataBool, ParseDataNum } from './types.ts';
  *
  * @param value The value to parse
  * @param [options] Options for the parser
- * @param [options.locale]
- *    A BCP 47 string tag. Locale default is english with a `\u00a0`
- *    grouping symbol (see {@link addLocale})
  * @returns An object of the parsed value and a corresponding format string
  */
-export function parseValue (value: string, options?: { locale?: string; }): ParseDataNum | ParseDataBool | undefined {
+export function parseValue (value: string, options?: ParseValueOptions): ParseDataNum | ParseDataBool | undefined {
+  const l10n = getLocale(options?.locale || '') || defaultLocale;
+  if (options?.mode === 1) {
+    return (
+      parseNumberNf(value, l10n) ??
+      parseDateNf(value, l10n) ??
+      parseTimeNf(value, l10n) ??
+      parseBoolNf(value, l10n)
+    );
+  }
   return (
-    parseNumber(value, options) ??
-    parseDate(value, options) ??
-    parseTime(value, options) ??
-    parseBool(value, options)
+    parseNumberXl(value, l10n) ??
+    parseDateXl(value, l10n) ??
+    parseTimeXl(value, l10n) ??
+    parseBoolXl(value, l10n)
   );
 }
