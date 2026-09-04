@@ -19,9 +19,15 @@ const TAILS: Record<string, 'a' | 'p'> = {
 function isDigits (str: string): boolean {
   return /^\d\d?$/.test(str);
 }
+
 function isFrac (str: string): boolean {
   return /^\d{0,10}$/.test(str);
 }
+
+const ampmMatch = (str: string, loc: string) => {
+  const norm = normAMPMStr(loc);
+  return str === norm || str === norm.charAt(0);
+};
 
 type TimeBits = { h: string, m: string, s: string, f: string, ap: string, z: string };
 
@@ -79,26 +85,20 @@ export function parseTimeXl (value: string, l10n: LocaleData): ParseDataNum | un
   const parts = splitString(value, timeSplitter);
 
   const lastType = parts.at(-1)?.type;
-  if (lastType === '~' || lastType === '.') {
-    parts.pop();
-  }
+  const pattern = (lastType === '~' || lastType === '.')
+    ? parts.slice(0, -1).reduce((a, c) => a + c.type, '')
+    : parts.reduce((a, c) => a + c.type, '');
 
-  const pattern = parts.reduce((a, c) => a + c.type, '');
-  if (!(pattern in allowedPatterns)) {
-    return;
-  }
-  const sss = allowedPatterns[pattern](parts);
-  if (!sss) {
-    return;
-  }
+  const sss = allowedPatterns[pattern]?.(parts);
+  if (!sss) { return; }
+
   const { h, m, s, f, ap, z } = sss;
-
   if (isDigits(h) && isDigits(m) && isDigits(s) && isFrac(f)) {
     let ampm: AmPm = '';
-    if (ap === normAMPMStr(l10n.ampm[0]) || TAILS[ap] === 'a') {
+    if (ampmMatch(ap, l10n.ampm[0]) || TAILS[ap] === 'a') {
       ampm = 'a';
     }
-    else if (ap === normAMPMStr(l10n.ampm[1]) || TAILS[ap] === 'p') {
+    else if (ampmMatch(ap, l10n.ampm[1]) || TAILS[ap] === 'p') {
       ampm = 'p';
     }
     else if (ap) {
@@ -114,6 +114,4 @@ export function parseTimeXl (value: string, l10n: LocaleData): ParseDataNum | un
       return out;
     }
   }
-
-  return;
 }

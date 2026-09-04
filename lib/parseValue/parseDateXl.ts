@@ -158,9 +158,12 @@ export function parseDateXl (value: string, l10n: LocaleData): ParseDataNum | un
   }
 
   const isMDY = l10n.preferMDY;
+  // all-numeric dates differ only in which of the two non-year fields is the month
+  const numFmt = isMDY ? 'm/d/yy' : 'd/m/yy';
 
   if (bits.length === 5) {
     const [ a, b, c, d, e ] = bits;
+    const [ nMon, nDay ] = isMDY ? [ a, c ] : [ c, a ];
     if (false) {
       // noop
     }
@@ -182,26 +185,24 @@ export function parseDateXl (value: string, l10n: LocaleData): ParseDataNum | un
       format = 'd-mmm-yy';
     }
 
-    else if (isMM(a) && isSep2(b) && isDD(c, +c, +e) && isSep2(d) && isYYYY(e)) {
-      serialDate = toSerialDate(+e, +a, +c);
-      format = 'm/d/yy';
+    else if (isMM(nMon) && isSep2(b) && isDD(nDay, +nMon, +e) && isSep2(d) && isYYYY(e)) {
+      serialDate = toSerialDate(+e, +nMon, +nDay);
+      format = numFmt;
     }
-    else if (isMM(a) && isSep2(b) && isDD(c, +c, toYY(e)) && isSep2(d) && isYY(e)) {
-      serialDate = toSerialDate(toYY(e), +a, +c);
-      format = 'm/d/yy';
-    }
-    else if (isMM(a) && isSep2(b) && isDD(c, +a, toYY(e)) && isSep2(d) && isYY(e)) {
-      serialDate = toSerialDate(+a, +c, toYY(e));
-      format = 'm/d/yy';
+    else if (isMM(nMon) && isSep2(b) && isDD(nDay, +nMon, toYY(e)) && isSep2(d) && isYY(e)) {
+      serialDate = toSerialDate(toYY(e), +nMon, +nDay);
+      format = numFmt;
     }
 
+    // a leading 4-digit year is year-month-day in every locale
     else if (isYYYY(a) && isSep2(b) && isMM(c) && isSep2(d) && isDD(e, +c, +a)) {
       serialDate = toSerialDate(+a, +c, +e);
-      format = 'm/d/yy';
+      format = numFmt;
     }
   }
   else if (bits.length === 3) {
     const [ a, b, c ] = bits;
+    const [ nMon, nDay ] = isMDY ? [ a, c ] : [ c, a ];
     if (false) {}
     // note reversed order
     else if (isMMM(c) && isDD(a, parseWord(c)) && isSep(b)) {
@@ -214,8 +215,8 @@ export function parseDateXl (value: string, l10n: LocaleData): ParseDataNum | un
     }
 
     // LTR down order
-    else if (isMM(a) && isSep2(b) && isDD(c, +a)) {
-      serialDate = toSerialDate(year, +a, +c);
+    else if (isMM(nMon) && isSep2(b) && isDD(nDay, +nMon)) {
+      serialDate = toSerialDate(year, +nMon, +nDay);
       format = 'd-mmm';
     }
     else if (isMM(a) && isSep2(b) && isYY(c)) {

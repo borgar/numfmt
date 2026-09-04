@@ -1,111 +1,60 @@
 import { readFileSync } from 'node:fs';
-import { addLocale, format, getLocale, listLocales, parseBool, parseDate, parseNumber, parseTime, parseValue } from '../lib/index.ts';
+import { addLocale, getLocale, listLocales, parseBool, parseDate, parseNumber, parseTime, parseValue } from '../lib/index.ts';
 import { describe, expect, test } from 'vitest';
 
 type TestCase = {
   test: string,
-  v: string | number | boolean,
+  v: string | number | boolean | null,
   z?: string,
-  f?: string,
 };
 
-const TESTS: TestCase[] = JSON.parse(readFileSync('./test/parseValue-excel.json', 'utf8'));
-
-const expr = [
-  '=1+1',
-  '=1/2.',
-  '=1/2',
-  '=1',
-  '=00123',
-  '=00123.',
-  '=1e5',
-  '=50%',
-  '=2024-02-29',
-  '=2024-02-29.'
-];
+const TESTS: TestCase[] = JSON.parse(readFileSync('./test/tables/parseValue-excel.json', 'utf8'));
 
 describe('parseValue: EXCEL mode', () => {
-  // describe('parseValue functions correctly', () => {
-  //   for (const testcase of TESTS) {
-  //     test(JSON.stringify(testcase.test), () => {
-  //       const exp: Record<string, any> = {
-  //         v: testcase.v ?? null,
-  //         z: testcase.z
-  //       };
-  //       if (expr.includes(testcase.test)) {
-  //         exp.v = null;
-  //       }
-  //       if (("'" + testcase.v) === testcase.test) {
-  //         exp.v = null;
-  //       }
-  //       if (testcase.test.startsWith('=') && (testcase.v === '' || testcase.v === 0)) {
-  //         exp.v = null;
-  //       }
-  //       const res = parseValue(testcase.test, { locale: 'en-us', mode: 0 }) ?? { v: null, z: undefined };
-  //       expect(res).toEqual(exp);
-  //     });
-  //   }
-  // });
+  describe('parseValue functions correctly', () => {
+    for (const testcase of TESTS) {
+      test(JSON.stringify(testcase.test), () => {
+        const res = parseValue(testcase.test, { locale: 'en-us' }) ?? { v: null, z: undefined };
+        expect(res).toEqual({
+          v: testcase.v ?? null,
+          z: testcase.z
+        });
+      });
+    }
+  });
 
   test('parseNumber locale support', () => {
     // can parse numbers in any language
-    expect(parseNumber('1,234,567.89', { locale: 'en', mode: 0 })).toEqual({ v: 1234567.89, z: '#,##0.00' });
-    expect(parseNumber('1.234.567,89', { locale: 'en', mode: 0 })).toEqual(undefined);
+    expect(parseNumber('1,234,567.89', { locale: 'en' })).toEqual({ v: 1234567.89, z: '#,##0.00' });
+    expect(parseNumber('1.234.567,89', { locale: 'en' })).toEqual(undefined);
 
-    expect(parseNumber('1,234,567.89', { locale: 'de', mode: 0 })).toEqual(undefined);
-    expect(parseNumber('1.234.567,89', { locale: 'de', mode: 0 })).toEqual({ v: 1234567.89, z: '#,##0.00' });
+    expect(parseNumber('1,234,567.89', { locale: 'de' })).toEqual(undefined);
+    expect(parseNumber('1.234.567,89', { locale: 'de' })).toEqual({ v: 1234567.89, z: '#,##0.00' });
 
-    expect(parseNumber('1,234,567.89', { locale: 'de', mode: 0 })).toEqual(undefined);
-    expect(parseNumber('1.234.567,89', { locale: 'de', mode: 0 })).toEqual({ v: 1234567.89, z: '#,##0.00' });
+    expect(parseNumber('1,234,567.89', { locale: 'de' })).toEqual(undefined);
+    expect(parseNumber('1.234.567,89', { locale: 'de' })).toEqual({ v: 1234567.89, z: '#,##0.00' });
 
-    addLocale({
-      decimal: '·',
-      group: '~',
-      positive: 'ᐩ',
-      negative: '÷',
-      percent: '٪',
-      exponent: 'X'
-    }, 'xy');
-    // expect(format('#,##0.00', 1234567.89, { locale: 'xy', mode: 0 })).toBe('1~234~567·89');
-    expect(parseNumber('1~234~567·89', { locale: 'xy', mode: 0 })).toEqual({ v: 1234567.89, z: '#,##0.00' });
-    expect(parseNumber('1\u202f234\u202f567,89', { locale: 'fr', mode: 0 })).toEqual({ v: 1234567.89, z: '#,##0.00' });
-    expect(parseNumber('1٬234٬567٫89', { locale: 'ar', mode: 0 })).toEqual({ v: 1234567.89, z: '#,##0.00' });
+    addLocale({ decimal: '·', group: '~', positive: 'ᐩ', negative: '÷', percent: '٪', exponent: 'X' }, 'xy');
+    expect(parseNumber('1~234~567·89', { locale: 'xy' })).toEqual({ v: 1234567.89, z: '#,##0.00' });
+    expect(parseNumber('1\u202f234\u202f567,89', { locale: 'fr' })).toEqual({ v: 1234567.89, z: '#,##0.00' });
+    expect(parseNumber('1٬234٬567٫89', { locale: 'ar' })).toEqual({ v: 1234567.89, z: '#,##0.00' });
   });
 
-  test.only('parseDate locale support', () => {
+  test('parseDate locale support', () => {
     // can parse dates in any language
-    expect(parseDate('13 march 1989', { locale: 'en', mode: 0 })).toEqual({ v: 32580, z: 'd-mmm-yy' });
-    expect(parseDate('13 marec 1989', { locale: 'sl', mode: 0 })).toEqual({ v: 32580, z: 'd-mmm-yy' });
-    expect(parseDate('13 mars 1989', { locale: 'is', mode: 0 })).toEqual({ v: 32580, z: 'd-mmm-yy' });
-    expect(parseDate('23 Dec 1988', { locale: 'en', mode: 0 })).toEqual({ v: 32500, z: 'd-mmm-yy' });
-    expect(parseDate('23 DES 1988', { locale: 'is', mode: 0 })).toEqual({ v: 32500, z: 'd-mmm-yy' });
-    expect(parseDate('23 dec 1988', { locale: 'ro', mode: 0 })).toEqual({ v: 32500, z: 'd-mmm-yy' });
-    expect(parseDate('27 febrero 31', { locale: 'es_UY', mode: 0 })).toEqual({ v: 11381, z: 'd-mmm-yy' });
-    expect(parseDate('29 február 1916', { locale: 'hu', mode: 0 })).toEqual({ v: 5904, z: 'd-mmm-yy' });
-    expect(parseDate('01 oct 1975', { locale: 'eb', mode: 0 })).toEqual({ v: 27668, z: 'd-mmm-yy' });
+    expect(parseDate('13 march 1989', { locale: 'en' })).toEqual({ v: 32580, z: 'd-mmm-yy' });
+    expect(parseDate('13 marec 1989', { locale: 'sl' })).toEqual({ v: 32580, z: 'd-mmm-yy' });
+    expect(parseDate('13 mars 1989', { locale: 'is' })).toEqual({ v: 32580, z: 'd-mmm-yy' });
+    expect(parseDate('23 Dec 1988', { locale: 'en' })).toEqual({ v: 32500, z: 'd-mmm-yy' });
+    expect(parseDate('23 DES 1988', { locale: 'is' })).toEqual({ v: 32500, z: 'd-mmm-yy' });
+    expect(parseDate('23 dec 1988', { locale: 'ro' })).toEqual({ v: 32500, z: 'd-mmm-yy' });
+    expect(parseDate('27 febrero 31', { locale: 'es_UY' })).toEqual({ v: 11381, z: 'd-mmm-yy' });
+    expect(parseDate('29 február 1916', { locale: 'hu' })).toEqual({ v: 5904, z: 'd-mmm-yy' });
+    expect(parseDate('01 oct 1975', { locale: 'eb' })).toEqual({ v: 27668, z: 'd-mmm-yy' });
 
-    const fm = [
-      'dddd d mmmm yyyy',
-      'ddd d mmmm yyyy',
-      'd mmmm yyyy ddd',
-      'dddd, d mmmm yyyy',
-      'd mmmm yyyy, dddd hh:mm',
-      'd - mmm - yyyy',
-      'd.mmm.yyyy',
-      'm.d.yyyy',
-      'm. yyyy',
-      'yyyy/mmmm',
-      'mmmm/yy',
-      'yy/mmmm/d'
-    ];
     const loc = listLocales().filter(l => l !== 'xx' && l !== 'xy');
     for (const l of loc) {
-      const opt = { locale: l, mode: 0 };
-      // for (const f of fm) {
-      //   const o = format(f, 3290.1278435, opt);
-      //   const parsed = parseDate(o, opt);
-      //   expect(!!parsed, `Locale: "${f}" in ${l} (${o})`).toBeTruthy();
-      // }
+      const opt = { locale: l };
       // locales with preferMDY should allow dates that fit, else only allow DMY
       const MDY = getLocale(l)?.preferMDY;
       if (MDY) {
@@ -121,28 +70,64 @@ describe('parseValue: EXCEL mode', () => {
     }
   });
 
-  test('parseTime locale support', () => {
-    expect(parseTime('01:31 a', { locale: 'fi', mode: 0 }), 'fi: 01:31 a').toEqual({ v: 0.06319444444444444, z: 'h:mm AM/PM' });
-    expect(parseTime('01:31 am', { locale: 'fi', mode: 0 }), 'fi: 01:31 am').toEqual({ v: 0.06319444444444444, z: 'h:mm AM/PM' });
-    // expect(parseTime('01:31 ap.', { locale: 'fi', mode: 0 }), 'fi: 01:31 ap.').toEqual({ v: 0.06319444444444444, z: 'h:mm AM/PM' });
-    // expect(parseTime('01:31 ap', { locale: 'fi', mode: 0 }), 'fi: 01:31 ap').toEqual({ v: 0.06319444444444444, z: 'h:mm AM/PM' });
+  test('parseDate numeric field order follows the locale', () => {
+    const year = new Date().getUTCFullYear();
+    const serial = (y: number, m: number, d: number) => (Date.UTC(y, m - 1, d) / 864e5) + 25569;
+    const mdy = { locale: 'en' };
+    const dmy = { locale: 'is' };
 
-    expect(parseTime('01:31 a', { locale: 'is', mode: 0 }), 'is: 01:31 a').toEqual({ v: 0.06319444444444444, z: 'h:mm AM/PM' });
-    expect(parseTime('01:31 am', { locale: 'is', mode: 0 }), 'is: 01:31 am').toEqual({ v: 0.06319444444444444, z: 'h:mm AM/PM' });
-    // expect(parseTime('01:31 fh', { locale: 'is', mode: 0 }), 'is: 01:31 fh').toEqual({ v: 0.06319444444444444, z: 'h:mm AM/PM' });
-    // expect(parseTime('01:31 fh.', { locale: 'is', mode: 0 }), 'is: 01:31 fh.').toEqual({ v: 0.06319444444444444, z: 'h:mm AM/PM' });
-    // expect(parseTime('01:31 f.h.', { locale: 'is', mode: 0 }), 'is: 01:31 f.h.').toEqual({ v: 0.06319444444444444, z: 'h:mm AM/PM' });
-    // expect(parseTime('01:31 f. h.', { locale: 'is', mode: 0 }), 'is: 01:31 f. h.').toEqual({ v: 0.06319444444444444, z: 'h:mm AM/PM' });
+    // two numeric fields: the day/month pair swaps, the month/year pair does not
+    expect(parseDate('5/15', mdy), 'en: 5/15').toEqual({ v: serial(year, 5, 15), z: 'd-mmm' });
+    expect(parseDate('5/15', dmy), 'is: 5/15').toEqual({ v: serial(2015, 5, 1), z: 'mmm-yy' });
+    expect(parseDate('4/6', mdy), 'en: 4/6').toEqual({ v: serial(year, 4, 6), z: 'd-mmm' });
+    expect(parseDate('4/6', dmy), 'is: 4/6').toEqual({ v: serial(year, 6, 4), z: 'd-mmm' });
+    expect(parseDate('15/5', mdy), 'en: 15/5').toEqual(undefined);
+    expect(parseDate('31/12', dmy), 'is: 31/12').toEqual({ v: serial(year, 12, 31), z: 'd-mmm' });
+
+    // three numeric fields, four-digit year
+    expect(parseDate('6/4/1984', mdy), 'en: 6/4/1984').toEqual({ v: 30837, z: 'm/d/yy' });
+    expect(parseDate('6/4/1984', dmy), 'is: 6/4/1984').toEqual({ v: serial(1984, 4, 6), z: 'd/m/yy' });
+    expect(parseDate('5/15/2026', dmy), 'is: 5/15/2026').toEqual(undefined);
+
+    // a leading four-digit year is always year-month-day, but the format follows the locale
+    expect(parseDate('1984/6/4', mdy), 'en: 1984/6/4').toEqual({ v: 30837, z: 'm/d/yy' });
+    expect(parseDate('1984/6/4', dmy), 'is: 1984/6/4').toEqual({ v: 30837, z: 'd/m/yy' });
+    expect(parseDate('1984/13/4', dmy), 'is: 1984/13/4').toEqual(undefined);
+  });
+
+  test('parseTime locale support', () => {
+    // AM and PM still work
+    expect(parseTime('01:31 a', { locale: 'is' })).toEqual({ v: 0.06319444444444444, z: 'h:mm AM/PM' });
+    expect(parseTime('01:31 am', { locale: 'is' })).toEqual({ v: 0.06319444444444444, z: 'h:mm AM/PM' });
+    expect(parseTime('01:31 p', { locale: 'is' })).toEqual({ v: 0.56319444444444444, z: 'h:mm AM/PM' });
+    expect(parseTime('01:31 pm', { locale: 'is' })).toEqual({ v: 0.56319444444444444, z: 'h:mm AM/PM' });
+    expect(parseTime('01:31 A', { locale: 'is' })).toEqual({ v: 0.06319444444444444, z: 'h:mm AM/PM' });
+    expect(parseTime('01:31 AM', { locale: 'is' })).toEqual({ v: 0.06319444444444444, z: 'h:mm AM/PM' });
+    expect(parseTime('01:31 P', { locale: 'is' })).toEqual({ v: 0.56319444444444444, z: 'h:mm AM/PM' });
+    expect(parseTime('01:31 PM', { locale: 'is' })).toEqual({ v: 0.56319444444444444, z: 'h:mm AM/PM' });
+    // The rule is that AM/PM is either parsed as full match or only the first character
+    expect(parseTime('01:31 f', { locale: 'is' })).toEqual({ v: 0.06319444444444444, z: 'h:mm AM/PM' });
+    expect(parseTime('01:31 f.', { locale: 'is' })).toEqual(undefined);
+    expect(parseTime('01:31 f.h', { locale: 'is' })).toEqual(undefined);
+    expect(parseTime('01:31 f.h.', { locale: 'is' })).toEqual({ v: 0.06319444444444444, z: 'h:mm AM/PM' });
+    expect(parseTime('01:31 F.H.', { locale: 'is' })).toEqual({ v: 0.06319444444444444, z: 'h:mm AM/PM' });
+    expect(parseTime('01:31 fh', { locale: 'is' })).toEqual(undefined);
+    expect(parseTime('01:31 e', { locale: 'is' })).toEqual({ v: 0.56319444444444444, z: 'h:mm AM/PM' });
+    expect(parseTime('01:31 e.', { locale: 'is' })).toEqual(undefined);
+    expect(parseTime('01:31 e.h', { locale: 'is' })).toEqual(undefined);
+    expect(parseTime('01:31 e.h.', { locale: 'is' })).toEqual({ v: 0.56319444444444444, z: 'h:mm AM/PM' });
+    expect(parseTime('01:31 E.H.', { locale: 'is' })).toEqual({ v: 0.56319444444444444, z: 'h:mm AM/PM' });
+    expect(parseTime('01:31 eh', { locale: 'is' })).toEqual(undefined);
   });
 
   test('parseBool locale support', () => {
-    expect(parseBool('TRUE', { locale: 'en', mode: 0 }), 'en: TRUE').toEqual({ v: true });
-    expect(parseBool('FALSE', { locale: 'en', mode: 0 }), 'en: FALSE').toEqual({ v: false });
-    expect(parseBool('TRUE', { locale: 'jn', mode: 0 }), 'jn: TRUE').toEqual({ v: true });
-    expect(parseBool('FALSE', { locale: 'jn', mode: 0 }), 'jn: FALSE').toEqual({ v: false });
-    expect(parseBool('TRUE', { locale: 'hu', mode: 0 }), 'hu: TRUE').toEqual({ v: true });
-    expect(parseBool('FALSE', { locale: 'hu', mode: 0 }), 'hu: FALSE').toEqual({ v: false });
-    expect(parseBool('IGAZ', { locale: 'hu', mode: 0 }), 'hu: IGAZ').toEqual({ v: true });
-    expect(parseBool('HAMIS', { locale: 'hu', mode: 0 }), 'hu: HAMIS').toEqual({ v: false });
+    expect(parseBool('TRUE', { locale: 'en' }), 'en: TRUE').toEqual({ v: true });
+    expect(parseBool('FALSE', { locale: 'en' }), 'en: FALSE').toEqual({ v: false });
+    expect(parseBool('TRUE', { locale: 'jn' }), 'jn: TRUE').toEqual({ v: true });
+    expect(parseBool('FALSE', { locale: 'jn' }), 'jn: FALSE').toEqual({ v: false });
+    expect(parseBool('TRUE', { locale: 'hu' }), 'hu: TRUE').toEqual({ v: true });
+    expect(parseBool('FALSE', { locale: 'hu' }), 'hu: FALSE').toEqual({ v: false });
+    expect(parseBool('IGAZ', { locale: 'hu' }), 'hu: IGAZ').toEqual({ v: true });
+    expect(parseBool('HAMIS', { locale: 'hu' }), 'hu: HAMIS').toEqual({ v: false });
   });
 });

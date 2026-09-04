@@ -1,5 +1,6 @@
 import { defaultLocale, getLocale } from '../locale.ts';
 import { parseNumberNf } from './parseNumberNf.ts';
+import { parseNumberXl } from './parseNumberXl.ts';
 import type { ParseDataNum, ParseValueOptions } from './types.ts';
 
 /**
@@ -19,6 +20,5 @@ export function parseNumber (value: string, options?: ParseValueOptions): ParseD
   if (options?.mode === 1) {
     return parseNumberNf(value, l10n);
   }
-  throw new Error('TBD');
-  return parseNumberNf(value, l10n);
+  return parseNumberXl(value, l10n);
 }
