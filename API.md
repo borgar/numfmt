@@ -808,7 +808,6 @@ type FormatInfo = {
   isText: boolean;
   level: number;
   maxDecimals: number;
-  minDecimals: number;
   parentheses: 0 | 1;
   scale: number;
   type:   | "currency"
@@ -841,7 +840,6 @@ See the [getFormatInfo](#functionsgetformatinfomd) method.
 | <a id="property-istext"></a> `isText` | `boolean` | Corresponds to the output from isTextFormat. |
 | <a id="property-level"></a> `level` | `number` | An arbirarty number that represents the format's specificity if you want to compare one to another. Integer comparisons roughly match Excel's resolutions when it determines which format wins out. |
 | <a id="property-maxdecimals"></a> `maxDecimals` | `number` | The maximum number of decimals this format will emit. |
-| <a id="property-mindecimals"></a> `minDecimals` | `number` | The minimum number of decimal places this format will reserve. |
 | <a id="property-parentheses"></a> `parentheses` | `0` \| `1` | 1 if the positive portion of the number format contains an open parenthesis, else a 0. This is replicates Excel's `CELL("parentheses")` functionality. |
 | <a id="property-scale"></a> `scale` | `number` | The multiplier used when formatting the number (100 for percentages). |
 | <a id="property-type"></a> `type` | \| `"currency"` \| `"date"` \| `"datetime"` \| `"error"` \| `"fraction"` \| `"general"` \| `"grouped"` \| `"number"` \| `"percent"` \| `"scientific"` \| `"text"` \| `"time"` | A string identifier for the type of the number formatter. |
