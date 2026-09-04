@@ -1,4 +1,4 @@
-import { isValidDate } from '../isValidDate.ts';
+import { daysInMonth, isValidDate } from '../isValidDate.ts';
 import { parseTimeXl } from './parseTimeXl.ts';
 import type { LocaleData } from '../locale.ts';
 import type { ParseDataNum } from './types.ts';
@@ -11,20 +11,6 @@ const normDateStr = (s: string) => (
     .replace(/\.$/, '')
     .toLowerCase()
 );
-
-const daysInMonth = (y: number, m: number): number => {
-  // february
-  if (m === 2) {
-    const isLeapYear = (((y % 4 === 0) && (y % 100 !== 0)) || (y % 400 === 0));
-    // 1900 is a leap year in Excel
-    return (isLeapYear || y === 1900) ? 29 : 28;
-  }
-  // test any other month
-  else if (m === 4 || m === 6 || m === 9 || m === 11) {
-    return 30;
-  }
-  return 31;
-};
 
 const getLookups2 = (l10n: { mmm: string[], mmmm: string[], ddd: string[], dddd: string[] }) => {
   const l: Record<string, [ string, number ]> = {};
@@ -77,8 +63,6 @@ const C_ZERO = 48;
 const C_NINE = 57;
 const C_SPACE = 32;
 const C_COMMA = 44;
-// const C_DASH = 45;
-// const C_POINT = 46;
 const C_SLASH = 47;
 const T_NUM = 1;
 const T_SEP = 2;
@@ -125,7 +109,7 @@ const isDD = (s: string, month?: number, year?: number) => {
   return (s.length <= 2 && isFinite(v) && v > 0 && v <= daysInMonth(year ?? currentYear, month ?? 1));
 };
 const isYYYY = (s: string) => s.length > 3 && isFinite(Number(s));
-const isYY = (s: string) => s.length <= 2 && isFinite(Number(s)); // allow single digit?
+const isYY = (s: string) => s.length <= 2 && isFinite(Number(s));
 const isSep = (s: string) => s.trim() === '/' || s.trim() === '-' || s === ' ';
 const isSep2 = (s: string) => s.trim() === '/' || s.trim() === '-';
 const isSep3 = (s: string) => /^, +/.test(s);
@@ -150,7 +134,6 @@ export function parseDateXl (value: string, l10n: LocaleData): ParseDataNum | un
   const year = currentYear;
   const day = 1;
 
-  // XXX: add tests for what Excel tolerates as date+time part separator
   let timePart = '';
   if (bits.length > 5 && /^ +$/.test(bits[5])) {
     timePart = bits.slice(6).join('');
@@ -164,10 +147,7 @@ export function parseDateXl (value: string, l10n: LocaleData): ParseDataNum | un
   if (bits.length === 5) {
     const [ a, b, c, d, e ] = bits;
     const [ nMon, nDay ] = isMDY ? [ a, c ] : [ c, a ];
-    if (false) {
-      // noop
-    }
-    else if ((isMMMM(a) || isMMM(a)) && isSep4(b) && isDD(c) && isSep3(d) && isYYYY(e)) {
+    if ((isMMMM(a) || isMMM(a)) && isSep4(b) && isDD(c) && isSep3(d) && isYYYY(e)) {
       serialDate = toSerialDate(+e, parseWord(a), +c);
       format = 'd-mmm-yy';
     }
@@ -203,9 +183,8 @@ export function parseDateXl (value: string, l10n: LocaleData): ParseDataNum | un
   else if (bits.length === 3) {
     const [ a, b, c ] = bits;
     const [ nMon, nDay ] = isMDY ? [ a, c ] : [ c, a ];
-    if (false) {}
     // note reversed order
-    else if (isMMM(c) && isDD(a, parseWord(c)) && isSep(b)) {
+    if (isMMM(c) && isDD(a, parseWord(c)) && isSep(b)) {
       serialDate = toSerialDate(year, parseWord(c), +a);
       format = 'd-mmm';
     }
@@ -252,8 +231,7 @@ export function parseDateXl (value: string, l10n: LocaleData): ParseDataNum | un
   }
   else if (bits.length === 2) {
     const [ a, b ] = bits;
-    if (false) {}
-    else if ((isMMM(a) || isMMMM(a)) && isDD(b, parseWord(a))) {
+    if ((isMMM(a) || isMMMM(a)) && isDD(b, parseWord(a))) {
       serialDate = toSerialDate(year, parseWord(a), +b);
       format = 'd-mmm';
     }
