@@ -130,4 +130,12 @@ describe('parseValue: EXCEL mode', () => {
     expect(parseBool('IGAZ', { locale: 'hu' }), 'hu: IGAZ').toEqual({ v: true });
     expect(parseBool('HAMIS', { locale: 'hu' }), 'hu: HAMIS').toEqual({ v: false });
   });
+
+  test('issue #71', () => {
+    expect(parseValue('2021/1-10')).toEqual({ v: 44206, z: 'm/d/yy' });
+  });
+
+  test('issue #72', () => {
+    expect(parseValue('01.01.01')).toBe(undefined);
+  });
 });

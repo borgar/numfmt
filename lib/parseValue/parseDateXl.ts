@@ -141,9 +141,6 @@ export function parseDateXl (value: string, l10n: LocaleData): ParseDataNum | un
   }
 
   const isMDY = l10n.preferMDY;
-  // all-numeric dates differ only in which of the two non-year fields is the month
-  const numFmt = isMDY ? 'm/d/yy' : 'd/m/yy';
-
   if (bits.length === 5) {
     const [ a, b, c, d, e ] = bits;
     const [ nMon, nDay ] = isMDY ? [ a, c ] : [ c, a ];
@@ -167,17 +164,17 @@ export function parseDateXl (value: string, l10n: LocaleData): ParseDataNum | un
 
     else if (isMM(nMon) && isSep2(b) && isDD(nDay, +nMon, +e) && isSep2(d) && isYYYY(e)) {
       serialDate = toSerialDate(+e, +nMon, +nDay);
-      format = numFmt;
+      format = isMDY ? 'm/d/yy' : 'd/m/yy';
     }
     else if (isMM(nMon) && isSep2(b) && isDD(nDay, +nMon, toYY(e)) && isSep2(d) && isYY(e)) {
       serialDate = toSerialDate(toYY(e), +nMon, +nDay);
-      format = numFmt;
+      format = isMDY ? 'm/d/yy' : 'd/m/yy';
     }
 
     // a leading 4-digit year is year-month-day in every locale
     else if (isYYYY(a) && isSep2(b) && isMM(c) && isSep2(d) && isDD(e, +c, +a)) {
       serialDate = toSerialDate(+a, +c, +e);
-      format = numFmt;
+      format = isMDY ? 'm/d/yy' : 'd/m/yy';
     }
   }
   else if (bits.length === 3) {
