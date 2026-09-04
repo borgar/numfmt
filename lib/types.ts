@@ -134,6 +134,7 @@ export type Partition = {
   int_max: number,
   den_max: number,
   frac_max: number,
+  frac_min: number,
   date_eval: boolean,
   date_system: typeof EPOCH_1900 | typeof EPOCH_1317,
   dec_fractions?: boolean;
@@ -188,6 +189,8 @@ export type FormatInfo = {
   isPercent: boolean;
   /** The maximum number of decimals this format will emit. */
   maxDecimals: number;
+  /** The minimum number of decimal places this format will reserve. */
+  minDecimals: number;
   /**
    * 1 if the format uses color on the negative portion of the string, else
    * a 0. This replicates Excel's `CELL("color")` functionality.
