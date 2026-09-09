@@ -65,6 +65,7 @@ export function info (partitions: Partition[], currencyId?: string): FormatInfo 
     isText: isText(partitions),
     isPercent: isPercent(partitions),
     maxDecimals: partPos.general ? 9 : frac_max,
+    minDecimals: partPos.general ? 0 : partPos.frac_min,
     scale: partPos.scale ?? 1,
     color: 0,
     parentheses: 0,

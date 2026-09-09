@@ -6,6 +6,7 @@ const commonProps = {
   isText: false,
   isPercent: false,
   maxDecimals: 0,
+  minDecimals: 0,
   grouped: 0,
   parentheses: 0,
   color: 0,
@@ -42,6 +43,7 @@ test('getFormatInfo', () => {
     isText: false,
     isPercent: false,
     maxDecimals: 0,
+    minDecimals: 0,
     color: 0,
     scale: 1,
     parentheses: 0,
@@ -58,6 +60,7 @@ test('getFormatInfo', () => {
     isText: false,
     isPercent: false,
     maxDecimals: 0,
+    minDecimals: 0,
     scale: 1,
     color: 0,
     parentheses: 0,
@@ -73,6 +76,7 @@ test('getFormatInfo', () => {
     isText: false,
     isPercent: false,
     maxDecimals: 0,
+    minDecimals: 0,
     scale: 1,
     color: 0,
     parentheses: 0,
@@ -111,24 +115,49 @@ test('Numbers', () => {
   });
   assertInfo('0.0', {
     type: 'number',
+    minDecimals: 1,
     maxDecimals: 1,
     code: 'F1',
     level: 4
   });
+  assertInfo('0.#', {
+    type: 'number',
+    minDecimals: 0,
+    maxDecimals: 1,
+    code: 'F1',
+    level: 4
+  });
+  assertInfo('0.00##', {
+    type: 'number',
+    minDecimals: 2,
+    maxDecimals: 4,
+    code: 'F4',
+    level: 4
+  });
+  assertInfo('0.0?', {
+    type: 'number',
+    minDecimals: 2,
+    maxDecimals: 2,
+    code: 'F2',
+    level: 4
+  });
   assertInfo('0.000', {
     type: 'number',
+    minDecimals: 3,
     maxDecimals: 3,
     code: 'F3',
     level: 4
   });
   assertInfo('0.000000000000000', {
     type: 'number',
+    minDecimals: 15,
     maxDecimals: 15,
     code: 'F15',
     level: 4
   });
   assertInfo('0.0000000000000000', {
     type: 'number',
+    minDecimals: 16,
     maxDecimals: 16,
     code: 'F15',
     level: 4
@@ -143,6 +172,7 @@ test('Numbers', () => {
   });
   assertInfo('#,##0.00', {
     type: 'grouped',
+    minDecimals: 2,
     maxDecimals: 2,
     code: ',2',
     grouped: 1,
@@ -150,6 +180,7 @@ test('Numbers', () => {
   });
   assertInfo('(#,##0.00)', {
     type: 'grouped',
+    minDecimals: 2,
     maxDecimals: 2,
     code: ',2()',
     parentheses: 1,
@@ -159,6 +190,7 @@ test('Numbers', () => {
 
   assertInfo('0.00,"K"', {
     type: 'number',
+    minDecimals: 2,
     maxDecimals: 2,
     code: 'F2',
     scale: 0.001,
@@ -166,6 +198,7 @@ test('Numbers', () => {
   });
   assertInfo('0.00,,"K"', {
     type: 'number',
+    minDecimals: 2,
     maxDecimals: 2,
     code: 'F2',
     scale: 0.000001,
@@ -264,6 +297,7 @@ test('Currency', () => {
   assertInfo('#,##0.00 €', {
     type: 'currency',
     code: 'C2',
+    minDecimals: 2,
     maxDecimals: 2,
     grouped: 1,
     level: 10.4
@@ -271,6 +305,7 @@ test('Currency', () => {
   assertInfo('₿ 0.0000', {
     type: 'currency',
     code: 'C4',
+    minDecimals: 4,
     maxDecimals: 4,
     level: 10.4
   });
@@ -307,6 +342,7 @@ test('Percentages', () => {
     scale: 100,
     code: 'P2-',
     color: 1,
+    minDecimals: 2,
     maxDecimals: 2,
     level: 10.6
   });
@@ -321,6 +357,7 @@ test('Scientific', () => {
   assertInfo('0.00E+00', {
     type: 'scientific',
     code: 'S2',
+    minDecimals: 2,
     maxDecimals: 2,
     level: 6
   });
@@ -328,6 +365,7 @@ test('Scientific', () => {
     type: 'scientific',
     code: 'S1-',
     color: 1,
+    minDecimals: 1,
     maxDecimals: 1,
     level: 6
   });

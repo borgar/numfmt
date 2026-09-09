@@ -15,6 +15,7 @@ export function createPartition (tokens?: RenderToken[]): Partition {
     pattern: '',
     int_max: 0,
     frac_max: 0,
+    frac_min: 0,
     man_p: '',
     num_p: '',
     num_min: 0,

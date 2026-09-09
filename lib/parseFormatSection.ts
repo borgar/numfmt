@@ -470,6 +470,7 @@ export function parseFormatSection (inputTokens: Token[]) {
   }
   part.int_min = min;
   part.frac_max = fracPattern.length;
+  part.frac_min = countNonHash(fracPattern);
 
   let num_pat = part.num_pattern.join('');
   // let den_pat = part.den_pattern.join('');
