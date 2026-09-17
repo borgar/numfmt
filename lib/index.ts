@@ -21,7 +21,6 @@ import { defaultOptions, type FormatOptions } from './options.ts';
 export { round } from './round.ts';
 export { dec2frac } from './dec2frac.ts';
 export type { FormatOptions } from './options.ts';
-export type { ParseDataBool, ParseDataNum } from './parseValue.ts';
 export type {
   TokenType,
   Token,
@@ -43,13 +42,12 @@ export { dateToSerial, dateFromSerial } from './serialDate.ts';
 
 export type { LocaleData, LocaleToken, MonthNames, DayNames } from './locale.ts';
 
-export {
-  parseNumber,
-  parseDate,
-  parseTime,
-  parseBool,
-  parseValue
-} from './parseValue.ts';
+export type { ParseDataBool, ParseDataNum } from './parseValue/types.ts';
+export { parseNumber } from './parseValue/parseNumber.ts';
+export { parseDate } from './parseValue/parseDate.ts';
+export { parseTime } from './parseValue/parseTime.ts';
+export { parseBool } from './parseValue/parseBool.ts';
+export { parseValue } from './parseValue/parseValue.ts';
 
 import { formatColor as fmtColor, formatValue as fmtValue } from './formatNumber.ts';
 import { info, dateInfo, isDate, isPercent, isText } from './formatInfo.ts';
