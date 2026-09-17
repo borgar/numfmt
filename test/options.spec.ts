@@ -14,7 +14,7 @@ test('option: overflow', () => {
 test('option: locale', () => {
   expect(format('mmmm', 2000)).toBe('June');
   expect(format('mmmm', 2000, { locale: 'zh_CN' })).toBe('六月');
-  expect(format('mmmm', 2000, { locale: 'fi' })).toBe('kesäkuuta');
+  expect(format('mmmm', 2000, { locale: 'fi' })).toBe('kesäkuu');
 });
 
 test('option: throws', () => {

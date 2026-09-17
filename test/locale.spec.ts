@@ -53,8 +53,8 @@ test('locale options', () => {
   expect(format('[$-040F]dddd, dd. mmmm yyy', date, { locale: 'fr' })).toBe('laugardagur, 02. janúar 1909');
 
   // all types are present
-  expect(format('d dd ddd dddd ddddd', date, { locale: 'is' })).toBe('2 02 lau. laugardagur laugardagur');
-  expect(format('m mm mmm mmmm mmmmm', date, { locale: 'is' })).toBe('1 01 jan. janúar j');
+  expect(format('d dd ddd dddd ddddd', date, { locale: 'is' })).toBe('2 02 lau laugardagur laugardagur');
+  expect(format('m mm mmm mmmm mmmmm', date, { locale: 'is' })).toBe('1 01 jan janúar j');
   expect(format('#,##0.000', date, { locale: 'is' })).toBe('3.290,128');
   expect(format('h AM/PM', date, { locale: 'is' })).toBe('3 f.h.');
 
@@ -63,8 +63,8 @@ test('locale options', () => {
   expect(format('#,##0.000', date, { locale: 'zh-CH' })).toBe('3,290.128');
   expect(format('h AM/PM', date, { locale: 'zh-CH' })).toBe('3 上午');
 
-  expect(format('d dd ddd dddd ddddd', date, { locale: 0x0419 })).toBe('2 02 сб суббота суббота');
-  expect(format('m mm mmm mmmm mmmmm', date, { locale: 0x0419 })).toBe('1 01 янв. января я');
+  expect(format('d dd ddd dddd ddddd', date, { locale: 0x0419 })).toBe('2 02 Сб суббота суббота');
+  expect(format('m mm mmm mmmm mmmmm', date, { locale: 0x0419 })).toBe('1 01 янв Январь Я');
   expect(format('#,##0.000', date, { locale: 0x0419 })).toBe('3\u00a0290,128');
   expect(format('h AM/PM', date, { locale: 0x0419 })).toBe('3 AM');
 
@@ -90,7 +90,7 @@ test('locale options', () => {
   expect(format('[$-060409]mmmm', 43295)).toBe('Dhuʻl-Qiʻdah');
   expect(format('[$-060409]mmmm', 43324)).toBe('Dhuʻl-Hijjah');
 
-  expect(format('[$Fr.-807] #,##0.00', 12345.67)).toBe('Fr. 12\'345.67');
+  expect(format('[$Fr.-807] #,##0.00', 12345.67)).toBe('Fr. 12’345.67');
 
   // TODO: names for hijri months
   // Next test is known to be incorrect, Excel emits "1439 محرم 1"
@@ -111,4 +111,3 @@ test('locale options', () => {
   expect(format('General', true, { locale: 'nl' })).toBe('WAAR');
   expect(format('General', false, { locale: 'nl' })).toBe('ONWAAR');
 });
-
