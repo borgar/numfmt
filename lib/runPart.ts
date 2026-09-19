@@ -44,7 +44,8 @@ import {
   T_TYPE_MIN_E,
   T_TYPE_SEC_E,
   T_TYPE_B_YEAR,
-  T_TYPE_B_YEAR_S
+  T_TYPE_B_YEAR_S,
+  TOKEN_CURRENCY
 } from './constants.ts';
 import { pad } from './pad.ts';
 import { getExponent, getSignificand } from './numberProps.ts';
@@ -375,10 +376,16 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
       // number isn't fragmented
       if (part.int_pattern.length === 1) {
         const pt = part.int_p;
-        const l = Math.max(part.int_min, integer.length);
+        const special_case_zero = part.exponential && !value;
+        const l = special_case_zero
+          ? Math.max(part.int_min, part.int_max, integer.length)
+          : Math.max(part.int_min, integer.length);
         let digits = '';
         for (let i = l; i > 0; i--) {
-          const d = integer.charAt(integer.length - i);
+          let d = integer.charAt(integer.length - i);
+          if (special_case_zero && !d) {
+            d = '0';
+          }
           const p = d ? '' : pt.charAt(pt.length - i) || pt[0];
           let sep = '';
           if (part.grouping) {
@@ -389,8 +396,14 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
                 : pad('?', opts.nbsp);
             }
           }
+          // if (special_case_zero) {
+          //   console.log([ d ]);
+          // }
           digits += (d || pad(p, opts.nbsp)) + sep;
         }
+        // if (special_case_zero) {
+        //   digits += `{${l}}`;
+        // }
         ret.push(digits);
       }
       else {
@@ -483,6 +496,10 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
     }
     else if (tok.type === T_TYPE_WEEKDAY_S) {
       ret.push(l10n.ddd[weekday]);
+    }
+    else if (tok.type === TOKEN_CURRENCY) {
+      // XXX: add an option to emit locale currency over the parsed one?
+      ret.push(tok.value);
     }
     else if (tokenType === T_TYPE_WEEKDAY) {
       ret.push(l10n.dddd[weekday]);

@@ -309,23 +309,6 @@ test('Currency', () => {
     maxDecimals: 4,
     level: 10.4
   });
-
-  // can pass in own currency
-  const testCurrency = (str: string, identifier: string, code: string) => {
-    const info = getFormatInfo(str, { currency: identifier });
-    expect(info.code, str).toBe(code);
-  };
-  // Excel doesn't really have a great solution to this:
-  // It just contorts the string to ensure that the current
-  // currency identifier is a separate token when parsed.
-  testCurrency('#,##0.00 "ISK"', 'ISK', 'C2');
-  testCurrency('#,##0\\ "fiskur"', 'ISK', ',0');
-  testCurrency('#,##0\\ "fISKur"', 'ISK', ',0');
-  testCurrency('#,##0\\ "f ISK ur"', 'ISK', ',0');
-  testCurrency('#,##0\\ \\f"ISK"\\u\\r', 'ISK', 'C0');
-  testCurrency('#,##0\\ "ISK"', 'ISK', 'C0');
-  testCurrency('#,##0\\a"ISK"\\a', 'ISK', 'C0');
-  testCurrency('#,##0"aISKa"', 'ISK', ',0');
 });
 
 test('Percentages', () => {

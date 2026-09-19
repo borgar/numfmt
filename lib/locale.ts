@@ -111,10 +111,12 @@ export type LocaleData = {
    */
   general?: string,
   /**
-   * The 8 color keywords are written in the language.
-   * @default ["Black", "White", "Red", "Green", "Blue", "Yellow", "Magenta", "Cyan"]
+   * A map for the color keywords in the language, into US English.
+   * The keys should be the lower-case localized versions (`bianco`) and the values
+   * should be title-cased English equivalents (`Black`).
+   * @default {black:"Black", white:"White", red:"Red", green:"Green", blue:"Blue", yellow:"Yellow", magenta:"Magenta", cyan:"Cyan"}
    */
-  colors?: string[],
+  colors?: Record<string, string>,
   /**
    * Operator symbol map.This is a record of characters, one for each operator. The value should
    * be single character lower case strings. Keys are as follows:
@@ -185,7 +187,16 @@ const baseLocaleData: LocaleData = {
   general: 'General',
   currency: '$',
   color: 'Color',
-  colors: [ 'Black', 'White', 'Red', 'Green', 'Blue', 'Yellow', 'Magenta', 'Cyan' ],
+  colors: {
+    black: 'Black',
+    white: 'White',
+    red: 'Red',
+    green: 'Green',
+    blue: 'Blue',
+    yellow: 'Yellow',
+    magenta: 'Magenta',
+    cyan: 'Cyan'
+  },
   // dateOrder: 0,
   preferMDY: false
   // lcid: -1,
@@ -255,6 +266,7 @@ export function createLocale (data: Partial<LocaleData>): LocaleData {
   return Object.assign({}, baseLocaleData, data);
 }
 
+// XXX: FIXME --- needs more docs
 /**
  * Register locale data for a language to use when formatting.
  *
@@ -307,8 +319,11 @@ export function addLocale (localeSettings: Partial<LocaleData>, l4e: string | Lo
   if (c.language !== c.lang && !locales[c.language]) {
     locales[c.language] = createLocale(localeSettings);
   }
+  s.add(locales[c.lang].decimal);
   return locales[c.lang];
 }
+
+const s = new Set();
 
 /**
  * Get a list of locales that are registered with the formatter.
