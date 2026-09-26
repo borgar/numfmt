@@ -131,6 +131,35 @@ describe('parseValue: EXCEL mode', () => {
     expect(parseBool('HAMIS', { locale: 'hu' }), 'hu: HAMIS').toEqual({ v: false });
   });
 
+  test('parseNumber accepts spaces after a number', () => {
+    expect(parseNumber('5 ')?.v).toBe(5);
+    expect(parseNumber(' 5 ')?.v).toBe(5);
+    expect(parseNumber('5  ')?.v).toBe(5);
+    expect(parseNumber('1.5 ')?.v).toBe(1.5);
+    expect(parseNumber('1,000 ')?.v).toBe(1000);
+    expect(parseNumber('100 % ')?.v).toBe(1);
+    expect(parseNumber('$5 ')?.v).toBe(5);
+    expect(parseNumber('(5) ')?.v).toBe(-5);
+  });
+
+  test('parseNumber refuses other whitespace next to a number', () => {
+    for (const text of [
+      '5\u00a0',
+      '5\u202f',
+      '5\u00a0 ',
+      '5\u202f ',
+      '5 \u00a0',
+      '5\u00a0%',
+      '5\t',
+      '5\n',
+      '5\r',
+      '5 \t',
+      '\t5'
+    ]) {
+      expect(parseNumber(text), JSON.stringify(text)).toBe(undefined);
+    }
+  });
+
   test('issue #71', () => {
     expect(parseValue('2021/1-10')).toEqual({ v: 44206, z: 'm/d/yy' });
   });
