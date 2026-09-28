@@ -1,4 +1,4 @@
-import { TOKEN_CHAR, TOKEN_COLOR, TOKEN_COMMA, TOKEN_CURRENCY, TOKEN_DATETIME, TOKEN_DURATION, TOKEN_ESCAPED, TOKEN_GENERAL, TOKEN_GROUP, TOKEN_HASH, TOKEN_MODIFIER, TOKEN_POINT, TOKEN_QMARK, TOKEN_SPACE, TOKEN_STRING, TOKEN_ZERO } from './constants.ts';
+import { TOKEN_AMPM, TOKEN_CHAR, TOKEN_COLOR, TOKEN_COMMA, TOKEN_CURRENCY, TOKEN_DATETIME, TOKEN_DURATION, TOKEN_ESCAPED, TOKEN_GENERAL, TOKEN_GROUP, TOKEN_HASH, TOKEN_MODIFIER, TOKEN_POINT, TOKEN_QMARK, TOKEN_SPACE, TOKEN_STRING, TOKEN_ZERO } from './constants.ts';
 import { defaultLocale, getLocale, parseLocale, resolveLocale } from './locale.ts';
 import { getTokenHandlers } from './tokenHandlers.ts';
 import { lexer } from './tokenize.ts';
@@ -61,11 +61,10 @@ export function delocalize (pattern: string, fromLocale: string | number): strin
 
   const flipNum = l10n?.decimal !== '.';
   const wsGroup = /^\s$/.test(l10n.group);
-  // Translate tokens
+
   const handlers = getTokenHandlers(l10n);
   const tokens = lexer(pattern, handlers);
 
-  // setup
   const colorTag = (l10n.color ?? 'Color').toLowerCase();
   const colorNames = l10n.colors ?? COLORS;
   const opcodes = l10n.opcodes;
@@ -90,6 +89,9 @@ export function delocalize (pattern: string, fromLocale: string | number): strin
         out.push(t);
       }
     }
+    else if (opcodes && type === TOKEN_AMPM) {
+      out.push({ type: TOKEN_AMPM, value: '', raw: 'AM/PM' });
+    }
     else if (opcodes && type === TOKEN_DATETIME) {
       const lc1 = t.value.charAt(0).toLowerCase();
       if (opcodes.dy && lc1 === opcodes.dy) {
@@ -106,6 +108,12 @@ export function delocalize (pattern: string, fromLocale: string | number): strin
       }
       else if (opcodes.ts && lc1 === opcodes.ts) {
         out.push({ type: TOKEN_DATETIME, value: '', raw: 'S'.repeat(t.value.length) });
+      }
+      else if (opcodes.wd && lc1 === opcodes.wd) {
+        out.push({ type: TOKEN_DATETIME, value: '', raw: 'A'.repeat(t.value.length) });
+      }
+      else if (opcodes.en && lc1 === opcodes.en) {
+        out.push({ type: TOKEN_DATETIME, value: '', raw: 'G'.repeat(t.value.length) });
       }
       else {
         out.push(t);
@@ -151,12 +159,12 @@ export function delocalize (pattern: string, fromLocale: string | number): strin
       s += t.raw;
     }
     else if (t.type === TOKEN_CURRENCY) {
-      const as_str = /[a-z]/i.test(t.raw);
-      if (inStr && !as_str) {
+      const needEscaping = /[a-z.]/i.test(t.raw);
+      if (inStr && !needEscaping) {
         s += '"';
         inStr = false;
       }
-      else if (!inStr && as_str) {
+      else if (!inStr && needEscaping) {
         s += '"';
         inStr = true;
       }
@@ -170,7 +178,8 @@ export function delocalize (pattern: string, fromLocale: string | number): strin
       s += t.raw;
     }
     else if (t.type === TOKEN_ESCAPED || t.type === TOKEN_STRING) {
-      if (!inStr) {
+      // XXX: unsure if this single space string case is used for much other than built ins?
+      if (!inStr && t.value !== ' ') {
         s += '"';
         inStr = true;
       }

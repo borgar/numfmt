@@ -1,5 +1,6 @@
 import { TOKEN_GROUP, TOKEN_SCALE, TOKEN_COMMA, TOKEN_CHAR } from './constants.ts';
-import { TOKEN_HANDLERS } from './tokenHandlers.ts';
+import { defaultLocale } from './locale.ts';
+import { getTokenHandlers } from './tokenHandlers.ts';
 import type { Token, TokenType } from './types.ts';
 
 const CODE_QMRK = 63;
@@ -112,5 +113,5 @@ export function lexer (pattern: string, handlers: [ TokenType, RegExp, number ][
  * @returns A list of tokens
  */
 export function tokenize (pattern: string): Token[] {
-  return lexer(pattern, TOKEN_HANDLERS);
+  return lexer(pattern, getTokenHandlers(defaultLocale));
 }

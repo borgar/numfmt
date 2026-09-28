@@ -127,6 +127,8 @@ export type LocaleData = {
    * - `th`: Hours of time, defaults to `h`.
    * - `tm`: Minutes of time, defaults to `m`.
    * - `ts`: Seconds of time, defaults to `s`.
+   * - `wd`: Weekday (alt.), defaults to `a`.
+   * - `en`: Era name, defaults to `g`.
    */
   opcodes?: {
     dy?: string,
@@ -135,7 +137,8 @@ export type LocaleData = {
     th?: string,
     tm?: string,
     ts?: string,
-    // ap?: string,
+    wd?: string,
+    en?: string,
   },
   /**
    * The currency symbol used by the Locale.

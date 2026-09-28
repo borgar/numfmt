@@ -301,7 +301,7 @@ export function initLocales () {
       magenta: 'Magenta',
       cyan: 'Cyan'
     },
-    opcodes: { dy: 'a', dd: 'j' },
+    opcodes: { dy: 'a', dd: 'j', wd: 'o' },
     general: 'Standard'
   }, -1, -13);
   addLocale({ ..._fr, currency: '€' }, 'fr');
@@ -425,12 +425,12 @@ export function initLocales () {
       celeste: 'Cyan', // mac
       ciano: 'Cyan' // win
     },
-    opcodes: { dy: 'a', dd: 'g' }
+    opcodes: { dy: 'a', dd: 'g', wd: 'o', en: 'x' }
   }, 3, 3);
   addLocale({ group: '.', decimal: ',', ..._it, currency: '€' }, 'it');
   addLocale({ group: '’', decimal: '.', ..._it, currency: 'CHF' }, 'it-CH');
 
-  const _no: LocaleData = {
+  const _no = {
     decimal: ',',
     ampm: _B('a.m.;p.m.'),
     mmmm: _M('januar;februar;mars;april;mai;juni;juli;august;september;oktober;november;desember'),
@@ -477,12 +477,12 @@ export function initLocales () {
     currency: 'zł'
   }, 3, -1), 'pl');
 
-  const _pt: LocaleData = {
+  const _pt = {
     decimal: ',',
     mmmm: _M('janeiro;fevereiro;março;abril;maio;junho;julho;agosto;setembro;outubro;novembro;dezembro'),
     dddd: _W('domingo;segunda-feira;terça-feira;quarta-feira;quinta-feira;sexta-feira;sábado'),
     bool: _B('VERDADEIRO;FALSO'),
-    opcodes: { dy: 'a' },
+    opcodes: { dy: 'a', wd: 'o' },
     color: 'Cor'
   };
   addLocale({
@@ -565,7 +565,7 @@ export function initLocales () {
     currency: '€'
   }, 3, 2), 'sk');
 
-  const _es: LocaleData = {
+  const _es = {
     group: '.',
     decimal: ',',
     ampm: _B('a.\u00A0m.;p.\u00A0m.'),
@@ -588,7 +588,7 @@ export function initLocales () {
   };
   const _esM3 = _M('ene;feb;mar;abr;may;jun;jul;ago;sep;oct;nov;dic');
   const _esM3s = _M('ene;feb;mar;abr;may;jun;jul;ago;sept;oct;nov;dic');
-  addLocale({ ..._es, ddd: _W('do;lu;ma;mi;ju;vi;sá'), general: 'Estándar', opcodes: { dy: 'a' }, currency: '€' }, 'es');
+  addLocale({ ..._es, ddd: _W('do;lu;ma;mi;ju;vi;sá'), general: 'Estándar', opcodes: { dy: 'a', wd: 'o' }, currency: '€' }, 'es');
   addLocale({ ..._es, mmm: _esM3s }, 'es-AR');
   addLocale({ ..._es, mmm: _esM3s, currency: 'Bs' }, 'es-BO');
   addLocale({ ..._es, mmm: _esM3s }, 'es-CL');
@@ -601,7 +601,7 @@ export function initLocales () {
     decimal: '.',
     mmm: _esM3,
     ampm: _B('a.m.;p.m.'),
-    opcodes: { dy: 'a' },
+    opcodes: { dy: 'a', wd: 'o' },
     general: 'Estándar'
   }, 'es-MX');
   addLocale({
@@ -710,7 +710,7 @@ export function initLocales () {
     dddd: _W('diumenge;dilluns;dimarts;dimecres;dijous;divendres;dissabte'),
     ddd:  _W('dg;dl;dt;dc;dj;dv;ds'),
     general: 'Estándar',
-    opcodes: { dy: 'a' },
+    opcodes: { dy: 'a', wd: 'o' },
     ampm: _B('a.\u00a0m.;p.\u00a0m.'),
     currency: '€'
   }, 'ca');
@@ -969,7 +969,7 @@ export function initLocales () {
   addLocale({
     group: ',',
     decimal: '.',
-    ampm: [ '.AM', '.PM' ],
+    ampm: [ 'AM', 'PM' ],
     mmmm: _M('জানুয়ারী;ফেব্রুয়ারী;মার্চ;এপ্রিল;মে;জুন;জুলাই;আগস্ট;সেপ্টেম্বর;অক্টোবর;নভেম্বর;ডিসেম্বর'),
     mmm:  _M('জানু;ফেব্রু;মার্চ;এপ্রিল;মে;জুন;জুলাই;আগ;সেপ্টে;অক্টো;নভে;ডিসে'),
     dddd: _W('রবিবার;সোমবার;মঙ্গলবার;বুধবার;বৃহস্পতিবার;শুক্রবার;শনিবার'),

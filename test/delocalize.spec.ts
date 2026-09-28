@@ -185,6 +185,7 @@ describe('delocalize', () => {
   test('french', () => {
     const opts = 'fr';
     expect(delocalize('AA-MM-JJ HH:MM:SS', opts)).toBe('YY-MM-DD HH:MM:SS');
+    expect(delocalize('ooo', opts)).toBe('AAA');
 
     expect(delocalize('#,##0.00', opts)).toBe('#.##0,00');
     expect(delocalize('#.##0,00', opts)).toBe('#,##0.00');
@@ -226,6 +227,8 @@ describe('delocalize', () => {
   test('italian', () => {
     const opts = 'it';
     expect(delocalize('AA-MM-GG HH:MM:SS', opts)).toBe('YY-MM-DD HH:MM:SS');
+    expect(delocalize('ooo', opts)).toBe('AAA');
+    expect(delocalize('xxx', opts)).toBe('GGG');
 
     expect(delocalize('#,##0.00', opts)).toBe('#.##0,00');
     expect(delocalize('#.##0,00', opts)).toBe('#,##0.00');

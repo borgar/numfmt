@@ -1,4 +1,4 @@
-import { u_YEAR, u_MONTH, u_DAY, u_HOUR, u_MIN, u_SEC, TOKEN_STRING, T_TYPE_YEAR, T_TYPE_YEAR_S, T_TYPE_B_YEAR, T_TYPE_B_YEAR_S, T_TYPE_MON, T_TYPE_MNAME, T_TYPE_MNAME_S, T_TYPE_MNAME_1, T_TYPE_WEEKDAY, T_TYPE_WEEKDAY_S, T_TYPE_DAY, T_TYPE_HOUR, T_TYPE_MIN, T_TYPE_SEC, TOKEN_AMPM, TOKEN_CURRENCY } from './constants.ts';
+import { u_YEAR, u_MONTH, u_DAY, u_HOUR, u_MIN, u_SEC, T_TYPE_YEAR, T_TYPE_YEAR_S, T_TYPE_B_YEAR, T_TYPE_B_YEAR_S, T_TYPE_MON, T_TYPE_MNAME, T_TYPE_MNAME_S, T_TYPE_MNAME_1, T_TYPE_WEEKDAY, T_TYPE_WEEKDAY_S, T_TYPE_DAY, T_TYPE_HOUR, T_TYPE_MIN, T_TYPE_SEC, TOKEN_AMPM, TOKEN_CURRENCY } from './constants.ts';
 import type { FormatDateInfo, FormatInfo, Partition } from './types.ts';
 
 export function isPercent (partitions: Partition[]): boolean {
