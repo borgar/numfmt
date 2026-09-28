@@ -7,7 +7,7 @@ import { parseNumberNf } from './parseNumberNf.ts';
 import { parseNumberXl } from './parseNumberXl.ts';
 import { parseTimeNf } from './parseTimeNf.ts';
 import { parseTimeXl } from './parseTimeXl.ts';
-import type { ParseDataBool, ParseDataNum, ParseValueOptions } from './types.ts';
+import { PARSE_EXCEL_STRICT, PARSE_NUMFMT, type ParseDataBool, type ParseDataNum, type ParseValueOptions } from './types.ts';
 
 /**
  * Attempt to parse a "spreadsheet input" string input and return its value and
@@ -38,15 +38,7 @@ import type { ParseDataBool, ParseDataNum, ParseValueOptions } from './types.ts'
  *
  * The formatting string outputted may not correspond exactly to the input.
  * Rather, is it composed of certain elements which the input controls. This is
- * comparable to how Microsoft Excel and Google Sheets parse pasted input. Some
- * things you may expect:
- *
- * - Whitespace is ignored.
- * - Decimal fractions are always represented by `.00` regardless of how many
- *   digits were shown in the input.
- * - Negatives denoted by parentheses [`(1,234)`] will not include the
- *   parentheses in the format string (the value will still be negative.)
- * - All "scientific notation" returns the same format: `0.00E+00`.
+ * comparable to how Microsoft Excel and Google Sheets parse pasted input.
  *
  * Internally the parser calls, `parseNumber`, `parseDate`,
  * `parseTime` and `parseBool`. They work in the same way except
@@ -59,7 +51,7 @@ import type { ParseDataBool, ParseDataNum, ParseValueOptions } from './types.ts'
  */
 export function parseValue (value: string, options?: ParseValueOptions): ParseDataNum | ParseDataBool | undefined {
   const l10n = getLocale(options?.locale || '') || defaultLocale;
-  if (options?.mode === 1) {
+  if (options?.mode === PARSE_NUMFMT) {
     return (
       parseNumberNf(value, l10n) ??
       parseDateNf(value, l10n) ??
@@ -67,10 +59,19 @@ export function parseValue (value: string, options?: ParseValueOptions): ParseDa
       parseBoolNf(value, l10n)
     );
   }
+  else if (options?.mode === PARSE_EXCEL_STRICT) {
+    return (
+      parseNumberXl(value, l10n) ??
+      parseDateXl(value, l10n) ??
+      parseTimeXl(value, l10n) ??
+      parseBoolXl(value, l10n)
+    );
+  }
+  const v = value.trim();
   return (
-    parseNumberXl(value, l10n) ??
-    parseDateXl(value, l10n) ??
-    parseTimeXl(value, l10n) ??
-    parseBoolXl(value, l10n)
+    parseNumberXl(v, l10n) ??
+    parseDateXl(v, l10n) ??
+    parseTimeXl(v, l10n) ??
+    parseBoolXl(v, l10n)
   );
 }

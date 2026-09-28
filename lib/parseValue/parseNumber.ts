@@ -1,7 +1,7 @@
 import { defaultLocale, getLocale } from '../locale.ts';
 import { parseNumberNf } from './parseNumberNf.ts';
 import { parseNumberXl } from './parseNumberXl.ts';
-import type { ParseDataNum, ParseValueOptions } from './types.ts';
+import { PARSE_EXCEL_STRICT, PARSE_NUMFMT, type ParseDataNum, type ParseValueOptions } from './types.ts';
 
 /**
  * Parse a numeric string input and return its value and format. If the input
@@ -17,8 +17,11 @@ import type { ParseDataNum, ParseValueOptions } from './types.ts';
  */
 export function parseNumber (value: string, options?: ParseValueOptions): ParseDataNum | undefined {
   const l10n = getLocale(options?.locale || '') || defaultLocale;
-  if (options?.mode === 1) {
+  if (options?.mode === PARSE_NUMFMT) {
     return parseNumberNf(value, l10n);
   }
-  return parseNumberXl(value, l10n);
+  else if (options?.mode === PARSE_EXCEL_STRICT) {
+    return parseNumberXl(value, l10n);
+  }
+  return parseNumberXl(value.trim(), l10n);
 }

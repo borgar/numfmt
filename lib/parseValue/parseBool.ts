@@ -1,7 +1,7 @@
 import { defaultLocale, getLocale } from '../locale.ts';
 import { parseBoolNf } from './parseBoolNf.ts';
 import { parseBoolXl } from './parseBoolXl.ts';
-import type { ParseDataBool, ParseValueOptions } from './types.ts';
+import { PARSE_EXCEL_STRICT, PARSE_NUMFMT, type ParseDataBool, type ParseValueOptions } from './types.ts';
 
 /**
  * Parse a string input and return its equivalent boolean value. If the input was not
@@ -16,8 +16,11 @@ import type { ParseDataBool, ParseValueOptions } from './types.ts';
  */
 export function parseBool (value: string, options?: ParseValueOptions): ParseDataBool | undefined {
   const l10n = getLocale(options?.locale || '') || defaultLocale;
-  if (options?.mode === 1) {
+  if (options?.mode === PARSE_NUMFMT) {
     return parseBoolNf(value, l10n);
   }
-  return parseBoolXl(value, l10n);
+  else if (options?.mode === PARSE_EXCEL_STRICT) {
+    return parseBoolXl(value, l10n);
+  }
+  return parseBoolXl(value.trim(), l10n);
 }

@@ -1,7 +1,7 @@
 import { defaultLocale, getLocale } from '../locale.ts';
 import { parseDateNf } from './parseDateNf.ts';
 import { parseDateXl } from './parseDateXl.ts';
-import type { ParseDataNum, ParseValueOptions } from './types.ts';
+import { PARSE_EXCEL_STRICT, PARSE_NUMFMT, type ParseDataNum, type ParseValueOptions } from './types.ts';
 
 /**
  * Parse a date or datetime string input and return its value and format. If
@@ -17,8 +17,11 @@ import type { ParseDataNum, ParseValueOptions } from './types.ts';
  */
 export function parseDate (value: string, options?: ParseValueOptions): ParseDataNum | undefined {
   const l10n = getLocale(options?.locale || '') || defaultLocale;
-  if (options?.mode === 1) {
+  if (options?.mode === PARSE_NUMFMT) {
     return parseDateNf(value, l10n);
   }
-  return parseDateXl(value, l10n);
+  else if (options?.mode === PARSE_EXCEL_STRICT) {
+    return parseDateXl(value, l10n);
+  }
+  return parseDateXl(value.trim(), l10n);
 }

@@ -1,7 +1,7 @@
 import { defaultLocale, getLocale } from '../locale.ts';
 import { parseTimeNf } from './parseTimeNf.ts';
 import { parseTimeXl } from './parseTimeXl.ts';
-import type { ParseDataNum, ParseValueOptions } from './types.ts';
+import { PARSE_EXCEL_STRICT, PARSE_NUMFMT, type ParseDataNum, type ParseValueOptions } from './types.ts';
 
 /**
  * Parse a time string input and return its value and format. If the input was
@@ -17,8 +17,11 @@ import type { ParseDataNum, ParseValueOptions } from './types.ts';
  */
 export function parseTime (value: string, options?: ParseValueOptions): ParseDataNum | undefined {
   const l10n = getLocale(options?.locale || '') || defaultLocale;
-  if (options?.mode === 1) {
+  if (options?.mode === PARSE_NUMFMT) {
     return parseTimeNf(value, l10n);
   }
-  return parseTimeXl(value, l10n);
+  else if (options?.mode === PARSE_EXCEL_STRICT) {
+    return parseTimeXl(value, l10n);
+  }
+  return parseTimeXl(value.trim(), l10n);
 }

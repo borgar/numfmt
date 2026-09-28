@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { addLocale, getLocale, listLocales, parseBool, parseDate, parseNumber, parseTime, parseValue } from '../lib/index.ts';
 import { describe, expect, test } from 'vitest';
+import { PARSE_EXCEL_STRICT } from '../lib/parseValue/types.ts';
 
 type TestCase = {
   test: string,
@@ -10,11 +11,11 @@ type TestCase = {
 
 const TESTS: TestCase[] = JSON.parse(readFileSync('./test/tables/parseValue-excel.json', 'utf8'));
 
-describe('parseValue: EXCEL mode', () => {
+describe('parseValue: STRICT EXCEL mode', () => {
   describe('parseValue functions correctly', () => {
     for (const testcase of TESTS) {
       test(JSON.stringify(testcase.test), () => {
-        const res = parseValue(testcase.test, { locale: 'en-us' }) ?? { v: null, z: undefined };
+        const res = parseValue(testcase.test, { locale: 'en-us', mode: PARSE_EXCEL_STRICT }) ?? { v: null, z: undefined };
         expect(res).toEqual({
           v: testcase.v ?? null,
           z: testcase.z
