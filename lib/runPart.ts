@@ -396,14 +396,8 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
                 : pad('?', opts.nbsp);
             }
           }
-          // if (special_case_zero) {
-          //   console.log([ d ]);
-          // }
           digits += (d || pad(p, opts.nbsp)) + sep;
         }
-        // if (special_case_zero) {
-        //   digits += `{${l}}`;
-        // }
         ret.push(digits);
       }
       else {

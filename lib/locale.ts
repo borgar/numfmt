@@ -197,7 +197,7 @@ export type LocaleData = {
    * should be title-cased English equivalents (`Black`).
    * @default {black:"Black", white:"White", red:"Red", green:"Green", blue:"Blue", yellow:"Yellow", magenta:"Magenta", cyan:"Cyan"}
    */
-  colors?: Record<string, string>;
+  colors?: Record<string, 'Black' | 'White' | 'Red' | 'Green' | 'Blue' | 'Yellow' | 'Magenta' | 'Cyan'>;
   /**
    * Operator symbol map.This is a record of characters, one for each operator. The value should
    * be single character lower case strings. Keys are as follows:

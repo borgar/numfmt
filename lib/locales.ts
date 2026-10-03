@@ -95,6 +95,16 @@ const xf = (p: CompressedFormat): Required<LocalFormat> => {
   };
 };
 
+type Colors = Record<string, 'Black' | 'White' | 'Red' | 'Green' | 'Blue' | 'Yellow' | 'Magenta' | 'Cyan'>;
+const C_BLACK = 'Black';
+const C_WHITE = 'White';
+const C_RED = 'Red';
+const C_GREEN = 'Green';
+const C_BLUE = 'Blue';
+const C_YELLOW = 'Yellow';
+const C_MAGENTA = 'Magenta';
+const C_CYAN = 'Cyan';
+
 const fp1: CompressedFormat = { k: '.', l: '.' };
 const fp2: CompressedFormat = { d: 0, h: 0, m: 0, k: '.', l: '.' };
 const fp3: CompressedFormat = { d: 1, y: 1, f: 0, o: 1, k: '-', b: ':', s: 1 };
@@ -103,15 +113,15 @@ const fp5: CompressedFormat = { h: 0, d: 0, f: 0, m: 0, s: 1 };
 
 export function initLocales () {
   const _zhM4 = _M('一月;二月;三月;四月;五月;六月;七月;八月;九月;十月;十一月;十二月');
-  const _zhCl = {
-    黑色: 'Black',
-    白色: 'White',
-    紅色: 'Red',
-    綠色: 'Green',
-    藍色: 'Blue',
-    黃色: 'Yellow',
-    洋紅: 'Magenta',
-    青色: 'Cyan'
+  const _zhCl: Colors = {
+    黑色: C_BLACK,
+    白色: C_WHITE,
+    紅色: C_RED,
+    綠色: C_GREEN,
+    藍色: C_BLUE,
+    黃色: C_YELLOW,
+    洋紅: C_MAGENTA,
+    青色: C_CYAN
   };
   addLocale({
     group: ',',
@@ -122,14 +132,14 @@ export function initLocales () {
     ddd: _W('周日;周一;周二;周三;周四;周五;周六'),
     color: '颜色',
     colors: {
-      黑色: 'Black',
-      白色: 'White',
-      红色: 'Red',
-      绿色: 'Green',
-      蓝色: 'Blue',
-      黄色: 'Yellow',
-      洋红: 'Magenta',
-      蓝绿色: 'Cyan'
+      黑色: C_BLACK,
+      白色: C_WHITE,
+      红色: C_RED,
+      绿色: C_GREEN,
+      蓝色: C_BLUE,
+      黄色: C_YELLOW,
+      洋红: C_MAGENTA,
+      蓝绿色: C_CYAN
     },
     general: 'G/通用格式',
     currency: '¥',
@@ -173,14 +183,14 @@ export function initLocales () {
     currency: '¥',
     color: '色',
     colors: {
-      黒: 'Black',
-      白: 'White',
-      赤: 'Red',
-      緑: 'Green',
-      青: 'Blue',
-      黄: 'Yellow',
-      紫: 'Magenta',
-      水: 'Cyan'
+      黒: C_BLACK,
+      白: C_WHITE,
+      赤: C_RED,
+      緑: C_GREEN,
+      青: C_BLUE,
+      黄: C_YELLOW,
+      紫: C_MAGENTA,
+      水: C_CYAN
     },
     format: xf({ h: 0, f: 0, o: 2, d: 1 })
   }, 'ja');
@@ -194,14 +204,14 @@ export function initLocales () {
     ddd: _W('일;월;화;수;목;금;토'),
     color: '색',
     colors: {
-      검정: 'Black',
-      흰색: 'White',
-      빨강: 'Red',
-      녹색: 'Green',
-      파랑: 'Blue',
-      노랑: 'Yellow',
-      자홍: 'Magenta',
-      녹청: 'Cyan'
+      검정: C_BLACK,
+      흰색: C_WHITE,
+      빨강: C_RED,
+      녹색: C_GREEN,
+      파랑: C_BLUE,
+      노랑: C_YELLOW,
+      자홍: C_MAGENTA,
+      녹청: C_CYAN
     },
     general: 'G/표준',
     currency: '₩',
@@ -217,14 +227,14 @@ export function initLocales () {
     ddd: _W('อา.;จ.;อ.;พ.;พฤ.;ศ.;ส.'),
     color: 'สี',
     colors: {
-      ดำ: 'Black',
-      ขาว: 'White',
-      แดง: 'Red',
-      เขียว: 'Green',
-      น้ำเงิน: 'Blue',
-      เหลือง: 'Yellow',
-      ม่วงมาเจนต้า: 'Magenta',
-      ฟ้า: 'Cyan'
+      ดำ: C_BLACK,
+      ขาว: C_WHITE,
+      แดง: C_RED,
+      เขียว: C_GREEN,
+      น้ำเงิน: C_BLUE,
+      เหลือง: C_YELLOW,
+      ม่วงมาเจนต้า: C_MAGENTA,
+      ฟ้า: C_CYAN
     },
     currency: '฿',
     format: xf({ h: 0, d: 0, f: 0, m: 0, o: 1 })
@@ -239,14 +249,14 @@ export function initLocales () {
     bool: _B('PRAVDA;NEPRAVDA'),
     color: 'Barva',
     colors: {
-      černá: 'Black',
-      bílá: 'White',
-      červená: 'Red',
-      zelená: 'Green',
-      modrá: 'Blue',
-      žlutá: 'Yellow',
-      purpurová: 'Magenta',
-      azurová: 'Cyan'
+      černá: C_BLACK,
+      bílá: C_WHITE,
+      červená: C_RED,
+      zelená: C_GREEN,
+      modrá: C_BLUE,
+      žlutá: C_YELLOW,
+      purpurová: C_MAGENTA,
+      azurová: C_CYAN
     },
     general: 'Všeobecný',
     opcodes: { dy: 'r' },
@@ -262,14 +272,14 @@ export function initLocales () {
     bool: _B('SAND;FALSK'),
     color: 'Farve',
     colors: {
-      sort: 'Black',
-      hvid: 'White',
-      rød: 'Red',
-      lysegrøn: 'Green',
-      blå: 'Blue',
-      gul: 'Yellow',
-      lyslilla: 'Magenta',
-      akvamarin: 'Cyan'
+      sort: C_BLACK,
+      hvid: C_WHITE,
+      rød: C_RED,
+      lysegrøn: C_GREEN,
+      blå: C_BLUE,
+      gul: C_YELLOW,
+      lyslilla: C_MAGENTA,
+      akvamarin: C_CYAN
     },
     general: 'Standard',
     opcodes: { dy: 'å', th: 't' },
@@ -286,15 +296,15 @@ export function initLocales () {
     bool: _B('WAAR;ONWAAR'),
     color: 'Kleur',
     colors: {
-      zwart: 'Black',
-      wit: 'White',
-      rood: 'Red', // mac
-      root: 'Red', // win?
-      groen: 'Green',
-      blauw: 'Blue',
-      geel: 'Yellow',
-      magenta: 'Magenta',
-      cyaan: 'Cyan'
+      zwart: C_BLACK,
+      wit: C_WHITE,
+      rood: C_RED, // mac
+      root: C_RED, // win?
+      groen: C_GREEN,
+      blauw: C_BLUE,
+      geel: C_YELLOW,
+      magenta: C_MAGENTA,
+      cyaan: C_CYAN
     },
     general: 'Standaard',
     opcodes: { dy: 'j', th: 'u' },
@@ -326,14 +336,14 @@ export function initLocales () {
     bool: _B('TOSI;EPÄTOSI'),
     color: 'Väri',
     colors: {
-      musta: 'Black',
-      valkoinen: 'White',
-      punainen: 'Red',
-      vihreä: 'Green',
-      sininen: 'Blue',
-      keltainen: 'Yellow',
-      magenta: 'Magenta',
-      syaani: 'Cyan'
+      musta: C_BLACK,
+      valkoinen: C_WHITE,
+      punainen: C_RED,
+      vihreä: C_GREEN,
+      sininen: C_BLUE,
+      keltainen: C_YELLOW,
+      magenta: C_MAGENTA,
+      syaani: C_CYAN
     },
     general: 'Yleinen',
     currency: '€',
@@ -351,14 +361,14 @@ export function initLocales () {
     bool: _B('VRAI;FAUX'),
     color: 'Couleur',
     colors: {
-      noir: 'Black',
-      blanc: 'White',
-      rouge: 'Red',
-      vert: 'Green',
-      bleu: 'Blue',
-      jaune: 'Yellow',
-      magenta: 'Magenta',
-      cyan: 'Cyan'
+      noir: C_BLACK,
+      blanc: C_WHITE,
+      rouge: C_RED,
+      vert: C_GREEN,
+      bleu: C_BLUE,
+      jaune: C_YELLOW,
+      magenta: C_MAGENTA,
+      cyan: C_CYAN
     },
     opcodes: { dy: 'a', dd: 'j', wd: 'o' },
     general: 'Standard'
@@ -374,14 +384,14 @@ export function initLocales () {
     bool: _B('WAHR;FALSCH'),
     color: 'Farbe',
     colors: {
-      schwarz: 'Black',
-      weiß: 'White',
-      rot: 'Red',
-      grün: 'Green',
-      blau: 'Blue',
-      gelb: 'Yellow',
-      magenta: 'Magenta',
-      zyan: 'Cyan'
+      schwarz: C_BLACK,
+      weiß: C_WHITE,
+      rot: C_RED,
+      grün: C_GREEN,
+      blau: C_BLUE,
+      gelb: C_YELLOW,
+      magenta: C_MAGENTA,
+      zyan: C_CYAN
     },
     opcodes: { dy: 'j', dd: 't' },
     general: 'Standard'
@@ -398,14 +408,14 @@ export function initLocales () {
     dddd: _W('Κυριακή;Δευτέρα;Τρίτη;Τετάρτη;Πέμπτη;Παρασκευή;Σάββατο'),
     ddd: [ 'Κυρ', 'Δευ', 'Τρι', 'Τετ', 'Πεμ', 'Παρ', 'Σαβ' ],
     colors: {
-      μαύρο: 'Black',
-      λευκό: 'White',
-      κόκκινο: 'Red',
-      πράσινο: 'Green',
-      μπλε: 'Blue',
-      κίτρινο: 'Yellow',
-      ματζέντα: 'Magenta',
-      γαλάζιο: 'Cyan'
+      μαύρο: C_BLACK,
+      λευκό: C_WHITE,
+      κόκκινο: C_RED,
+      πράσινο: C_GREEN,
+      μπλε: C_BLUE,
+      κίτρινο: C_YELLOW,
+      ματζέντα: C_MAGENTA,
+      γαλάζιο: C_CYAN
     },
     general: 'Γενικός τύπος',
     color: 'Χρώμα',
@@ -426,14 +436,14 @@ export function initLocales () {
     general: 'Normál',
     opcodes: { dy: 'é', dm: 'h', dd: 'n', th: 'ó', tm: 'p', ts: 'm' },
     colors: {
-      fekete: 'Black',
-      fehér: 'White',
-      piros: 'Red',
-      zöld: 'Green',
-      kék: 'Blue',
-      sárga: 'Yellow',
-      bíbor: 'Magenta',
-      ciánkék: 'Cyan'
+      fekete: C_BLACK,
+      fehér: C_WHITE,
+      piros: C_RED,
+      zöld: C_GREEN,
+      kék: C_BLUE,
+      sárga: C_YELLOW,
+      bíbor: C_MAGENTA,
+      ciánkék: C_CYAN
     },
     color: 'Szín',
     format: xf({ h: 0, o: 2, k: '.', l: '.', d: 1 })
@@ -458,14 +468,14 @@ export function initLocales () {
     ddd: _W('Mgg;Sen;Sel;Rab;Kam;Jum;Sab'),
     color: 'Warna',
     colors: {
-      hitam: 'Black',
-      putih: 'White',
-      merah: 'Red',
-      hijau: 'Green',
-      biru: 'Blue',
-      kuning: 'Yellow',
-      magenta: 'Magenta',
-      sian: 'Cyan'
+      hitam: C_BLACK,
+      putih: C_WHITE,
+      merah: C_RED,
+      hijau: C_GREEN,
+      biru: C_BLUE,
+      kuning: C_YELLOW,
+      magenta: C_MAGENTA,
+      sian: C_CYAN
     },
     currency: 'Rp',
     format: xf({ f: 0, b: '.' })
@@ -478,15 +488,15 @@ export function initLocales () {
     general: 'Standard',
     color: 'Colore',
     colors: {
-      nero: 'Black',
-      bianco: 'White',
-      rosso: 'Red',
-      verde: 'Green',
-      blu: 'Blue',
-      giallo: 'Yellow',
-      fucsia: 'Magenta',
-      celeste: 'Cyan', // mac
-      ciano: 'Cyan' // win
+      nero: C_BLACK,
+      bianco: C_WHITE,
+      rosso: C_RED,
+      verde: C_GREEN,
+      blu: C_BLUE,
+      giallo: C_YELLOW,
+      fucsia: C_MAGENTA,
+      celeste: C_CYAN, // mac
+      ciano: C_CYAN // win
     },
     opcodes: { dy: 'a', dd: 'g', wd: 'o', en: 'x' }
   }, 3, 3);
@@ -502,15 +512,15 @@ export function initLocales () {
     bool: _B('SANN;USANN'),
     color: 'Farge',
     colors: {
-      svart: 'Black',
-      hvit: 'White',
-      rød: 'Red',
-      grønn: 'Green',
-      blå: 'Blue',
-      gul: 'Yellow',
-      magenta: 'Magenta',
-      cyan: 'Cyan'
-    },
+      svart: C_BLACK,
+      hvit: C_WHITE,
+      rød: C_RED,
+      grønn: C_GREEN,
+      blå: C_BLUE,
+      gul: C_YELLOW,
+      magenta: C_MAGENTA,
+      cyan: C_CYAN
+    } as Colors,
     general: 'Standard',
     opcodes: { dy: 'å', th: 't' },
     currency: 'kr'
@@ -526,14 +536,14 @@ export function initLocales () {
     bool: _B('PRAWDA;FAŁSZ'),
     color: 'Kolor',
     colors: {
-      czarny: 'Black',
-      biały: 'White',
-      czerwony: 'Red',
-      zielony: 'Green',
-      niebieski: 'Blue',
-      żółty: 'Yellow',
-      amarantowy: 'Magenta',
-      błękitny: 'Cyan'
+      czarny: C_BLACK,
+      biały: C_WHITE,
+      czerwony: C_RED,
+      zielony: C_GREEN,
+      niebieski: C_BLUE,
+      żółty: C_YELLOW,
+      amarantowy: C_MAGENTA,
+      błękitny: C_CYAN
     },
     general: 'Standardowy',
     opcodes: { dy: 'r', th: 'g' },
@@ -554,15 +564,15 @@ export function initLocales () {
     group: '\u202f',
     general: 'Estandar',
     colors: {
-      preto: 'Black',
-      branco: 'White',
-      vermelho: 'Red',
-      verde: 'Green',
-      azul: 'Blue',
-      amarelo: 'Yellow',
-      magenta: 'Magenta',
-      turquesa: 'Cyan', // mac
-      ciano: 'Cyan' // pc
+      preto: C_BLACK,
+      branco: C_WHITE,
+      vermelho: C_RED,
+      verde: C_GREEN,
+      azul: C_BLUE,
+      amarelo: C_YELLOW,
+      magenta: C_MAGENTA,
+      turquesa: C_CYAN, // mac
+      ciano: C_CYAN // pc
     },
     currency: '€',
     format: xf({ l: '/' })
@@ -572,14 +582,14 @@ export function initLocales () {
     group: '.',
     general: 'Geral',
     colors: {
-      preto: 'Black',
-      branco: 'White',
-      vermelho: 'Red',
-      verde: 'Green',
-      azul: 'Blue',
-      amarelo: 'Yellow',
-      magenta: 'Magenta',
-      ciano: 'Cyan'
+      preto: C_BLACK,
+      branco: C_WHITE,
+      vermelho: C_RED,
+      verde: C_GREEN,
+      azul: C_BLUE,
+      amarelo: C_YELLOW,
+      magenta: C_MAGENTA,
+      ciano: C_CYAN
     },
     currency: 'R$',
     format: xf({ f: 2, l: '/' })
@@ -599,15 +609,15 @@ export function initLocales () {
     opcodes: { dy: 'г', dm: 'м', dd: 'д', th: 'ч', tm: 'м', ts: 'с' },
     color: 'Цвет',
     colors: {
-      черный: 'Black',
-      белый: 'White',
-      красный: 'Red',
-      зеленый: 'Green',
-      синий: 'Blue',
-      желтый: 'Yellow',
-      фиолетовый: 'Magenta', // mac
-      пурпурный: 'Magenta', // win
-      голубой: 'Cyan'
+      черный: C_BLACK,
+      белый: C_WHITE,
+      красный: C_RED,
+      зеленый: C_GREEN,
+      синий: C_BLUE,
+      желтый: C_YELLOW,
+      фиолетовый: C_MAGENTA, // mac
+      пурпурный: C_MAGENTA, // win
+      голубой: C_CYAN
     },
     currency: '₽',
     format: xf({ h: 0, k: '.', l: '.' })
@@ -620,14 +630,14 @@ export function initLocales () {
     dddd: _W('nedeľa;pondelok;utorok;streda;štvrtok;piatok;sobota'),
     color: 'Farba',
     colors: {
-      čierna: 'Black',
-      biela: 'White',
-      červená: 'Red',
-      zelená: 'Green',
-      modrá: 'Blue',
-      žltá: 'Yellow',
-      purpurová: 'Magenta',
-      azúrová: 'Cyan'
+      čierna: C_BLACK,
+      biela: C_WHITE,
+      červená: C_RED,
+      zelená: C_GREEN,
+      modrá: C_BLUE,
+      žltá: C_YELLOW,
+      purpurová: C_MAGENTA,
+      azúrová: C_CYAN
     },
     currency: '€',
     format: xf(fp2)
@@ -643,16 +653,16 @@ export function initLocales () {
     ddd: _W('dom;lun;mar;mié;jue;vie;sáb'),
     bool: _B('VERDADERO;FALSO'),
     colors: {
-      negro: 'Black',
-      blanco: 'White',
-      rojo: 'Red',
-      verde: 'Green',
-      azul: 'Blue',
-      amarillo: 'Yellow',
-      magenta: 'Magenta',
-      cian: 'Cyan', // mac
-      ciano: 'Cyan' // pc
-    }
+      negro: C_BLACK,
+      blanco: C_WHITE,
+      rojo: C_RED,
+      verde: C_GREEN,
+      azul: C_BLUE,
+      amarillo: C_YELLOW,
+      magenta: C_MAGENTA,
+      cian: C_CYAN, // mac
+      ciano: C_CYAN // pc
+    } as Colors
   };
   const _esM3 = _M('ene;feb;mar;abr;may;jun;jul;ago;sep;oct;nov;dic');
   const _esM3s = _M('ene;feb;mar;abr;may;jun;jul;ago;sept;oct;nov;dic');
@@ -696,14 +706,14 @@ export function initLocales () {
     general: 'Standard',
     color: 'Färg',
     colors: {
-      svart: 'Black',
-      vit: 'White',
-      röd: 'Red',
-      grön: 'Green',
-      blå: 'Blue',
-      gul: 'Yellow',
-      magenta: 'Magenta',
-      cyanblå: 'Cyan'
+      svart: C_BLACK,
+      vit: C_WHITE,
+      röd: C_RED,
+      grön: C_GREEN,
+      blå: C_BLUE,
+      gul: C_YELLOW,
+      magenta: C_MAGENTA,
+      cyanblå: C_CYAN
     },
     currency: 'kr',
     format: xf({ o: 2, k: '-' })
@@ -720,14 +730,14 @@ export function initLocales () {
     bool: _B('DOĞRU;YANLIŞ'),
     color: 'Renk',
     colors: {
-      siyah: 'Black',
-      beyaz: 'White',
-      kırmızı: 'Red',
-      yeşil: 'Green',
-      mavi: 'Blue',
-      sarı: 'Yellow',
-      pembe: 'Magenta',
-      camgöbeği: 'Cyan'
+      siyah: C_BLACK,
+      beyaz: C_WHITE,
+      kırmızı: C_RED,
+      yeşil: C_GREEN,
+      mavi: C_BLUE,
+      sarı: C_YELLOW,
+      pembe: C_MAGENTA,
+      camgöbeği: C_CYAN
     },
     opcodes: { dm: 'a', dd: 'g', th: 's', tm: 'd', ts: 'n' },
     general: 'Genel',
@@ -826,14 +836,14 @@ export function initLocales () {
     mmm6: _M('רמדאן;שוואל;ד׳ו אל־קעדה;ד׳ו אל־חיג׳ה;מוחרם;רביע א׳;רביע ב׳;ג׳ומאדא א׳;ג׳ומאדא ב׳;רג׳ב;שעבאן;רמדאן'),
     color: 'צבע',
     colors: {
-      'שחור': 'Black',
-      'לבן': 'White',
-      'אדום': 'Red',
-      'ירוק': 'Green',
-      'כחול': 'Blue',
-      'צהוב': 'Yellow',
-      'אדום ארגמן': 'Magenta',
-      'תכלת': 'Cyan'
+      'שחור': C_BLACK,
+      'לבן': C_WHITE,
+      'אדום': C_RED,
+      'ירוק': C_GREEN,
+      'כחול': C_BLUE,
+      'צהוב': C_YELLOW,
+      'אדום ארגמן': C_MAGENTA,
+      'תכלת': C_CYAN
     },
     currency: '₪',
     format: xf({ f: 2, s: 1 })
@@ -1054,14 +1064,14 @@ export function initLocales () {
     mmmm6: _M('رمضان;شوال;ذو القعدة;ذو الحجة;محرم;ربيع الأول;ربيع الآخرة;جمادى الأولى;جمادى الآخرة;رجب;شعبان;رمضان'),
     color: 'اللون',
     colors: {
-      أسود: 'Black',
-      أبيض: 'White',
-      أحمر: 'Red',
-      أخضر: 'Green',
-      أزرق: 'Blue',
-      أصفر: 'Yellow',
-      ماجنتا: 'Magenta',
-      سماوي: 'Cyan'
+      أسود: C_BLACK,
+      أبيض: C_WHITE,
+      أحمر: C_RED,
+      أخضر: C_GREEN,
+      أزرق: C_BLUE,
+      أصفر: C_YELLOW,
+      ماجنتا: C_MAGENTA,
+      سماوي: C_CYAN
     },
     currency: '⃁',
     format: xf({ f: 2, i: 1, y: 1, s: 1 })

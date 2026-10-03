@@ -170,5 +170,3 @@ export const currencySymbols = [
   '₾',
   '₿'
 ];
-
-// export const reCurrencySymbols = new RegExp('[' + currencySymbols.join('') + ']');
