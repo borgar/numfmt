@@ -56,7 +56,7 @@ describe('parseValue: EXCEL mode', () => {
     for (const l of loc) {
       const opt = { locale: l };
       // locales with preferMDY should allow dates that fit, else only allow DMY
-      const MDY = getLocale(l)?.preferMDY;
+      const MDY = !getLocale(l)?.format?.dateOrder;
       if (MDY) {
         expect(parseDate('07/05/82', opt), `${l} prefers MDY (07/05/82)`).toEqual({ v: 30137, z: 'm/d/yy' });
         expect(parseDate('31/05/82', opt), `${l} prefers MDY (31/05/82)`).toEqual(undefined);

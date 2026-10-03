@@ -140,7 +140,7 @@ export function parseDateXl (value: string, l10n: LocaleData): ParseDataNum | un
     bits.length = 5;
   }
 
-  const isMDY = l10n.preferMDY;
+  const isMDY = !l10n.format?.dateOrder;
   if (bits.length === 5) {
     const [ a, b, c, d, e ] = bits;
     const [ nMon, nDay ] = isMDY ? [ a, c ] : [ c, a ];

@@ -42,19 +42,13 @@ export function getTokenHandlers (l10n: LocaleData): [ TokenType, RegExp, number
     const ts = reEsc(l10n.opcodes.ts ?? 's');
     const wd = reEsc(l10n.opcodes.wd ?? 'a');
     const en = reEsc(l10n.opcodes.en ?? 'g');
-    // AAA
-    const ops = [
-      dy + dy.toUpperCase(),
-      dm + dm.toUpperCase(),
-      dd + dd.toUpperCase(),
-      th + th.toUpperCase(),
-      tm + tm.toUpperCase(),
-      ts + ts.toUpperCase(),
-      wd + wd.toUpperCase(),
-      en + en.toUpperCase(),
-      'bB'
-    ];
-    reDatetime = new RegExp(`^(?:[${ops.join(']+|[')}]+|e+)`);
+    const ops = '' +
+      `[${dy + dy.toUpperCase()}]+|[${dm + dm.toUpperCase()}]+|` +
+      `[${dd + dd.toUpperCase()}]+|[${th + th.toUpperCase()}]+|` +
+      `[${tm + tm.toUpperCase()}]+|[${ts + ts.toUpperCase()}]+|` +
+      `[${wd + wd.toUpperCase()}]{3,}|[${en + en.toUpperCase()}]+|` +
+      '[bB]+|e+';
+    reDatetime = new RegExp(`^(?:${ops})`);
     reDuration = new RegExp(`^(?:\\[(${reEsc(th)}+|${reEsc(tm)}+|${reEsc(ts)}+)\\]+)`, 'i');
   }
   else {
@@ -79,13 +73,13 @@ export function getTokenHandlers (l10n: LocaleData): [ TokenType, RegExp, number
     [ TOKEN_POINT, /^\./, 0 ],
     [ TOKEN_SPACE, /^ /, 0 ],
     [ TOKEN_PERCENT, /^%/, 0 ],
+    [ TOKEN_AMPM, /^(?:AM\/PM|am\/pm|A\/P)/, 0 ],
     [ TOKEN_CURRENCY, reCurrencySymbol, 0 ],
     [ TOKEN_DIGIT, /^[1-9]/, 0 ],
     [ TOKEN_CALENDAR, /^(?:B[12])/i, 0 ],
     [ TOKEN_ERROR, /^B$/, 0 ], // pattern must not end in a "B"
     [ TOKEN_DATETIME, reDatetime, 0 ],
     [ TOKEN_DURATION, reDuration, 1 ],
-    [ TOKEN_AMPM, /^(?:AM\/PM|am\/pm|A\/P)/, 0 ],
     [ TOKEN_CONDITION, /^\[((?:<[=>]?|>=?|=)\s*(?:-?[.\d]+))\]/, 1 ],
     [ TOKEN_DBNUM, /^\[(DBNum[0-4]?\d)\]/i, 1 ],
     [ TOKEN_NATNUM, /^\[(NatNum[0-4]?\d)\]/i, 1 ],

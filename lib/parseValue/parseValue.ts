@@ -58,7 +58,7 @@ import type { ParseDataBool, ParseDataNum, ParseValueOptions } from './types.ts'
  * @returns An object of the parsed value and a corresponding format string
  */
 export function parseValue (value: string, options?: ParseValueOptions): ParseDataNum | ParseDataBool | undefined {
-  const l10n = getLocale(options?.locale || '') || defaultLocale;
+  const l10n = getLocale(options?.locale || 'en-US') || defaultLocale;
   if (options?.mode === 1) {
     return (
       parseNumberNf(value, l10n) ??

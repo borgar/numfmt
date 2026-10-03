@@ -269,7 +269,7 @@ export function parseDateNf (value: string, l10n: LocaleData): ParseDataNum | un
   // possible shortcut: quickly dismiss if there isn't a number?
   const date = nextToken(
     normDateStr(value),
-    l10n.preferMDY ? dateTrieMD : dateTrieDM,
+    !l10n.format?.dateOrder ? dateTrieMD : dateTrieDM,
     { path: '' },
     lData
   );

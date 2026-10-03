@@ -41,7 +41,7 @@ export {
 import { dateToSerial as handleDates } from './serialDate.ts';
 export { dateToSerial, dateFromSerial } from './serialDate.ts';
 
-export type { LocaleData, LocaleToken, MonthNames, DayNames } from './locale.ts';
+export type { LocaleData, LocalFormat, LocaleToken, MonthNames, DayNames } from './locale.ts';
 
 export type { ParseDataBool, ParseDataNum } from './parseValue/types.ts';
 export { parseNumber } from './parseValue/parseNumber.ts';
@@ -57,6 +57,7 @@ import type { FormatDateInfo, FormatInfo, PatternParseData } from './types.ts';
 import { createPartition } from './createPartition.ts';
 
 export { tokenize } from './tokenize.ts';
+export { getFormatFromId } from './getFormatFromId.ts';
 
 type CacheData = PatternParseData & { dateInfo?: FormatDateInfo, info?: FormatInfo };
 const _parseDataCache = new Map<string, CacheData>();
