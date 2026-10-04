@@ -315,3 +315,11 @@ test('Correct output for single bracket patterns', () => {
   expect(numfmt('[blue]', 123.456)).toBe('123.456');
   expect(numfmt('[orange]', 123.456, { throws: false })).toBe('######');
 });
+
+test('A time that rounds up to midnight shows the next day', () => {
+  expect(numfmt('m/d/yy h:mm', 45292.9999999)).toBe('1/2/24 0:00');
+  expect(numfmt('yyyy-mm-dd hh:mm:ss', 45292.999995)).toBe('2024-01-02 00:00:00');
+  expect(numfmt('dddd h:mm', 45292.9999999)).toBe('Tuesday 0:00');
+  expect(numfmt('m/d/yy', 45292.9999999)).toBe('1/1/24');
+  expect(numfmt('m/d/yy', 45292.99999999)).toBe('1/1/24');
+});
