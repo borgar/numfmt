@@ -55,6 +55,7 @@ export const TOKEN_EXP = 'EXP';
 export const TOKEN_FILL = 'FILL';
 export const TOKEN_PAREN = 'PAREN';
 export const TOKEN_CHAR = 'CHAR';
+export const TOKEN_CURRENCY = 'CURRENCY';
 
 export const T_TYPE_INT = 'INT';
 export const T_TYPE_NUM = 'NUM';
@@ -169,5 +170,3 @@ export const currencySymbols = [
   '₾',
   '₿'
 ];
-
-export const reCurrencySymbols = new RegExp('[' + currencySymbols.join('') + ']');

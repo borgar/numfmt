@@ -1,5 +1,6 @@
-import { currencySymbols, reCurrencySymbols } from '../constants.ts';
+import { currencySymbols } from '../constants.ts';
 import type { LocaleData } from '../locale.ts';
+import { reCurrencySymbol } from '../tokenHandlers.ts';
 import type { ParseDataNum } from './types.ts';
 
 const PT = '.';
@@ -47,7 +48,7 @@ export function parseNumberNf (value: string, l10n: LocaleData): ParseDataNum | 
       minus = true;
       sign = -1;
     }
-    else if (reCurrencySymbols.test(char)) {
+    else if (reCurrencySymbol.test(char)) {
       if (currency) {
         return undefined;
       }
@@ -123,7 +124,7 @@ export function parseNumberNf (value: string, l10n: LocaleData): ParseDataNum | 
   while (suffixChars.includes(value[i])) {
     const char = value[i];
     // only 1 occurance of these is allowed
-    if (reCurrencySymbols.test(char)) {
+    if (reCurrencySymbol.test(char)) {
       if (currency) {
         return undefined;
       }

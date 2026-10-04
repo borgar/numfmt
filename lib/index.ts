@@ -18,6 +18,7 @@ export {
 
 import { defaultOptions, type FormatOptions } from './options.ts';
 
+export { delocalize } from './delocalize.ts';
 export { round } from './round.ts';
 export { dec2frac } from './dec2frac.ts';
 export type { FormatOptions } from './options.ts';
@@ -40,7 +41,7 @@ export {
 import { dateToSerial as handleDates } from './serialDate.ts';
 export { dateToSerial, dateFromSerial } from './serialDate.ts';
 
-export type { LocaleData, LocaleToken, MonthNames, DayNames } from './locale.ts';
+export type { LocaleData, LocalFormat, LocaleToken, MonthNames, DayNames } from './locale.ts';
 
 export type { ParseDataBool, ParseDataNum } from './parseValue/types.ts';
 export { parseNumber } from './parseValue/parseNumber.ts';
@@ -56,6 +57,7 @@ import type { FormatDateInfo, FormatInfo, PatternParseData } from './types.ts';
 import { createPartition } from './createPartition.ts';
 
 export { tokenize } from './tokenize.ts';
+export { getFormatFromId } from './getFormatFromId.ts';
 
 type CacheData = PatternParseData & { dateInfo?: FormatDateInfo, info?: FormatInfo };
 const _parseDataCache = new Map<string, CacheData>();
@@ -235,17 +237,12 @@ export function isValidFormat (pattern: string): boolean {
  * format pattern is invalid and would cause the formatter to throw.
  *
  * @param pattern A format pattern in the ECMA-376 number format.
- * @param [options={}]  Options for the method
- * @param [options.currency]
- *   Limit the patterns identified as currency to those that use the give string.
- *   If nothing is provided, patterns will be tagged as currency if one of the
- *   following currency symbols is used: `¤$£¥֏؋৳฿៛₡₦₩₪₫€₭₮₱₲₴₸₹₺₼₽₾₿`
  * @returns An object of format properties.
  */
-export function getFormatInfo (pattern: string, options: { currency?: string; } = {}): FormatInfo {
+export function getFormatInfo (pattern: string): FormatInfo {
   const data = prepareFormatterData(pattern, false);
   if (!data.info) {
-    data.info = info(data.partitions, options?.currency);
+    data.info = info(data.partitions);
   }
   return data.info;
 }

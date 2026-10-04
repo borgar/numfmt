@@ -1,54 +1,7 @@
-import {
-  TOKEN_GENERAL, TOKEN_HASH, TOKEN_ZERO, TOKEN_QMARK, TOKEN_SLASH, TOKEN_GROUP, TOKEN_SCALE,
-  TOKEN_COMMA, TOKEN_BREAK, TOKEN_TEXT, TOKEN_PLUS, TOKEN_MINUS, TOKEN_POINT, TOKEN_SPACE,
-  TOKEN_PERCENT, TOKEN_DIGIT, TOKEN_CALENDAR, TOKEN_ERROR, TOKEN_DATETIME, TOKEN_DURATION,
-  TOKEN_CONDITION, TOKEN_DBNUM, TOKEN_NATNUM, TOKEN_LOCALE, TOKEN_COLOR, TOKEN_MODIFIER,
-  TOKEN_AMPM, TOKEN_ESCAPED, TOKEN_STRING, TOKEN_SKIP, TOKEN_EXP, TOKEN_FILL, TOKEN_PAREN,
-  TOKEN_CHAR
-} from './constants.ts';
+import { TOKEN_GROUP, TOKEN_SCALE, TOKEN_COMMA, TOKEN_CHAR } from './constants.ts';
+import { defaultLocale } from './locale.ts';
+import { getTokenHandlers } from './tokenHandlers.ts';
 import type { Token, TokenType } from './types.ts';
-
-const tokenHandlers: [ TokenType, RegExp, number ][] = [
-  [ TOKEN_GENERAL, /^General/i, 0 ],
-  [ TOKEN_HASH, /^#/, 0 ],
-  [ TOKEN_ZERO, /^0/, 0 ],
-  [ TOKEN_QMARK, /^\?/, 0 ],
-  [ TOKEN_SLASH, /^\//, 0 ],
-  // Commas are dealt with as a special case in the tokenizer but will end up
-  // as one of these:
-  // [ TOKEN_GROUP, /^(,),*/, 1 ],
-  // [ TOKEN_SCALE, /^(,),*/, 1 ],
-  // [ TOKEN_COMMA, /^(,),*/, 1 ],
-  [ TOKEN_BREAK, /^;/, 0 ],
-  [ TOKEN_TEXT, /^@/, 0 ],
-  [ TOKEN_PLUS, /^\+/, 0 ],
-  [ TOKEN_MINUS, /^-/, 0 ],
-  [ TOKEN_POINT, /^\./, 0 ],
-  [ TOKEN_SPACE, /^ /, 0 ],
-  [ TOKEN_PERCENT, /^%/, 0 ],
-  [ TOKEN_DIGIT, /^[1-9]/, 0 ],
-  [ TOKEN_CALENDAR, /^(?:B[12])/i, 0 ],
-  [ TOKEN_ERROR, /^B$/, 0 ], // pattern must not end in a "B"
-  [ TOKEN_DATETIME, /^(?:[hH]+|[mM]+|[sS]+|[yY]+|[bB]+|[dD]+|[gG]+|[aA]{3,}|e+)/, 0 ],
-  [ TOKEN_DURATION, /^(?:\[(h+|m+|s+)\])/i, 1 ],
-  [ TOKEN_CONDITION, /^\[((?:<[=>]?|>=?|=)\s*(?:-?[.\d]+))\]/, 1 ],
-  [ TOKEN_DBNUM, /^\[(DBNum[0-4]?\d)\]/i, 1 ],
-  [ TOKEN_NATNUM, /^\[(NatNum[0-4]?\d)\]/i, 1 ],
-  [ TOKEN_LOCALE, /^\[\$([^\]]+)\]/, 1 ],
-  [ TOKEN_COLOR, /^\[(black|blue|cyan|green|magenta|red|white|yellow|color\s*\d+)\]/i, 1 ],
-  // conditionally allow these open ended directions?
-  [ TOKEN_MODIFIER, /^\[([^\]]+)\]/, 1 ],
-  [ TOKEN_AMPM, /^(?:AM\/PM|am\/pm|A\/P)/, 0 ],
-  [ TOKEN_ESCAPED, /^\\(.)/, 1 ],
-  [ TOKEN_STRING, /^"([^"]*?)"/, 1 ],
-  [ TOKEN_SKIP, /^_(\\.|.)/, 1 ],
-  // Google Sheets and Excel diverge on "e": Excel only accepts E.
-  [ TOKEN_EXP, /^[Ee]([+-])/, 1 ],
-  [ TOKEN_FILL, /^\*(\\.|.)/, 1 ],
-  [ TOKEN_PAREN, /^[()]/, 0 ],
-  [ TOKEN_ERROR, /^[EÈÉÊËèéêëĒēĔĕĖėĘęĚěȄȅȆȇȨȩNnÑñŃńŅņŇňǸǹ["*/\\_]/, 0 ],
-  [ TOKEN_CHAR, /^./, 0 ]
-];
 
 const CODE_QMRK = 63;
 const CODE_HASH = 35;
@@ -59,24 +12,7 @@ const isNumOp = (char: string) => {
   return (c === CODE_QMRK || c === CODE_HASH || (c >= CODE_ZERO && c <= CODE_NINE));
 };
 
-/**
- * Breaks a format pattern string into a list of tokens.
- *
- * The returned output will be an array of objects representing the tokens:
- *
- * ```js
- * [
- *   { type: TOKEN_ZERO, value: '0', raw: '0' },
- *   { type: TOKEN_POINT, value: '.', raw: '.' },
- *   { type: TOKEN_ZERO, value: '0', raw: '0' },
- *   { type: TOKEN_PERCENT, value: '%', raw: '%' }
- * ]
- * ```
- *
- * @param pattern The format pattern
- * @returns A list of tokens
- */
-export function tokenize (pattern: string): Token[] {
+export function lexer (pattern: string, handlers: [ TokenType, RegExp, number ][]): Token[] {
   let i = 0;
   const tokens: Token[] = [];
   const unresolvedCommas = [];
@@ -130,7 +66,7 @@ export function tokenize (pattern: string): Token[] {
     // all other symbols are matched using
     else {
       let token: Token | undefined;
-      for (const [ type, expr, group ] of tokenHandlers) {
+      for (const [ type, expr, group ] of handlers) {
         const m = expr.exec(curr);
         if (m) {
           token = { type, value: m[group || 0], raw: m[0] };
@@ -157,4 +93,25 @@ export function tokenize (pattern: string): Token[] {
     i += step;
   }
   return tokens;
+}
+
+/**
+ * Breaks a format pattern string into a list of tokens.
+ *
+ * The returned output will be an array of objects representing the tokens:
+ *
+ * ```js
+ * [
+ *   { type: TOKEN_ZERO, value: '0', raw: '0' },
+ *   { type: TOKEN_POINT, value: '.', raw: '.' },
+ *   { type: TOKEN_ZERO, value: '0', raw: '0' },
+ *   { type: TOKEN_PERCENT, value: '%', raw: '%' }
+ * ]
+ * ```
+ *
+ * @param pattern The format pattern
+ * @returns A list of tokens
+ */
+export function tokenize (pattern: string): Token[] {
+  return lexer(pattern, getTokenHandlers(defaultLocale));
 }

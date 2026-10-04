@@ -1,5 +1,5 @@
-import { expect, test } from 'vitest';
-import { addLocale, format } from '../lib/index.ts';
+import { describe, expect, test } from 'vitest';
+import { addLocale, format, getLocale, listLocales } from '../lib/index.ts';
 
 const date = 3290.1278435; // 1909-01-02 03:04:05.678
 
@@ -110,4 +110,13 @@ test('locale options', () => {
   expect(format('General', false, { locale: 'is' })).toBe('FALSE');
   expect(format('General', true, { locale: 'nl' })).toBe('WAAR');
   expect(format('General', false, { locale: 'nl' })).toBe('ONWAAR');
+});
+
+describe('all locales have format settings', () => {
+  const locales = listLocales();
+  for (const code of locales) {
+    test(code + ' has format settings', () => {
+      expect(getLocale(code)?.format).toBeTruthy();
+    });
+  }
 });

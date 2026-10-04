@@ -6,7 +6,8 @@ import {
   TOKEN_PAREN, TOKEN_CHAR, TOKEN_MODIFIER, TOKEN_DBNUM, TOKEN_NATNUM, TOKEN_DATETIME, TOKEN_LOCALE, TOKEN_ESCAPED,
   T_TYPE_INT, T_TYPE_NUM, T_TYPE_DEN, T_TYPE_DIV, T_TYPE_FRAC, T_TYPE_MAN, T_TYPE_SUBSEC, T_TYPE_YEAR_S, T_TYPE_YEAR,
   T_TYPE_B_YEAR_S, T_TYPE_B_YEAR, T_TYPE_DAY, T_TYPE_WEEKDAY_S, T_TYPE_WEEKDAY, T_TYPE_HOUR, T_TYPE_MNAME_S,
-  T_TYPE_MNAME_1, T_TYPE_MNAME, T_TYPE_MIN, T_TYPE_MON, T_TYPE_HOUR_E, T_TYPE_MIN_E, T_TYPE_SEC_E, T_TYPE_SEC
+  T_TYPE_MNAME_1, T_TYPE_MNAME, T_TYPE_MIN, T_TYPE_MON, T_TYPE_HOUR_E, T_TYPE_MIN_E, T_TYPE_SEC_E, T_TYPE_SEC,
+  TOKEN_CURRENCY
 
 } from './constants.ts';
 
@@ -22,6 +23,7 @@ import {
  * | TOKEN_COLOR     | Color modifier (`[Black]`, `[color 5]`)
  * | TOKEN_COMMA     | Plain non-operator comma (`,`)
  * | TOKEN_CONDITION | Condition modifier for a section (`[>=10]`)
+ * | TOKEN_CURRENCY  | A currency character (`$`)
  * | TOKEN_DATETIME  | Date-time operator (`mmmm`, `YY`)
  * | TOKEN_DBNUM     | Number display modifier (`[DBNum23]`)
  * | TOKEN_DIGIT     | A digit between 1 and 9 (`3`)
@@ -59,7 +61,7 @@ export type TokenType = (
   typeof TOKEN_CONDITION | typeof TOKEN_DBNUM | typeof TOKEN_NATNUM | typeof TOKEN_LOCALE |
   typeof TOKEN_COLOR | typeof TOKEN_MODIFIER | typeof TOKEN_AMPM | typeof TOKEN_ESCAPED |
   typeof TOKEN_STRING | typeof TOKEN_SKIP | typeof TOKEN_EXP | typeof TOKEN_FILL |
-  typeof TOKEN_PAREN | typeof TOKEN_CHAR
+  typeof TOKEN_PAREN | typeof TOKEN_CHAR | typeof TOKEN_CURRENCY
 );
 
 /**
@@ -99,6 +101,7 @@ export type RenderToken =
   DateRenderToken |
   { type: typeof TOKEN_TEXT, value: string } |
   { type: typeof TOKEN_POINT, value: string } |
+  { type: typeof TOKEN_CURRENCY, value: string } |
   { type: typeof TOKEN_STRING, value: string, rule?: RenderRule } |
   { type: typeof TOKEN_SPACE, rule?: RenderRule } |
   { type: typeof TOKEN_FILL, value: string } |

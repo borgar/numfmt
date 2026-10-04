@@ -10,7 +10,8 @@ import {
   T_TYPE_INT, T_TYPE_NUM, T_TYPE_DEN, T_TYPE_DIV, T_TYPE_FRAC, T_TYPE_MAN, T_TYPE_SUBSEC, T_TYPE_YEAR_S,
   T_TYPE_YEAR, T_TYPE_B_YEAR_S, T_TYPE_B_YEAR, T_TYPE_DAY, T_TYPE_WEEKDAY_S, T_TYPE_WEEKDAY, T_TYPE_HOUR,
   T_TYPE_MNAME_S, T_TYPE_MNAME_1, T_TYPE_MNAME, T_TYPE_MIN, T_TYPE_MON, T_TYPE_HOUR_E, T_TYPE_MIN_E,
-  T_TYPE_SEC_E, T_TYPE_SEC
+  T_TYPE_SEC_E, T_TYPE_SEC,
+  TOKEN_CURRENCY
 } from './constants.ts';
 import type { DateRenderToken, Token, RenderToken, SectionType } from './types.ts';
 import { createPartition } from './createPartition.ts';
@@ -404,6 +405,10 @@ export function parseFormatSection (inputTokens: Token[]) {
 
     // fill space with next char
     else if (type === TOKEN_FILL) {
+      add({ type, value: token.value }, outputTokens);
+    }
+
+    else if (type === TOKEN_CURRENCY) {
       add({ type, value: token.value }, outputTokens);
     }
 

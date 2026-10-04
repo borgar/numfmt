@@ -1,4 +1,4 @@
-import { u_YEAR, u_MONTH, u_DAY, u_HOUR, u_MIN, u_SEC, reCurrencySymbols, TOKEN_STRING, T_TYPE_YEAR, T_TYPE_YEAR_S, T_TYPE_B_YEAR, T_TYPE_B_YEAR_S, T_TYPE_MON, T_TYPE_MNAME, T_TYPE_MNAME_S, T_TYPE_MNAME_1, T_TYPE_WEEKDAY, T_TYPE_WEEKDAY_S, T_TYPE_DAY, T_TYPE_HOUR, T_TYPE_MIN, T_TYPE_SEC, TOKEN_AMPM } from './constants.ts';
+import { u_YEAR, u_MONTH, u_DAY, u_HOUR, u_MIN, u_SEC, T_TYPE_YEAR, T_TYPE_YEAR_S, T_TYPE_B_YEAR, T_TYPE_B_YEAR_S, T_TYPE_MON, T_TYPE_MNAME, T_TYPE_MNAME_S, T_TYPE_MNAME_1, T_TYPE_WEEKDAY, T_TYPE_WEEKDAY_S, T_TYPE_DAY, T_TYPE_HOUR, T_TYPE_MIN, T_TYPE_SEC, TOKEN_AMPM, TOKEN_CURRENCY } from './constants.ts';
 import type { FormatDateInfo, FormatInfo, Partition } from './types.ts';
 
 export function isPercent (partitions: Partition[]): boolean {
@@ -56,7 +56,7 @@ const dateCodes: [ string, number ][] = [
   [ 'hm', 9 ]
 ];
 
-export function info (partitions: Partition[], currencyId?: string): FormatInfo {
+export function info (partitions: Partition[]): FormatInfo {
   const [ partPos, partNeg ] = partitions;
   const frac_max = partPos.frac_max;
   const output: FormatInfo = {
@@ -76,12 +76,12 @@ export function info (partitions: Partition[], currencyId?: string): FormatInfo 
 
   // currency identifier may be passed in, but otherwise we report
   // if we find any known glyph in the tokens
-  const isCurrency = (!output.isDate && !output.isText && !partPos.error) && partPos.tokens.some(tok => (
-    tok.type === TOKEN_STRING &&
-    (currencyId
-      ? tok.value === currencyId
-      : reCurrencySymbols.test(tok.value))
-  ));
+  const isCurrency = (
+    !output.isDate &&
+    !output.isText &&
+    !partPos.error &&
+    partPos.tokens.some(tok => tok.type === TOKEN_CURRENCY)
+  );
 
   let codeType = 'G';
   let codeNum = (frac_max >= 0) ? Math.min(15, frac_max) : 0;
