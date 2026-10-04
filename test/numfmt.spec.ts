@@ -315,3 +315,12 @@ test('Correct output for single bracket patterns', () => {
   expect(numfmt('[blue]', 123.456)).toBe('123.456');
   expect(numfmt('[orange]', 123.456, { throws: false })).toBe('######');
 });
+
+test('General rounds 10 and 11 digit numbers with a fraction', () => {
+  expect(numfmt('General', 4403928373.5)).toBe('4403928374');
+  expect(numfmt('General', -4511987749.6)).toBe('-4511987750');
+  expect(numfmt('General', 12345678901.5)).toBe('12345678902');
+  expect(numfmt('General', 99999999999.6)).toBe('1E+11');
+  expect(numfmt('General', -4403928373.5)).toBe('-4403928374');
+  expect(numfmt('General', -99999999999.6)).toBe('-1E+11');
+});
