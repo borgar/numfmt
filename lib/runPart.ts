@@ -5,7 +5,7 @@ import { general } from './general.ts';
 import { toYMD } from './toYMD.ts';
 import { defaultLocale, type LocaleData } from './locale.ts';
 import {
-  u_DSEC, u_CSEC, u_MSEC,
+  u_HOUR, u_MIN, u_SEC, u_DSEC, u_CSEC, u_MSEC,
   EPOCH_1317,
   MIN_S_DATE, MAX_S_DATE,
   MIN_L_DATE, MAX_L_DATE,
@@ -190,10 +190,6 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
     else if (subsec > 0.9999) {
       subsec = 0;
       time += 1;
-      if (time === DAYSIZE) {
-        time = 0;
-        date += 1;
-      }
     }
     if (subsec) {
       // round time based on smallest used unit
@@ -208,9 +204,14 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
         subsec = 0;
       }
     }
+    // a time shown as midnight belongs to the next day; a date alone ignores the time
+    if (time === DAYSIZE && part.date & (u_HOUR | u_MIN | u_SEC | u_DSEC | u_CSEC | u_MSEC)) {
+      time = 0;
+      date += 1;
+    }
     // serial date/time to gregorian calendar
     if (date || part.date_system) {
-      const dout = toYMD(value, part.date_system, opts.leap1900);
+      const dout = toYMD(value + date - Math.trunc(value), part.date_system, opts.leap1900);
       year = dout[0];
       month = dout[1];
       day = dout[2];
