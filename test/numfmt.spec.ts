@@ -323,3 +323,12 @@ test('A time that rounds up to midnight shows the next day', () => {
   expect(numfmt('m/d/yy', 45292.9999999)).toBe('1/1/24');
   expect(numfmt('m/d/yy', 45292.99999999)).toBe('1/1/24');
 });
+
+test('General rounds 10 and 11 digit numbers with a fraction', () => {
+  expect(numfmt('General', 4403928373.5)).toBe('4403928374');
+  expect(numfmt('General', -4511987749.6)).toBe('-4511987750');
+  expect(numfmt('General', 12345678901.5)).toBe('12345678902');
+  expect(numfmt('General', 99999999999.6)).toBe('1E+11');
+  expect(numfmt('General', -4403928373.5)).toBe('-4403928374');
+  expect(numfmt('General', -99999999999.6)).toBe('-1E+11');
+});
