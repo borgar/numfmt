@@ -52,10 +52,14 @@ export function general (ret: (string | number)[], value: number | string, l10n:
         ret.push(fixLocale(o, l10n));
       }
       else if (exp === 10) {
-        const o = v.toFixed(10)
-          .slice(0, 12)
-          .replace(/\.$/, '');
-        ret.push(fixLocale(o, l10n));
+        // 11 integer digits leave no room for decimals: round to an integer
+        const r = Math.round(v);
+        if (r < 1e11) {
+          ret.push(r);
+        }
+        else {
+          ret.push(...getExp(1, 11, l10n));
+        }
       }
       else if (Math.abs(exp) <= 9) {
         if (num_dig.total <= 11) {
@@ -63,7 +67,7 @@ export function general (ret: (string | number)[], value: number | string, l10n:
           ret.push(fixLocale(o, l10n));
         }
         else if (exp === 9) {
-          ret.push(Math.floor(v));
+          ret.push(Math.round(v));
         }
         else if (exp >= 0 && exp < 9) {
           ret.push(fixLocale(String(round(v, 9 - exp)), l10n));
