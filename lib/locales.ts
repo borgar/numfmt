@@ -434,7 +434,8 @@ export function initLocales () {
   }, 'fr');
   addLocale({
     ..._fr,
-    ampm: [ 'a.m.', 'p.m.' ],
+    // ampm: [ 'a.m.', 'p.m.' ],
+    ampm: _B('AM;PM'),
     format: xf({ p: 1, o: 2, d: 1, k: '-', l: '-', s: 1 }),
     sysdate: 'd mmmm yyyy'
   }, 'fr-CA');
@@ -540,7 +541,7 @@ export function initLocales () {
   addLocale(xm({
     group: '.',
     decimal: ',',
-    ampm: _B('.AM;.PM'),
+    ampm: _B('AM;PM'),
     mmmm: _M('Januari;Februari;Maret;April;Mei;Juni;Juli;Agustus;September;Oktober;November;Desember'),
     dddd: _W('Minggu;Senin;Selasa;Rabu;Kamis;Jumat;Sabtu'),
     ddd: _W('Mgg;Sen;Sel;Rab;Kam;Jum;Sab'),
@@ -776,7 +777,15 @@ export function initLocales () {
   };
   const _esM3 = _M('ene;feb;mar;abr;may;jun;jul;ago;sep;oct;nov;dic');
   const _esM3s = _M('ene;feb;mar;abr;may;jun;jul;ago;sept;oct;nov;dic');
-  addLocale({ ..._es, ddd: _W('do;lu;ma;mi;ju;vi;sá'), general: 'Estándar', opcodes: { dy: 'a', wd: 'o' }, currency: '€', format: xf({ h: 0, d: 1 }) }, 'es');
+  addLocale({
+    ..._es,
+    ampm: _B('AM;PM'),
+    ddd: _W('do;lu;ma;mi;ju;vi;sá'),
+    general: 'Estándar',
+    opcodes: { dy: 'a', wd: 'o' },
+    currency: '€',
+    format: xf({ h: 0, d: 1 })
+  }, 'es');
   addLocale({ ..._es, mmm: _esM3s, format: xf({ d: 0, f: 2, m: 0 }), systime: 'hh:mm:ss' }, 'es-AR');
   addLocale({ ..._es, mmm: _esM3s, currency: 'Bs', format: xf({ d: 0, f: 0, m: 0 }), systime: 'hh:mm:ss' }, 'es-BO');
   addLocale({ ..._es, mmm: _esM3s, format: xf({ h: 0, f: 0, s: 1, k: '-' }) }, 'es-CL');
@@ -794,7 +803,7 @@ export function initLocales () {
     group: ',',
     decimal: '.',
     mmm: _esM3,
-    ampm: _B('a.m.;p.m.'),
+    ampm: _B('a. m.;p. m.'),
     opcodes: { dy: 'a', wd: 'o' },
     general: 'Estándar',
     format: xf({ f: 0, i: 1 }),
@@ -869,7 +878,8 @@ export function initLocales () {
 
   addLocale({
     group: ',',
-    ampm: _B('yb;yh'),
+    // ampm: _B('yb;yh'),
+    ampm: _B('AM;PM'),
     mmmm: _M('Ionawr;Chwefror;Mawrth;Ebrill;Mai;Mehefin;Gorffennaf;Awst;Medi;Hydref;Tachwedd;Rhagfyr'),
     mmm: _M('Ion;Chwef;Maw;Ebr;Mai;Meh;Gorff;Awst;Medi;Hyd;Tach;Rhag'),
     dddd: _W('Dydd Sul;Dydd Llun;Dydd Mawrth;Dydd Mercher;Dydd Iau;Dydd Gwener;Dydd Sadwrn'),
@@ -1235,6 +1245,7 @@ export function initLocales () {
     group:  '٬',
     decimal:  '٫',
     ampm: _B('ص;م'),
+    percent: '٪',
     mmmm: _M('يناير;فبراير;مارس;أبريل;مايو;يونيو;يوليو;أغسطس;سبتمبر;أكتوبر;نوفمبر;ديسمبر'),
     dddd: _W('الأحد;الإثنين;الثلاثاء;الأربعاء;الخميس;الجمعة;السبت'),
     mmmm6: _M('رمضان;شوال;ذو القعدة;ذو الحجة;محرم;ربيع الأول;ربيع الآخرة;جمادى الأولى;جمادى الآخرة;رجب;شعبان;رمضان'),

@@ -52,7 +52,7 @@ describe('-x-sysdate/-x-systime', () => {
     expect(format('[$-x-sysdate]yyyy-mm-dd', MAGICDATE, { locale: 'cy-GB' })).toBe('Dydd Sadwrn, 2 Ionawr 1909');
     expect(format('[$-x-systime]hh:mm', MAGICDATE, { locale: 'cy-GB' })).toBe('03:04:06');
   });
-  test.only('da-DK', () => {
+  test('da-DK', () => {
     expect(format('[$-F800]yyyy-mm-dd', MAGICDATE, { locale: 'da-DK' })).toBe('2. januar 1909');
     expect(format('[$-F400]hh:mm', MAGICDATE, { locale: 'da-DK' })).toBe('03:04:06');
     expect(format('[$-x-sysdate]yyyy-mm-dd', MAGICDATE, { locale: 'da-DK' })).toBe('2. januar 1909');
