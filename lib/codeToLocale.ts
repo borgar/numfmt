@@ -4,89 +4,89 @@ export const codeToLocale: Readonly<Record<number, string>> =  Object.freeze({
    1078: 'af',    // Afrikaans
    1052: 'sq',    // Albanian
    1118: 'am',    // Amharic
-   5121: 'ar_DZ', // Arabic - Algeria
-  15361: 'ar_BH', // Arabic - Bahrain
-   3073: 'ar_EG', // Arabic - Egypt
-   2049: 'ar_IQ', // Arabic - Iraq
-  11265: 'ar_JO', // Arabic - Jordan
-  13313: 'ar_KW', // Arabic - Kuwait
-  12289: 'ar_LB', // Arabic - Lebanon
-   4097: 'ar_LY', // Arabic - Libya
-   6145: 'ar_MA', // Arabic - Morocco
-   8193: 'ar_OM', // Arabic - Oman
-  16385: 'ar_QA', // Arabic - Qatar
-   1025: 'ar_SA', // Arabic - Saudi Arabia
-  10241: 'ar_SY', // Arabic - Syria
-   7169: 'ar_TN', // Arabic - Tunisia
-  14337: 'ar_AE', // Arabic - United Arab Emirates
-   9217: 'ar_YE', // Arabic - Yemen
+   5121: 'ar-DZ', // Arabic - Algeria
+  15361: 'ar-BH', // Arabic - Bahrain
+   3073: 'ar-EG', // Arabic - Egypt
+   2049: 'ar-IQ', // Arabic - Iraq
+  11265: 'ar-JO', // Arabic - Jordan
+  13313: 'ar-KW', // Arabic - Kuwait
+  12289: 'ar-LB', // Arabic - Lebanon
+   4097: 'ar-LY', // Arabic - Libya
+   6145: 'ar-MA', // Arabic - Morocco
+   8193: 'ar-OM', // Arabic - Oman
+  16385: 'ar-QA', // Arabic - Qatar
+   1025: 'ar-SA', // Arabic - Saudi Arabia
+  10241: 'ar-SY', // Arabic - Syria
+   7169: 'ar-TN', // Arabic - Tunisia
+  14337: 'ar-AE', // Arabic - United Arab Emirates
+   9217: 'ar-YE', // Arabic - Yemen
    1067: 'hy',    // Armenian
    1101: 'as',    // Assamese
-   2092: 'az_AZ', // Azeri - Cyrillic
-   1068: 'az_AZ', // Azeri - Latin
+   2092: 'az-AZ', // Azeri - Cyrillic
+   1068: 'az-AZ', // Azeri - Latin
    1069: 'eu',    // Basque
    1059: 'be',    // Belarusian
    2117: 'bn',    // Bengali - Bangladesh
-   1093: 'bn_IN', // Bengali - India
+   1093: 'bn-IN', // Bengali - India
    5146: 'bs',    // Bosnian
    1026: 'bg',    // Bulgarian
    1109: 'my',    // Burmese
    1027: 'ca',    // Catalan
-   2052: 'zh_CN', // Chinese - China
-   3076: 'zh_HK', // Chinese - Hong Kong SAR
-   5124: 'zh_MO', // Chinese - Macau SAR
-   4100: 'zh_SG', // Chinese - Singapore
-   1028: 'zh_TW', // Chinese - Taiwan
+   2052: 'zh-CN', // Chinese - China
+   3076: 'zh-HK', // Chinese - Hong Kong SAR
+   5124: 'zh-MO', // Chinese - Macau SAR
+   4100: 'zh-SG', // Chinese - Singapore
+   1028: 'zh-TW', // Chinese - Taiwan
    1050: 'hr',    // Croatian
    1029: 'cs',    // Czech
    1030: 'da',    // Danish
    1125: 'dv',    // Divehi; Dhivehi; Maldivian
-   2067: 'nl_BE', // Dutch - Belgium
-   1043: 'nl_NL', // Dutch - Netherlands
+   2067: 'nl-BE', // Dutch - Belgium
+   1043: 'nl-NL', // Dutch - Netherlands
    1126: 'bin',   // Edo
-   3081: 'en_AU', // English - Australia
-  10249: 'en_BZ', // English - Belize
-   4105: 'en_CA', // English - Canada
-   9225: 'en_CB', // English - Caribbean
-   2057: 'en_GB', // English - Great Britain
-  16393: 'en_IN', // English - India
-   6153: 'en_IE', // English - Ireland
-   8201: 'en_JM', // English - Jamaica
-   5129: 'en_NZ', // English - New Zealand
-  13321: 'en_PH', // English - Phillippines
-   7177: 'en_ZA', // English - Southern Africa
-  11273: 'en_TT', // English - Trinidad
-   1033: 'en_US', // English - United States
-  12297: 'en_ZW', // English - Zimbabwe
+   3081: 'en-AU', // English - Australia
+  10249: 'en-BZ', // English - Belize
+   4105: 'en-CA', // English - Canada
+   9225: 'en-CB', // English - Caribbean
+   2057: 'en-GB', // English - Great Britain
+  16393: 'en-IN', // English - India
+   6153: 'en-IE', // English - Ireland
+   8201: 'en-JM', // English - Jamaica
+   5129: 'en-NZ', // English - New Zealand
+  13321: 'en-PH', // English - Phillippines
+   7177: 'en-ZA', // English - Southern Africa
+  11273: 'en-TT', // English - Trinidad
+   1033: 'en-US', // English - United States
+  12297: 'en-ZW', // English - Zimbabwe
    1061: 'et',    // Estonian
    1071: 'mk',    // FYRO Macedonia
    1080: 'fo',    // Faroese
    1065: 'fa',    // Farsi - Persian
    1124: 'fil',   // Filipino
    1035: 'fi',    // Finnish
-   2060: 'fr_BE', // French - Belgium
-  11276: 'fr_CM', // French - Cameroon
-   3084: 'fr_CA', // French - Canada
-   9228: 'fr_CG', // French - Congo
-  12300: 'fr_CI', // French - Cote d'Ivoire
-   1036: 'fr_FR', // French - France
-   5132: 'fr_LU', // French - Luxembourg
-  13324: 'fr_ML', // French - Mali
-   6156: 'fr_MC', // French - Monaco
-  14348: 'fr_MA', // French - Morocco
-  10252: 'fr_SN', // French - Senegal
-   4108: 'fr_CH', // French - Switzerland
+   2060: 'fr-BE', // French - Belgium
+  11276: 'fr-CM', // French - Cameroon
+   3084: 'fr-CA', // French - Canada
+   9228: 'fr-CG', // French - Congo
+  12300: 'fr-CI', // French - Cote d'Ivoire
+   1036: 'fr-FR', // French - France
+   5132: 'fr-LU', // French - Luxembourg
+  13324: 'fr-ML', // French - Mali
+   6156: 'fr-MC', // French - Monaco
+  14348: 'fr-MA', // French - Morocco
+  10252: 'fr-SN', // French - Senegal
+   4108: 'fr-CH', // French - Switzerland
    7180: 'fr',    // French - West Indies
-   1122: 'fy_NL', // Frisian - Netherlands
-   2108: 'gd_IE', // Gaelic - Ireland
+   1122: 'fy-NL', // Frisian - Netherlands
+   2108: 'gd-IE', // Gaelic - Ireland
    1084: 'gd',    // Gaelic - Scotland
    1110: 'gl',    // Galician
    1079: 'ka',    // Georgian
-   3079: 'de_AT', // German - Austria
-   1031: 'de_DE', // German - Germany
-   5127: 'de_LI', // German - Liechtenstein
-   4103: 'de_LU', // German - Luxembourg
-   2055: 'de_CH', // German - Switzerland
+   3079: 'de-AT', // German - Austria
+   1031: 'de-DE', // German - Germany
+   5127: 'de-LI', // German - Liechtenstein
+   4103: 'de-LU', // German - Luxembourg
+   2055: 'de-CH', // German - Switzerland
    1032: 'el',    // Greek
    1140: 'gn',    // Guarani - Paraguay
    1095: 'gu',    // Gujarati
@@ -95,10 +95,10 @@ export const codeToLocale: Readonly<Record<number, string>> =  Object.freeze({
    1081: 'hi',    // Hindi
    1038: 'hu',    // Hungarian
    1039: 'is',    // Icelandic
-   1136: 'ig_NG', // Igbo - Nigeria
+   1136: 'ig-NG', // Igbo - Nigeria
    1057: 'id',    // Indonesian
-   1040: 'it_IT', // Italian - Italy
-   2064: 'it_CH', // Italian - Switzerland
+   1040: 'it-IT', // Italian - Italy
+   2064: 'it-CH', // Italian - Switzerland
    1041: 'ja',    // Japanese
    1099: 'kn',    // Kannada
    1120: 'ks',    // Kashmiri
@@ -111,8 +111,8 @@ export const codeToLocale: Readonly<Record<number, string>> =  Object.freeze({
    1142: 'la',    // Latin
    1062: 'lv',    // Latvian
    1063: 'lt',    // Lithuanian
-   2110: 'ms_BN', // Malay - Brunei
-   1086: 'ms_MY', // Malay - Malaysia
+   2110: 'ms-BN', // Malay - Brunei
+   1086: 'ms-MY', // Malay - Malaysia
    1100: 'ml',    // Malayalam
    1082: 'mt',    // Maltese
    1112: 'mni',   // Manipuri
@@ -121,22 +121,22 @@ export const codeToLocale: Readonly<Record<number, string>> =  Object.freeze({
    1104: 'mn',    // Mongolian
    2128: 'mn',    // Mongolian
    1121: 'ne',    // Nepali
-   1044: 'no_NO', // Norwegian - Bokml
-   2068: 'no_NO', // Norwegian - Nynorsk
+   1044: 'no-NO', // Norwegian - Bokml
+   2068: 'no-NO', // Norwegian - Nynorsk
    1096: 'or',    // Oriya
    1045: 'pl',    // Polish
-   1046: 'pt_BR', // Portuguese - Brazil
-   2070: 'pt_PT', // Portuguese - Portugal
+   1046: 'pt-BR', // Portuguese - Brazil
+   2070: 'pt-PT', // Portuguese - Portugal
    1094: 'pa',    // Punjabi
    1047: 'rm',    // Raeto-Romance
-   2072: 'ro_MO', // Romanian - Moldova
-   1048: 'ro_RO', // Romanian - Romania
+   2072: 'ro-MO', // Romanian - Moldova
+   1048: 'ro-RO', // Romanian - Romania
    1049: 'ru',    // Russian
-   2073: 'ru_MO', // Russian - Moldova
+   2073: 'ru-MO', // Russian - Moldova
    1083: 'se',    // Sami Lappish
    1103: 'sa',    // Sanskrit
-   3098: 'sr_SP', // Serbian - Cyrillic
-   2074: 'sr_SP', // Serbian - Latin
+   3098: 'sr-SP', // Serbian - Cyrillic
+   2074: 'sr-SP', // Serbian - Latin
    1072: 'st',    // Sesotho (Sutu)
    1074: 'tn',    // Setsuana
    1113: 'sd',    // Sindhi
@@ -145,28 +145,28 @@ export const codeToLocale: Readonly<Record<number, string>> =  Object.freeze({
    1060: 'sl',    // Slovenian
    1143: 'so',    // Somali
    1070: 'sb',    // Sorbian
-  11274: 'es_AR', // Spanish - Argentina
-  16394: 'es_BO', // Spanish - Bolivia
-  13322: 'es_CL', // Spanish - Chile
-   9226: 'es_CO', // Spanish - Colombia
-   5130: 'es_CR', // Spanish - Costa Rica
-   7178: 'es_DO', // Spanish - Dominican Republic
-  12298: 'es_EC', // Spanish - Ecuador
-  17418: 'es_SV', // Spanish - El Salvador
-   4106: 'es_GT', // Spanish - Guatemala
-  18442: 'es_HN', // Spanish - Honduras
-   2058: 'es_MX', // Spanish - Mexico
-  19466: 'es_NI', // Spanish - Nicaragua
-   6154: 'es_PA', // Spanish - Panama
-  15370: 'es_PY', // Spanish - Paraguay
-  10250: 'es_PE', // Spanish - Peru
-  20490: 'es_PR', // Spanish - Puerto Rico
-   1034: 'es_ES', // Spanish - Spain (Traditional)
-  14346: 'es_UY', // Spanish - Uruguay
-   8202: 'es_VE', // Spanish - Venezuela
+  11274: 'es-AR', // Spanish - Argentina
+  16394: 'es-BO', // Spanish - Bolivia
+  13322: 'es-CL', // Spanish - Chile
+   9226: 'es-CO', // Spanish - Colombia
+   5130: 'es-CR', // Spanish - Costa Rica
+   7178: 'es-DO', // Spanish - Dominican Republic
+  12298: 'es-EC', // Spanish - Ecuador
+  17418: 'es-SV', // Spanish - El Salvador
+   4106: 'es-GT', // Spanish - Guatemala
+  18442: 'es-HN', // Spanish - Honduras
+   2058: 'es-MX', // Spanish - Mexico
+  19466: 'es-NI', // Spanish - Nicaragua
+   6154: 'es-PA', // Spanish - Panama
+  15370: 'es-PY', // Spanish - Paraguay
+  10250: 'es-PE', // Spanish - Peru
+  20490: 'es-PR', // Spanish - Puerto Rico
+   1034: 'es-ES', // Spanish - Spain (Traditional)
+  14346: 'es-UY', // Spanish - Uruguay
+   8202: 'es-VE', // Spanish - Venezuela
    1089: 'sw',    // Swahili
-   2077: 'sv_FI', // Swedish - Finland
-   1053: 'sv_SE', // Swedish - Sweden
+   2077: 'sv-FI', // Swedish - Finland
+   1053: 'sv-SE', // Swedish - Sweden
    1114: 'syc',   // Syriac
    1064: 'tg',    // Tajik
    1097: 'ta',    // Tamil
@@ -179,8 +179,8 @@ export const codeToLocale: Readonly<Record<number, string>> =  Object.freeze({
    1090: 'tk',    // Turkmen
    1058: 'uk',    // Ukrainian
    1056: 'ur',    // Urdu
-   2115: 'uz_UZ', // Uzbek - Cyrillic
-   1091: 'uz_UZ', // Uzbek - Latin
+   2115: 'uz-UZ', // Uzbek - Cyrillic
+   1091: 'uz-UZ', // Uzbek - Latin
    1075: 've',    // Venda
    1066: 'vi',    // Vietnamese
    1106: 'cy',    // Welsh

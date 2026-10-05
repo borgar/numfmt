@@ -2,6 +2,7 @@ import { TOKEN_TEXT, indexColors } from './constants.ts';
 import { defaultLocale, getLocale } from './locale.ts';
 import type { FormatOptions } from './options.ts';
 import { parseFormatSection } from './parseFormatSection.ts';
+import { prepareFormatterData } from './prepareFormatterData.ts';
 import { runPart } from './runPart.ts';
 import type { Partition, PatternParseData } from './types.ts';
 
@@ -88,6 +89,14 @@ export function formatValue (
   }
   // find and run the pattern part that applies to this number
   const v = value as number | string | bigint;
-  const part = getPart(v, parts);
+  let part = getPart(v, parts);
+  if (part?.sysdate) {
+    const syspattern = l10n?.sysdate ?? 'dd mmmm yyyy';
+    part = prepareFormatterData(syspattern, false).partitions[0];
+  }
+  if (part?.systime) {
+    const syspattern = l10n?.systime ?? 'hh:mm:ss';
+    part = prepareFormatterData(syspattern, false).partitions[0];
+  }
   return part ? runPart(v, part, opts, l10n) : opts.overflow;
 }

@@ -167,7 +167,9 @@ export type Partition = {
   sec_decimals: number,
   text: boolean,
   tokensUsed: number,
-  tokens: RenderToken[]
+  tokens: RenderToken[],
+  sysdate: boolean,
+  systime: boolean,
 };
 
 export type PatternParseData = {

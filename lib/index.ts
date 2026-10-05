@@ -7,8 +7,6 @@
  * @module numfmt
  */
 
-import { TOKEN_ERROR } from './constants.ts';
-
 export {
   getLocale,
   parseLocale,
@@ -35,7 +33,8 @@ export {
   TOKEN_GENERAL, TOKEN_HASH, TOKEN_ZERO, TOKEN_QMARK, TOKEN_SLASH, TOKEN_GROUP, TOKEN_SCALE, TOKEN_COMMA, TOKEN_BREAK,
   TOKEN_TEXT, TOKEN_PLUS, TOKEN_MINUS, TOKEN_POINT, TOKEN_SPACE, TOKEN_PERCENT, TOKEN_DIGIT, TOKEN_CALENDAR,
   TOKEN_ERROR, TOKEN_DATETIME, TOKEN_DURATION, TOKEN_CONDITION, TOKEN_DBNUM, TOKEN_NATNUM, TOKEN_LOCALE, TOKEN_COLOR,
-  TOKEN_MODIFIER, TOKEN_AMPM, TOKEN_ESCAPED, TOKEN_STRING, TOKEN_SKIP, TOKEN_EXP, TOKEN_FILL, TOKEN_PAREN, TOKEN_CHAR
+  TOKEN_MODIFIER, TOKEN_AMPM, TOKEN_ESCAPED, TOKEN_STRING, TOKEN_SKIP, TOKEN_EXP, TOKEN_FILL, TOKEN_PAREN, TOKEN_CHAR,
+  TOKEN_CURRENCY
 } from './constants.ts';
 
 import { dateToSerial as handleDates } from './serialDate.ts';
@@ -43,7 +42,7 @@ export { dateToSerial, dateFromSerial } from './serialDate.ts';
 
 export type { LocaleData, LocalFormat, LocaleToken, MonthNames, DayNames } from './locale.ts';
 
-export type { ParseDataBool, ParseDataNum } from './parseValue/types.ts';
+export type { ParseDataBool, ParseDataNum, ParseValueOptions } from './parseValue/types.ts';
 export { parseNumber } from './parseValue/parseNumber.ts';
 export { parseDate } from './parseValue/parseDate.ts';
 export { parseTime } from './parseValue/parseTime.ts';
@@ -52,43 +51,11 @@ export { parseValue } from './parseValue/parseValue.ts';
 
 import { formatColor as fmtColor, formatValue as fmtValue } from './formatNumber.ts';
 import { info, dateInfo, isDate, isPercent, isText } from './formatInfo.ts';
-import { parsePattern } from './parsePattern.ts';
-import type { FormatDateInfo, FormatInfo, PatternParseData } from './types.ts';
-import { createPartition } from './createPartition.ts';
+import type { FormatDateInfo, FormatInfo } from './types.ts';
+import { prepareFormatterData } from './prepareFormatterData.ts';
 
 export { tokenize } from './tokenize.ts';
 export { getFormatFromId } from './getFormatFromId.ts';
-
-type CacheData = PatternParseData & { dateInfo?: FormatDateInfo, info?: FormatInfo };
-const _parseDataCache = new Map<string, CacheData>();
-function prepareFormatterData (pattern: string, shouldThrow = false): CacheData {
-  if (!pattern) { pattern = 'General'; }
-
-  let parseData = _parseDataCache.get(pattern);
-  if (!parseData) {
-    try {
-      parseData = parsePattern(pattern);
-      _parseDataCache.set(pattern, parseData);
-    }
-    catch (err) {
-      // if the options say to throw errors, then do so
-      if (shouldThrow) {
-        throw err;
-      }
-      // else we set the parsedata to error
-      const message = err && typeof err === 'object' && 'message' in err ? String(err.message) : 'Unknown error';
-      const errPart = createPartition([ { type: TOKEN_ERROR } ]);
-      errPart.error = true;
-      parseData = {
-        pattern: pattern,
-        partitions: [ errPart, errPart, errPart, errPart ],
-        error: message,
-        locale: undefined
-      };
-    }
-  }
-  return parseData;
-}
 
 /**
  * Formats a value as a string and returns the result.
