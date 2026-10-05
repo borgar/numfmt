@@ -1,4 +1,3 @@
-import { resolveLocale } from './locale.ts';
 import {
   u_YEAR, u_MONTH, u_DAY, u_HOUR, u_MIN, u_SEC, u_DSEC, u_CSEC, u_MSEC,
   EPOCH_1900, EPOCH_1317,
@@ -15,6 +14,7 @@ import {
 } from './constants.ts';
 import type { DateRenderToken, Token, RenderToken, SectionType } from './types.ts';
 import { createPartition } from './createPartition.ts';
+import { parseLocaleInstr } from './parseLocaleInstr.ts';
 
 function add (s: string | RenderToken, tokens: RenderToken[]): void {
   // allow adding string tokens without wrapping
@@ -334,28 +334,25 @@ export function parseFormatSection (inputTokens: Token[]) {
       }
     }
 
-    // locale code -- we extend to allow std. "en-US" style codes
-    // https://stackoverflow.com/questions/54134729/what-does-the-130000-in-excel-locale-code-130000-mean/54540455#54540455
+    // locale code
     else if (type === TOKEN_LOCALE) {
-      const bits = token.value.split('-');
-      const code = bits.length < 2 ? '' : bits.slice(1).join('-');
-
-      const currency = bits[0];
-      if (currency) {
-        add(currency, outputTokens);
+      const props = parseLocaleInstr(token.value);
+      if (props.currency) {
+        add(props.currency, outputTokens);
       }
-
-      const l4e = resolveLocale(code);
-      if (l4e) { part.locale = l4e; }
-      const wincode = parseInt(code, 16);
-      if (isFinite(wincode) && (wincode & 0xff0000)) {
-        const cal = (wincode >> 16) & 0xff;
-        // only Hijri is supported atm.
-        if (cal === 6) {
-          part.date_system = EPOCH_1317;
-        }
+      if (props.sysdate) {
+        part.sysdate = true;
       }
-
+      if (props.systime) {
+        part.systime = true;
+      }
+      if (props.locale) {
+        part.locale = props.locale;
+      }
+      // only Gergorian and Hijri are supported atm.
+      if (props.calendar === EPOCH_1900 || props.calendar === EPOCH_1317) {
+        part.date_system = props.calendar;
+      }
       haveLocale = true; // ignore any B2 & B1 tokens
     }
 

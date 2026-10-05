@@ -37,6 +37,8 @@ export function createPartition (tokens?: RenderToken[]): Partition {
     tokens: tokens ?? [],
     den_p: '',
     int_p: '',
-    denominator: 0
+    denominator: 0,
+    sysdate: false,
+    systime: false
   };
 }

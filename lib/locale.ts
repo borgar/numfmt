@@ -264,6 +264,16 @@ export type LocaleData = {
    * Instructive properties on how formats should be constructed.
    */
   format?: LocalFormat;
+  /**
+  * A format pattern to use when [$-x-sysdate] is found in a pattern.
+  * @default "dd mmmm yyyy"
+   */
+  sysdate?: string;
+  /**
+   * A format pattern to use when [$-x-systime] is found in a pattern.
+   * @default "hh:mm:ss"
+   */
+  systime?: string;
 };
 
 /**
