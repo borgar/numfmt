@@ -37,6 +37,26 @@ export function timeSplitter (code: number, lastCode: number): string {
   return '?';
 }
 
+// same as timeSplitter, but recognizes comma rather than a period
+export function timeSplitterComma (code: number, lastCode: number): string {
+  if (code >= C_ZERO && code <= C_NINE) { // 0-9
+    return '0';
+  }
+  if (code === C_COLON) { // :
+    return ':';
+  }
+  if (code === C_COMMA && lastCode < C_A) { // .
+    return '.';
+  }
+  if (code === C_SPACE) { // \x20
+    return '_';
+  }
+  if (code === 160 || code === 8239) { // \xA0 \u202F
+    return '~';
+  }
+  return '?';
+}
+
 export type Classifier = (charCode: number, lastCharCode: number) => string;
 export type TokenS = { type: string, value: string };
 

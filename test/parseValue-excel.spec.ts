@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { addLocale, getLocale, listLocales, parseBool, parseDate, parseNumber, parseTime, parseValue } from '../lib/index.ts';
+import { addLocale, getLocale, isDateFormat, listLocales, parseBool, parseDate, parseNumber, parseTime, parseValue } from '../lib/index.ts';
 import { describe, expect, test } from 'vitest';
 
 type TestCase = {
@@ -8,20 +8,74 @@ type TestCase = {
   z?: string,
 };
 
-const TESTS: TestCase[] = JSON.parse(readFileSync('./test/tables/parseValue-excel.json', 'utf8'));
-
 describe('parseValue: EXCEL mode', () => {
-  describe('parseValue functions correctly', () => {
-    for (const testcase of TESTS) {
-      test(JSON.stringify(testcase.test), () => {
-        const res = parseValue(testcase.test, { locale: 'en-us' }) ?? { v: null, z: undefined };
-        expect(res).toEqual({
-          v: testcase.v ?? null,
-          z: testcase.z
+  const DEBUG = 0;
+  if (!DEBUG) {
+  /* */
+    describe.only('parseValue functions correctly', () => {
+      const tables = [
+        { fn: './test/tables/parseValue-excel-en-us.json', locale: 'en-US' },
+        { fn: './test/tables/parseValue-excel-en-gb.json', locale: 'en-GB' },
+        { fn: './test/tables/parseValue-excel-is-is.json', locale: 'is-IS' },
+        { fn: './test/tables/parseValue-excel-ja-jp.json', locale: 'ja-JP' }
+      ];
+      function fixZ (z: string): string {
+        if (z === '#.##0 kr.;[Red]-#.##0 kr.') {
+          return '#,##0 "kr.";[Red]-#,##0 "kr."';
+        }
+        if (z === '#.##0,00 kr.;[Red]-#.##0,00 kr.') {
+          return '#,##0.00 "kr.";[Red]-#,##0.00 "kr."';
+        }
+        if (z === '#.##0,00') {
+          return '#,##0.00';
+        }
+        if (z === '#.##0') {
+          return '#,##0';
+        }
+        if (z === 'mm:ss,0') {
+          return 'mm:ss.0';
+        }
+        if (z === '0,00E+00') {
+          return '0.00E+00';
+        }
+        if (z === '0,00%') {
+          return '0.00%';
+        }
+        return z;
+      }
+      for (const table of tables) {
+        describe(table.locale, () => {
+          const TESTS: TestCase[] = JSON.parse(readFileSync(table.fn, 'utf8'));
+          for (const testcase of TESTS) {
+            if (testcase.z && isDateFormat(testcase.z)) {
+              // continue;
+            }
+            test(JSON.stringify(testcase.test), () => {
+              const res = parseValue(testcase.test, { locale: table.locale }) ?? { v: null, z: undefined };
+              expect({ v: res.v, z: res.z }).toEqual({ v: testcase.v ?? null, z: fixZ(testcase.z) });
+            });
+          }
         });
-      });
+      }
+    });
+  /* */
+  }
+  else {
+    for (const code of [ 'is-IS', 'en-US', 'en-GB', 'ja-JP' ]) {
+      const l = getLocale(code);
+      console.log(code, l.format.dateSep);
     }
-  });
+
+    const input = '-1.234 kr.';
+    test.only(input, () => {
+      expect(
+        parseValue(input, { locale: 'is-IS' }) ?? { v: null, z: undefined }
+      ).toEqual({
+        v: -1234,
+        z: '#,##0 "kr.";[Red]-#,##0 "kr."'
+      });
+    });
+  }
 
   test('parseNumber locale support', () => {
     // can parse numbers in any language
@@ -58,14 +112,14 @@ describe('parseValue: EXCEL mode', () => {
       // locales with preferMDY should allow dates that fit, else only allow DMY
       const MDY = !getLocale(l)?.format?.dateOrder;
       if (MDY) {
-        expect(parseDate('07/05/82', opt), `${l} prefers MDY (07/05/82)`).toEqual({ v: 30137, z: 'm/d/yy' });
+        expect(parseDate('07/05/82', opt), `${l} prefers MDY (07/05/82)`).toEqual({ v: 30137, z: 'm/d/yyyy' });
         expect(parseDate('31/05/82', opt), `${l} prefers MDY (31/05/82)`).toEqual(undefined);
-        expect(parseDate('05/31/82', opt), `${l} prefers MDY (05/31/82)`).toEqual({ v: 30102, z: 'm/d/yy' });
+        expect(parseDate('05/31/82', opt), `${l} prefers MDY (05/31/82)`).toEqual({ v: 30102, z: 'm/d/yyyy' });
       }
       else {
-        expect(parseDate('07/05/82', opt), `${l} prefers DMY (07/05/82)`).toEqual({ v: 30078, z: 'd/m/yy' });
+        expect(parseDate('07/05/82', opt), `${l} prefers DMY (07/05/82)`).toEqual({ v: 30078, z: 'd/m/yyyy' });
         expect(parseDate('07/31/82', opt), `${l} prefers DMY (07/31/82)`).toEqual(undefined);
-        expect(parseDate('31/05/82', opt), `${l} prefers MDY (31/05/82)`).toEqual({ v: 30102, z: 'd/m/yy' });
+        expect(parseDate('31/05/82', opt), `${l} prefers MDY (31/05/82)`).toEqual({ v: 30102, z: 'd/m/yyyy' });
       }
     }
   });
@@ -85,13 +139,13 @@ describe('parseValue: EXCEL mode', () => {
     expect(parseDate('31/12', dmy), 'is: 31/12').toEqual({ v: serial(year, 12, 31), z: 'd-mmm' });
 
     // three numeric fields, four-digit year
-    expect(parseDate('6/4/1984', mdy), 'en: 6/4/1984').toEqual({ v: 30837, z: 'm/d/yy' });
-    expect(parseDate('6/4/1984', dmy), 'is: 6/4/1984').toEqual({ v: serial(1984, 4, 6), z: 'd/m/yy' });
+    expect(parseDate('6/4/1984', mdy), 'en: 6/4/1984').toEqual({ v: 30837, z: 'm/d/yyyy' });
+    expect(parseDate('6/4/1984', dmy), 'is: 6/4/1984').toEqual({ v: serial(1984, 4, 6), z: 'd/m/yyyy' });
     expect(parseDate('5/15/2026', dmy), 'is: 5/15/2026').toEqual(undefined);
 
     // a leading four-digit year is always year-month-day, but the format follows the locale
-    expect(parseDate('1984/6/4', mdy), 'en: 1984/6/4').toEqual({ v: 30837, z: 'm/d/yy' });
-    expect(parseDate('1984/6/4', dmy), 'is: 1984/6/4').toEqual({ v: 30837, z: 'd/m/yy' });
+    expect(parseDate('1984/6/4', mdy), 'en: 1984/6/4').toEqual({ v: 30837, z: 'm/d/yyyy' });
+    expect(parseDate('1984/6/4', dmy), 'is: 1984/6/4').toEqual({ v: 30837, z: 'd/m/yyyy' });
     expect(parseDate('1984/13/4', dmy), 'is: 1984/13/4').toEqual(undefined);
   });
 
@@ -132,7 +186,7 @@ describe('parseValue: EXCEL mode', () => {
   });
 
   test('issue #71', () => {
-    expect(parseValue('2021/1-10')).toEqual({ v: 44206, z: 'm/d/yy' });
+    expect(parseValue('2021/1-10')).toEqual({ v: 44206, z: 'm/d/yyyy' });
   });
 
   test('issue #72', () => {

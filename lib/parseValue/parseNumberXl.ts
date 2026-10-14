@@ -1,6 +1,7 @@
 import { parseFloat15 } from './parseFloat15.ts';
 import type { LocaleData } from '../locale.ts';
 import type { ParseDataNum } from './types.ts';
+import { getFormatFromId } from '../getFormatFromId.ts';
 
 // const CM = ',';
 const SP = ' ';
@@ -8,7 +9,7 @@ const NS = ' ';
 const NN = ' ';
 
 const isDigit = (d: string) => d?.length === 1 && d >= '0' && d <= '9';
-const isWS = (c: string) => (c === NS || c === SP || c === NN);
+const isAltspace = (c: string) => (c === NS || c === NN);
 
 /**
  * Parse a numeric string input and return its value and format. If the input
@@ -23,15 +24,15 @@ const isWS = (c: string) => (c === NS || c === SP || c === NN);
  * @param [options] Options for the parsing behavior.
  * @returns An object of the parsed value and a corresponding format string
  */
-export function parseNumberXl (value: string, l10n: LocaleData): ParseDataNum | undefined {
+export function parseNumberXl (value: string, l10n: LocaleData, debug = false): ParseDataNum | undefined {
   // we base everything on the decimal separator
   const dec = l10n.decimal;
   const grp = l10n.group !== SP && l10n.group !== dec ? l10n.group : '';
+  const currencyPos = l10n.format?.currencyPos ?? 0;
 
   let num = '';
   let exp = '';
   let sign = 1;
-  let format = '';
   let minus = false;
   let plus = false;
   let openParen = false;
@@ -43,14 +44,16 @@ export function parseNumberXl (value: string, l10n: LocaleData): ParseDataNum | 
   let i = 0;
 
   // don't allow staring with a alternative-whitespace
-  if (value[i] === NS || value[i] === NN) {
+  if (isAltspace(value[i])) {
     return;
   }
 
   // prefix
-  const prefixChars = [ SP, NN, '+', '%', '(', '-', '$', '€' ];
-  while (prefixChars.includes(value[i])) {
-    const char = value[i];
+  const cSymb = l10n.currency ?? '$';
+  // const prefixChars = [ SP, NN, '+', '%', '(', '-', cSymb, '€' ];
+  let char = '';
+  do {
+    char = value[i];
     if (char === '-') {
       if (minus || openParen || plus) {
         return;
@@ -64,7 +67,15 @@ export function parseNumberXl (value: string, l10n: LocaleData): ParseDataNum | 
       }
       plus = true;
     }
-    else if (char === '$' || char === '€') {
+    else if ((currencyPos === 0 || currencyPos === 2) && value.slice(i).startsWith(cSymb)) {
+      if (currency) {
+        return;
+      }
+      i += Math.max(0, cSymb.length - 1);
+      currency = true;
+      currencySymbol = char;
+    }
+    else if (char === '€') {
       if (currency) {
         return;
       }
@@ -84,8 +95,18 @@ export function parseNumberXl (value: string, l10n: LocaleData): ParseDataNum | 
       }
       percent = true;
     }
+    else if (char === SP || char === NN) {
+      // no-op
+    }
+    else {
+      break;
+    }
     i++;
   }
+  while (i < value.length);
+  // while (prefixChars.includes(value[i])) {
+
+  debug && console.log('x1', i, JSON.stringify(value.slice(i)));
 
   // number
   let haveDecimal = false;
@@ -135,6 +156,7 @@ export function parseNumberXl (value: string, l10n: LocaleData): ParseDataNum | 
   if (!haveDecimal && groups && groupSize < 3) {
     return;
   }
+  debug && console.log('x2', i, JSON.stringify(value.slice(i)));
 
   // fractions
   let haveFraction = false;
@@ -147,6 +169,7 @@ export function parseNumberXl (value: string, l10n: LocaleData): ParseDataNum | 
     denominator = fm[2];
     i += fm[0].length;
   }
+  debug && console.log('x3', i, JSON.stringify(value.slice(i)));
 
   // exponent
   if (value[i] === 'e' || value[i] === 'E') {
@@ -166,15 +189,26 @@ export function parseNumberXl (value: string, l10n: LocaleData): ParseDataNum | 
       return;
     }
   }
-
+  debug && console.log('x4', i, JSON.stringify(value.slice(i)));
   // suffix
-  const suffixChars = [ SP, NS, NN, '%', ')', '€' ];
+  // XXX: does a locale that has currency symbol location 1 | 3 allow $ here?
+  // const suffixChars = [ SP, NN, '%', ')', '€' ];
   let lastSuffix = '';
-  while (suffixChars.includes(value[i])) {
-    const char = value[i];
+  // while (suffixChars.includes(value[i])) {
+  while (i < value.length) {
+    char = value[i];
     lastSuffix = char;
     // only 1 occurance of these is allowed
-    if (char === '$' || char === '€') {
+    if ((currencyPos === 1 || currencyPos === 3) && value.slice(i).startsWith(cSymb)) {
+      if (currency) {
+        return;
+      }
+      i += Math.max(0, cSymb.length - 1);
+      currency = true;
+      currencySymbol = char;
+      currencyTrailing = true;
+    }
+    else if (char === '€') {
       if (currency) {
         return;
       }
@@ -194,11 +228,19 @@ export function parseNumberXl (value: string, l10n: LocaleData): ParseDataNum | 
       }
       percent = true;
     }
+    else if (char === SP || char === NN) {
+      // no-op
+    }
+    else {
+      break;
+    }
     i++;
   }
 
+  debug && console.log('x5', i, JSON.stringify(value.slice(i)));
+
   // don't allow ending with a whitespace
-  if (isWS(lastSuffix)) {
+  if (isAltspace(lastSuffix)) {
     return;
   }
 
@@ -206,6 +248,7 @@ export function parseNumberXl (value: string, l10n: LocaleData): ParseDataNum | 
     return;
   }
 
+  currencyTrailing = false;
   // XXX: ensure we have tests for unbalanced parens
   if (
     (minus && currencyTrailing && currencySymbol !== '€') ||
@@ -230,28 +273,25 @@ export function parseNumberXl (value: string, l10n: LocaleData): ParseDataNum | 
     return;
   }
 
+  let fmt: number | undefined;
   if (exp) {
-    format = '0.00E+00';
+    fmt = 11;
   }
   else if (haveFraction) {
-    format = denominator.length > 1 ? '# ??/??' : '# ?/?';
+    fmt = denominator.length > 1 ? 13 : 12;
   }
   else if (percent) {
-    format = haveDecimal
-      ? '0.00%'
-      : '0%';
+    fmt = haveDecimal ? 10 : 9;
   }
   else if (currency && currencySymbol !== '€') {
-    format = haveDecimal
-      ? '$#,##0.00_);[Red]($#,##0.00)'
-      : '$#,##0_);[Red]($#,##0)';
+    fmt = haveDecimal ? 8 : 6;
   }
   else if (groups && currencySymbol !== '€') {
-    format = haveDecimal ? '#,##0.00' : '#,##0';
+    fmt = haveDecimal ? 4 : 3;
   }
   const ret: ParseDataNum = { v: numberValue ? numberValue * sign : 0 };
-  if (format) {
-    ret.z = format;
+  if (fmt) {
+    ret.z = getFormatFromId(fmt, l10n);
   }
   return ret;
 }

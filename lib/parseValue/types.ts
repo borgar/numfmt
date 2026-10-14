@@ -6,6 +6,8 @@ export type ParseDataNum = {
   v: number;
   /** A number format pattern */
   z?: string;
+  /** Built in Id number */
+  i?: number;
 };
 
 /**
@@ -16,6 +18,8 @@ export type ParseDataBool = {
   v: boolean;
   /** A number format pattern */
   z?: never;
+  /** Built in Id number */
+  i?: never;
 };
 
 /**
