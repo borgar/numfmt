@@ -48,6 +48,7 @@ import {
   TOKEN_CURRENCY
 } from './constants.ts';
 import { pad } from './pad.ts';
+import { roundDecimal, toDecimal } from './toDecimal.ts';
 import { getExponent, getSignificand } from './numberProps.ts';
 import type { Partition } from './types.ts';
 import type { FormatOptions } from './options.ts';
@@ -115,7 +116,7 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
       exp++;
     }
     v = getSignificand(v, exp);
-    if (part.int_max === 1 && round(v, part.frac_max) === 10) {
+    if (part.int_max === 1 && roundDecimal(toDecimal(v), part.frac_max)[0] === '10') {
       v = 1;
       exp++;
     }
@@ -123,19 +124,25 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
     mantissa += Math.abs(exp);
   }
 
-  // integer to text
-  if (part.integer && typeof value === 'number') {
-    const i = Math.abs(round(value, part.fractions ? 1 : part.frac_max));
-    integer += (i < 1) ? '' : Math.floor(i);
+  // integer and fraction to text
+  if (part.fractions) {
+    if (part.integer && typeof value === 'number') {
+      const i = Math.abs(round(value, 1));
+      integer += (i < 1) ? '' : Math.floor(i);
+    }
+  }
+  else if ((part.integer || part.dec_fractions) && typeof value === 'number') {
+    const digits = roundDecimal(toDecimal(value), part.frac_max);
+    if (part.integer) {
+      integer = digits[0];
+    }
+    if (part.dec_fractions) {
+      fraction = digits[1];
+    }
   }
   // integer grouping
   const group_pri = opts.grouping[0] ?? 3;
   const group_sec = opts.grouping[1] ?? group_pri;
-
-  // fraction to text
-  if (part.dec_fractions && typeof value === 'number') {
-    fraction = String(round(value, part.frac_max)).split('.')[1] || '';
-  }
 
   // using vulgar fractions
   const fixed_slash = !part.error && (part.num_p.includes('0') || part.den_p.includes('0'));
