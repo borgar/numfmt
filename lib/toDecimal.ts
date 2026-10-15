@@ -68,7 +68,7 @@ function isTie (num: number, point: number): boolean {
 export function toDecimal (num: number): Decimal {
   const v = Math.abs(num);
   if (v < MIN_NORMAL) {
-    // Excel has no subnormal numbers, use their shortest representation
+    // Excel has no subnormal numbers, so round their shortest representation
     return roundDigits(parseDecimal(String(v)), 15);
   }
   // toPrecision rounds the exact value, but rounds a tie away from zero
