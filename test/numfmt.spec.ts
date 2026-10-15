@@ -351,6 +351,9 @@ test('Fixed-point numbers round as in Excel', () => {
   expect(numfmt('0', 246913578024691 / 2)).toBe('123456789012345');
   expect(numfmt('0', 2.5 - 2 ** -51)).toBe('3');
   expect(numfmt('#,##0', 2 ** 60 + 1)).toBe('1,152,921,504,606,850,000');
+  // a tie whose upper neighbour is a power of ten
+  expect(numfmt('0', 999999999999999.5)).toBe('999999999999999');
+  expect(numfmt('0.0', 99999999999999.25)).toBe('99999999999999.2');
   // then that decimal is rounded to the pattern's last digit, a tie going away from zero
   expect(numfmt('0.00', 1.005)).toBe('1.01');
   expect(numfmt('0.00', 1.015)).toBe('1.02');
@@ -366,4 +369,10 @@ test('Exponent notation rounds as in Excel', () => {
   expect(numfmt('0.00000000000000E+00', 3 * 2 ** 51 + 1)).toBe('6.75539944105574E+15');
   expect(numfmt('0.00E+00', 1.005)).toBe('1.01E+00');
   expect(numfmt('0.00E+00', 9.995)).toBe('1.00E+01');
+});
+
+test('Subnormal numbers are rounded from their shortest representation', () => {
+  expect(numfmt('0.00E+00', 1e-320)).toBe('1.00E-320');
+  expect(numfmt('0E+00', 5e-324)).toBe('5E-324');
+  expect(numfmt('0.00000000000000E+00', 2.225073858507201e-308)).toBe('2.22507385850720E-308');
 });
