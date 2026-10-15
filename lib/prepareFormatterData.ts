@@ -5,6 +5,12 @@ import type { FormatDateInfo, FormatInfo, PatternParseData } from './types.ts';
 
 export type CacheData = PatternParseData & { dateInfo?: FormatDateInfo, info?: FormatInfo };
 
+/**
+ * How many parsed patterns are kept. Past this, the oldest one is dropped, so a
+ * long-running process that formats many distinct patterns doesn't grow forever.
+ */
+export const MAX_CACHED_PATTERNS = 1000;
+
 const _parseDataCache = new Map<string, CacheData>();
 
 /**
@@ -25,6 +31,12 @@ export function prepareFormatterData (pattern: string, shouldThrow = false): Cac
   if (!parseData) {
     try {
       parseData = parsePattern(pattern);
+      if (_parseDataCache.size >= MAX_CACHED_PATTERNS) {
+        const oldest = _parseDataCache.keys().next().value;
+        if (oldest !== undefined) {
+          _parseDataCache.delete(oldest);
+        }
+      }
       _parseDataCache.set(pattern, parseData);
     }
     catch (err) {
