@@ -361,3 +361,9 @@ test('Fixed-point numbers round as in Excel', () => {
   expect(numfmt('0.00', 0.125)).toBe('0.13');
   expect(numfmt('0', 12345678901234.5)).toBe('12345678901235');
 });
+
+test('Exponent notation rounds as in Excel', () => {
+  expect(numfmt('0.00000000000000E+00', 3 * 2 ** 51 + 1)).toBe('6.75539944105574E+15');
+  expect(numfmt('0.00E+00', 1.005)).toBe('1.01E+00');
+  expect(numfmt('0.00E+00', 9.995)).toBe('1.00E+01');
+});

@@ -9,6 +9,7 @@ export type Decimal = { digits: string, point: number };
 const CHAR_0 = 48;
 const CHAR_5 = 53;
 const CHAR_9 = 57;
+const MIN_NORMAL = 2 ** -1022;
 
 // read a non-negative number written by String() or toPrecision()
 function parseDecimal (str: string): Decimal {
@@ -66,6 +67,10 @@ function isTie (num: number, point: number): boolean {
  */
 export function toDecimal (num: number): Decimal {
   const v = Math.abs(num);
+  if (v < MIN_NORMAL) {
+    // Excel has no subnormal numbers, use their shortest representation
+    return roundDigits(parseDecimal(String(v)), 15);
+  }
   // toPrecision rounds the exact value, but rounds a tie away from zero
   const dec = parseDecimal(v.toPrecision(15));
   if (
@@ -80,6 +85,35 @@ export function toDecimal (num: number): Decimal {
   return dec;
 }
 
+// round a decimal to its first `keep` digits, a tie going away from zero
+function roundDigits (dec: Decimal, keep: number): Decimal {
+  const digits = dec.digits;
+  if (keep >= digits.length) {
+    return dec;
+  }
+  if (keep < 0) {
+    return { digits: '', point: 0 };
+  }
+  let end = keep;
+  if (digits.charCodeAt(keep) >= CHAR_5) {
+    // drop trailing nines, they carry into the digit before them
+    while (end > 0 && digits.charCodeAt(end - 1) === CHAR_9) {
+      end--;
+    }
+    if (!end) {
+      return { digits: '1', point: dec.point + 1 };
+    }
+    return {
+      digits: digits.slice(0, end - 1) + (+digits[end - 1] + 1),
+      point: dec.point
+    };
+  }
+  while (end > 0 && digits.charCodeAt(end - 1) === CHAR_0) {
+    end--;
+  }
+  return end ? { digits: digits.slice(0, end), point: dec.point } : { digits: '', point: 0 };
+}
+
 /**
  * Round a decimal to a number of decimal places, a tie going away from zero,
  * and return its integer and fraction digits. The integer digits are empty
@@ -91,35 +125,7 @@ export function toDecimal (num: number): Decimal {
  * @returns The integer and fraction digits.
  */
 export function roundDecimal (dec: Decimal, places: number): [ string, string ] {
-  let digits = dec.digits;
-  let point = dec.point;
-  const keep = point + places;
-  if (keep < digits.length) {
-    if (keep < 0) {
-      return [ '', '' ];
-    }
-    const roundUp = digits.charCodeAt(keep) >= CHAR_5;
-    let end = keep;
-    if (roundUp) {
-      // drop trailing nines, they carry into the digit before them
-      while (end > 0 && digits.charCodeAt(end - 1) === CHAR_9) {
-        end--;
-      }
-      if (end) {
-        digits = digits.slice(0, end - 1) + (+digits[end - 1] + 1);
-      }
-      else {
-        digits = '1';
-        point++;
-      }
-    }
-    else {
-      while (end > 0 && digits.charCodeAt(end - 1) === CHAR_0) {
-        end--;
-      }
-      digits = digits.slice(0, end);
-    }
-  }
+  const { digits, point } = roundDigits(dec, dec.point + places);
   if (!digits) {
     return [ '', '' ];
   }

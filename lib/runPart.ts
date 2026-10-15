@@ -48,8 +48,8 @@ import {
   TOKEN_CURRENCY
 } from './constants.ts';
 import { pad } from './pad.ts';
-import { roundDecimal, toDecimal } from './toDecimal.ts';
-import { getExponent, getSignificand } from './numberProps.ts';
+import { roundDecimal, toDecimal, type Decimal } from './toDecimal.ts';
+import { getSignificand } from './numberProps.ts';
 import type { Partition } from './types.ts';
 import type { FormatOptions } from './options.ts';
 
@@ -106,20 +106,26 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
   }
 
   // calc exponent
+  let dec: Decimal | undefined;
   if (part.exponential && typeof value === 'number') {
-    let v = Math.abs(value);
-    if (v) {
-      exp = getExponent(v, part.int_max);
+    // the significand has the number's own digits, so round those
+    dec = toDecimal(value);
+    if (dec.digits) {
+      exp = dec.point - 1;
+      if (part.int_max > 1) {
+        exp = Math.floor(exp / part.int_max) * part.int_max;
+      }
     }
     if (value && !part.integer) {
       // when there isn't an integer part, the exp gets shifted by 1
       exp++;
     }
-    v = getSignificand(v, exp);
-    if (part.int_max === 1 && roundDecimal(toDecimal(v), part.frac_max)[0] === '10') {
-      v = 1;
+    dec.point -= exp;
+    if (part.int_max === 1 && roundDecimal(dec, part.frac_max)[0] === '10') {
+      dec.point--;
       exp++;
     }
+    const v = getSignificand(Math.abs(value), exp);
     value = (value < 0) ? -v : v;
     mantissa += Math.abs(exp);
   }
@@ -132,7 +138,7 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
     }
   }
   else if ((part.integer || part.dec_fractions) && typeof value === 'number') {
-    const digits = roundDecimal(toDecimal(value), part.frac_max);
+    const digits = roundDecimal(dec ?? toDecimal(value), part.frac_max);
     if (part.integer) {
       integer = digits[0];
     }
