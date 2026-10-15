@@ -9,73 +9,52 @@ type TestCase = {
 };
 
 describe('parseValue: EXCEL mode', () => {
-  const DEBUG = 0;
-  if (!DEBUG) {
-  /* */
-    describe.only('parseValue functions correctly', () => {
-      const tables = [
-        { fn: './test/tables/parseValue-excel-en-us.json', locale: 'en-US' },
-        { fn: './test/tables/parseValue-excel-en-gb.json', locale: 'en-GB' },
-        { fn: './test/tables/parseValue-excel-is-is.json', locale: 'is-IS' },
-        { fn: './test/tables/parseValue-excel-ja-jp.json', locale: 'ja-JP' }
-      ];
-      function fixZ (z: string): string {
-        if (z === '#.##0 kr.;[Red]-#.##0 kr.') {
-          return '#,##0 "kr.";[Red]-#,##0 "kr."';
-        }
-        if (z === '#.##0,00 kr.;[Red]-#.##0,00 kr.') {
-          return '#,##0.00 "kr.";[Red]-#,##0.00 "kr."';
-        }
-        if (z === '#.##0,00') {
-          return '#,##0.00';
-        }
-        if (z === '#.##0') {
-          return '#,##0';
-        }
-        if (z === 'mm:ss,0') {
-          return 'mm:ss.0';
-        }
-        if (z === '0,00E+00') {
-          return '0.00E+00';
-        }
-        if (z === '0,00%') {
-          return '0.00%';
-        }
-        return z;
+  describe.only('parseValue functions correctly', () => {
+    const tables = [
+      { fn: './test/tables/parseValue-excel-en-us.json', locale: 'en-US' },
+      { fn: './test/tables/parseValue-excel-en-gb.json', locale: 'en-GB' },
+      { fn: './test/tables/parseValue-excel-is-is.json', locale: 'is-IS' },
+      { fn: './test/tables/parseValue-excel-ja-jp.json', locale: 'ja-JP' }
+    ];
+    function fixZ (z: string): string {
+      if (z === '#.##0 kr.;[Red]-#.##0 kr.') {
+        return '#,##0 "kr.";[Red]-#,##0 "kr."';
       }
-      for (const table of tables) {
-        describe(table.locale, () => {
-          const TESTS: TestCase[] = JSON.parse(readFileSync(table.fn, 'utf8'));
-          for (const testcase of TESTS) {
-            if (testcase.z && isDateFormat(testcase.z)) {
-              // continue;
-            }
-            test(JSON.stringify(testcase.test), () => {
-              const res = parseValue(testcase.test, { locale: table.locale }) ?? { v: null, z: undefined };
-              expect({ v: res.v, z: res.z }).toEqual({ v: testcase.v ?? null, z: fixZ(testcase.z) });
-            });
-          }
-        });
+      if (z === '#.##0,00 kr.;[Red]-#.##0,00 kr.') {
+        return '#,##0.00 "kr.";[Red]-#,##0.00 "kr."';
       }
-    });
-  /* */
-  }
-  else {
-    for (const code of [ 'is-IS', 'en-US', 'en-GB', 'ja-JP' ]) {
-      const l = getLocale(code);
-      console.log(code, l.format.dateSep);
+      if (z === '#.##0,00') {
+        return '#,##0.00';
+      }
+      if (z === '#.##0') {
+        return '#,##0';
+      }
+      if (z === 'mm:ss,0') {
+        return 'mm:ss.0';
+      }
+      if (z === '0,00E+00') {
+        return '0.00E+00';
+      }
+      if (z === '0,00%') {
+        return '0.00%';
+      }
+      return z;
     }
-
-    const input = '-1.234 kr.';
-    test.only(input, () => {
-      expect(
-        parseValue(input, { locale: 'is-IS' }) ?? { v: null, z: undefined }
-      ).toEqual({
-        v: -1234,
-        z: '#,##0 "kr.";[Red]-#,##0 "kr."'
+    for (const table of tables) {
+      describe(table.locale, () => {
+        const TESTS: TestCase[] = JSON.parse(readFileSync(table.fn, 'utf8'));
+        for (const testcase of TESTS) {
+          if (testcase.z && isDateFormat(testcase.z)) {
+            // continue;
+          }
+          test(JSON.stringify(testcase.test), () => {
+            const res = parseValue(testcase.test, { locale: table.locale }) ?? { v: null, z: undefined };
+            expect({ v: res.v, z: res.z }).toEqual({ v: testcase.v ?? null, z: fixZ(testcase.z) });
+          });
+        }
       });
-    });
-  }
+    }
+  });
 
   test('parseNumber locale support', () => {
     // can parse numbers in any language

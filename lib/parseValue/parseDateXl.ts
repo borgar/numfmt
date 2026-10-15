@@ -133,28 +133,18 @@ const DATE_SHORT = 15;
 const DATE_DM = 16;
 const DATE_MY = 17;
 
-const SEP = {
-  // en-US, en-GB
-  0: {
-    isSep: (s: string) => s.trim() === '/' || s.trim() === '-' || s === ' ',
-    isSep2: (s: string) => s.trim() === '/' || s.trim() === '-',
-    isSep3: (s: string) => /^, +/.test(s),
-    isSep4: (s: string) => /^,? +/.test(s)
-  },
-  // is-IS
-  1: {
-    isSep: (s: string) => s.trim() === '-' || s === ' ',
-    isSep2: (s: string) => s.trim() === '-',
-    isSep3: (_: string) => false,
-    isSep4: (s: string) => /^, +/.test(s)
-  },
-  // ja-JP
-  2: {
-    isSep: (s: string) => s.trim() === '/' || s === ' ',
-    isSep2: (_: string) => false,
-    isSep3: (_: string) => false,
-    isSep4: (s: string) => /^, +/.test(s)
-  }
+const DATE_ORDER_MDY = 0;
+const DATE_ORDER_YMD = 2;
+
+// XXX: capture this beforehand
+const isMonthFirst = (sysdate?: string): boolean => {
+  const fmt = (sysdate ?? '')
+    .replace(/"[^"]*"/g, '')
+    .replace(/d{3,}/gi, '')
+    .toLowerCase();
+  const m = fmt.indexOf('m');
+  const d = fmt.indexOf('d');
+  return m >= 0 && d >= 0 && m < d;
 };
 
 export function parseDateXl (value: string, l10n: LocaleData): ParseDataNum | undefined {
@@ -174,11 +164,24 @@ export function parseDateXl (value: string, l10n: LocaleData): ParseDataNum | un
     timePart = bits.slice(6).join('');
     bits.length = 5;
   }
-  // console.log(bits);
-  const dateOrder = l10n.format?.dateOrder ?? 0;
-  const isMDY = !dateOrder;
+  const dateOrder = l10n.format?.dateOrder ?? DATE_ORDER_MDY;
+  const isMDY = dateOrder === DATE_ORDER_MDY;
+  const isYMD = dateOrder === DATE_ORDER_YMD;
+  const isDMY = !isMDY && !isYMD;
+  const monthFirst = isMonthFirst(l10n.sysdate);
 
-  const { isSep, isSep2, isSep3, isSep4 } = SEP[dateOrder];
+  // "/" and "-" always separate date parts, "." only where it is the locale's date separator
+  const dotSep = l10n.format?.dateSep === '.';
+  const isSep2 = (s: string) => {
+    const t = s.trim();
+    return t === '/' || t === '-' || (dotSep && t === '.');
+  };
+  // around a month name a plain space works too
+  const isSep = (s: string) => s === ' ' || isSep2(s);
+  // comma forms: "Apr 23, 2021" where the month comes first, else "23 Apr, 2021"
+  const isSep3 = (s: string) => monthFirst && /^, +$/.test(s);
+  const isSep4 = (s: string) => monthFirst && /^,? +$/.test(s);
+  const isSepDMY = (s: string) => isSep(s) || (!monthFirst && /^, +$/.test(s));
 
   if (bits.length === 5) {
     const [ a, b, c, d, e ] = bits;
@@ -192,14 +195,27 @@ export function parseDateXl (value: string, l10n: LocaleData): ParseDataNum | un
       fmt = DATE_SHORT;
     }
 
-    else if (isDD(a, parseWord(c), toYY(e)) && isSep(b) && (isMMMM(c) || isMMM(c)) && isSep(d) && isYY(e)) {
+    else if (isDD(a, parseWord(c), toYY(e)) && isSepDMY(b) && (isMMMM(c) || isMMM(c)) && isSepDMY(d) && isYY(e)) {
       serialDate = toSerialDate(toYY(e), parseWord(c), +a);
       fmt = DATE_SHORT;
     }
-    //
-    else if (isDD(a, parseWord(c), +e) && isSep(b) && (isMMMM(c) || isMMM(c)) && isSep(d) && isYYYY(e)) {
+    else if (isDD(a, parseWord(c), +e) && isSepDMY(b) && (isMMMM(c) || isMMM(c)) && isSepDMY(d) && isYYYY(e)) {
       serialDate = toSerialDate(+e, parseWord(c), +a);
       fmt = DATE_SHORT;
+    }
+
+    // a leading 4-digit year is year-month-day in every locale
+    else if (isYYYY(a) && isSep2(b) && isMM(c) && isSep2(d) && isDD(e, +c, +a)) {
+      serialDate = toSerialDate(+a, +c, +e);
+      fmt = DATE_FULL;
+    }
+
+    // year-month-day locales also read a 2-digit year first
+    else if (isYMD) {
+      if (isYY(a) && isSep2(b) && isMM(c) && isSep2(d) && isDD(e, +c, toYY(a))) {
+        serialDate = toSerialDate(toYY(a), +c, +e);
+        fmt = DATE_FULL;
+      }
     }
 
     else if (isMM(nMon) && isSep2(b) && isDD(nDay, +nMon, +e) && isSep2(d) && isYYYY(e)) {
@@ -210,16 +226,9 @@ export function parseDateXl (value: string, l10n: LocaleData): ParseDataNum | un
       serialDate = toSerialDate(toYY(e), +nMon, +nDay);
       fmt = DATE_FULL;
     }
-
-    // a leading 4-digit year is year-month-day in every locale
-    else if (isYYYY(a) && isSep2(b) && isMM(c) && isSep2(d) && isDD(e, +c, +a)) {
-      serialDate = toSerialDate(+a, +c, +e);
-      fmt = DATE_FULL;
-    }
   }
   else if (bits.length === 3) {
     const [ a, b, c ] = bits;
-    const [ nMon, nDay ] = isMDY ? [ a, c ] : [ c, a ];
     // note reversed order
     if (isMMM(c) && isDD(a, parseWord(c)) && isSep(b)) {
       serialDate = toSerialDate(year, parseWord(c), +a);
@@ -230,21 +239,44 @@ export function parseDateXl (value: string, l10n: LocaleData): ParseDataNum | un
       fmt = DATE_DM;
     }
 
-    // LTR down order
-    else if (isMM(nMon) && isSep2(b) && isDD(nDay, +nMon)) {
-      serialDate = toSerialDate(year, +nMon, +nDay);
-      fmt = DATE_DM;
-    }
-    else if (isMM(a) && isSep2(b) && isYY(c)) {
-      serialDate = toSerialDate(toYY(c), +a, day);
-      fmt = DATE_MY;
-    }
-    else if (isMM(a) && isSep2(b) && isYYYY(c)) {
-      serialDate = toSerialDate(+c, +a, day);
-      fmt = DATE_MY;
+    // two numbers: day and month in locale order, else month and year
+    else if (isSep2(b) && isNum(a) && isNum(c)) {
+      if (isYMD) {
+        // month-day, then day-month, then year and month
+        if (isMM(a) && isDD(c, +a)) {
+          serialDate = toSerialDate(year, +a, +c);
+          fmt = DATE_DM;
+        }
+        else if (isMM(c) && isDD(a, +c)) {
+          serialDate = toSerialDate(year, +c, +a);
+          fmt = DATE_DM;
+        }
+        // a year of 0 is only accepted in month-day-year locales
+        else if (((isYY(a) && +a > 0) || isYYYY(a)) && isMM(c)) {
+          serialDate = toSerialDate(isYY(a) ? toYY(a) : +a, +c, day);
+          fmt = DATE_MY;
+        }
+      }
+      else {
+        const [ nMon, nDay ] = isMDY ? [ a, c ] : [ c, a ];
+        if (isMM(nMon) && isDD(nDay, +nMon)) {
+          serialDate = toSerialDate(year, +nMon, +nDay);
+          fmt = DATE_DM;
+        }
+        // as above, a year of 0 only works in month-day-year locales
+        else if (isMM(a) && isYY(c) && (isMDY || +c > 0)) {
+          serialDate = toSerialDate(toYY(c), +a, day);
+          fmt = DATE_MY;
+        }
+        else if (isMM(a) && isYYYY(c)) {
+          serialDate = toSerialDate(+c, +a, day);
+          fmt = DATE_MY;
+        }
+      }
     }
 
-    else if ((isMMM(a) || isMMMM(a)) && isSep(b) && isDD(c, parseWord(a))) {
+    // "Apr 23" is a day unless the locale is day-month-year, where it is April 2023
+    else if (!isDMY && (isMMM(a) || isMMMM(a)) && isSep(b) && isDD(c, parseWord(a))) {
       serialDate = toSerialDate(year, parseWord(a), +c);
       fmt = DATE_DM;
     }
@@ -268,7 +300,7 @@ export function parseDateXl (value: string, l10n: LocaleData): ParseDataNum | un
   }
   else if (bits.length === 2) {
     const [ a, b ] = bits;
-    if ((isMMM(a) || isMMMM(a)) && isDD(b, parseWord(a))) {
+    if (!isDMY && (isMMM(a) || isMMMM(a)) && isDD(b, parseWord(a))) {
       serialDate = toSerialDate(year, parseWord(a), +b);
       fmt = DATE_DM;
     }
@@ -287,15 +319,21 @@ export function parseDateXl (value: string, l10n: LocaleData): ParseDataNum | un
   }
 
   if (serialDate != null && timePart) {
-    const t = parseTimeXl(timePart, l10n);
+    const t = parseTimeXl(timePart, l10n, true);
     if (t) {
       serialDate += t.v;
       if (t.i) {
-        if (fmt === DATE_FULL && (t.i === 20 || t.i === 18)) {
+        const z = t.i;
+        // a time past 23 hours adds to the date but the format stays General
+        if (z === 46) {
+          fmt = undefined;
+        }
+        // a full date with a time shows as date + h:mm, unless the time kept fractional seconds
+        else if (fmt === DATE_FULL && (z >= 18 && z <= 21)) {
           fmt = 22;
         }
         else {
-          fmt = t.i;
+          fmt = z;
         }
       }
     }

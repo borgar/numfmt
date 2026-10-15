@@ -71,14 +71,22 @@ function hm_ (p: TokenS[]): TimeBits | null {
   };
 }
 
-const allowedPatterns: Record<string, (p: TokenS[]) => TimeBits | null> = {
+const allowedPatterns: Record<string, (p: TokenS[], withDate?: boolean) => TimeBits | null> = {
   '0:': hms1,
   '0:0': hms1,
   '0:0.': hms1,
+  '0:0!': hms1,
   '0:0:': hms1,
   '0:0:0': hms1,
   '0:0.0': p => ({ h: '0', m: p[0].value, s: p[2].value, f: p[4].value, ap: '', z: 'mm:ss.0', i: 47 }),
   '0:0:0.0': p => ({ h: p[0].value, m: p[2].value, s: p[4].value, f: p[6].value, ap: '', z: 'mm:ss.0', i: 47 }),
+  '0:0:0!0': (p, withDate) => {
+    // after a date, Excel drops the fraction, so this is a plain h:mm:ss
+    if (withDate) {
+      return { h: p[0].value, m: p[2].value, s: p[4].value, f: '0', ap: '', z: 'h:mm:ss', i: 21 };
+    }
+    return null;
+  },
   '0_?': h_,
   '0_?:': h_,
   '0:0_?': hm_,
@@ -94,20 +102,24 @@ const allowedPatterns: Record<string, (p: TokenS[]) => TimeBits | null> = {
   })
 };
 
-export function parseTimeXl (value: string, l10n: LocaleData): ParseDataNum | undefined {
+export function parseTimeXl (value: string, l10n: LocaleData, withDate = false): ParseDataNum | undefined {
   const parts = splitString(value, l10n.decimal === ',' ? timeSplitterComma : timeSplitter);
   const pattern = parts.reduce((a, c) => a + c.type, '');
 
-  const sss = allowedPatterns[pattern]?.(parts);
+  const sss = allowedPatterns[pattern]?.(parts, withDate);
   if (!sss) { return; }
 
-  const { h, m, s, f, ap, z, i } = sss;
+  const { h, m, s, f, ap, i } = sss;
   if (isDigits(h) && isDigits(m) && isDigits(s) && isFrac(f)) {
+    let tail = TAILS[ap];
+    if (!tail && (ap === 'a,' || ap === 'p,') && l10n.decimal === ',') {
+      tail = TAILS[ap[0]];
+    }
     let ampm: AmPm = '';
-    if (ampmMatch(ap, l10n.ampm[0]) || TAILS[ap] === 'a') {
+    if (ampmMatch(ap, l10n.ampm[0]) || tail === 'a') {
       ampm = 'a';
     }
-    else if (ampmMatch(ap, l10n.ampm[1]) || TAILS[ap] === 'p') {
+    else if (ampmMatch(ap, l10n.ampm[1]) || tail === 'p') {
       ampm = 'p';
     }
     else if (ap) {

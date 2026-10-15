@@ -39,16 +39,19 @@ export function timeSplitter (code: number, lastCode: number): string {
 
 // same as timeSplitter, but recognizes comma rather than a period
 export function timeSplitterComma (code: number, lastCode: number): string {
-  if (code >= C_ZERO && code <= C_NINE) { // 0-9
+  if (code >= C_ZERO && code <= C_NINE) {
     return '0';
   }
-  if (code === C_COLON) { // :
+  if (code === C_COLON) {
     return ':';
   }
-  if (code === C_COMMA && lastCode < C_A) { // .
+  if (code === C_COMMA && lastCode < C_A) {
     return '.';
   }
-  if (code === C_SPACE) { // \x20
+  if (code === C_POINT && lastCode < C_A) {
+    return '!';
+  }
+  if (code === C_SPACE) {
     return '_';
   }
   if (code === 160 || code === 8239) { // \xA0 \u202F
