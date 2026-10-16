@@ -3,11 +3,9 @@
  */
 export type ParseDataNum = {
   /** A number value */
-  v: number;
-  /** A number format pattern */
-  z?: string;
-  /** Built in Id number */
-  i?: number;
+  value: number;
+  /** Built in format id number, use with getFormatFromId() */
+  formatId?: number;
 };
 
 /**
@@ -15,11 +13,9 @@ export type ParseDataNum = {
  */
 export type ParseDataBool = {
   /** A boolean value */
-  v: boolean;
-  /** A number format pattern */
-  z?: never;
-  /** Built in Id number */
-  i?: never;
+  value: boolean;
+  /** Built in format id number, use with getFormatFromId() */
+  formatId?: never;
 };
 
 /**

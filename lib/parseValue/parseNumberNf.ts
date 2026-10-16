@@ -28,14 +28,12 @@ export function parseNumberNf (value: string, l10n: LocaleData): ParseDataNum | 
   let num = '';
   let exp = '';
   let sign = 1;
-  let format = '';
+  let format = 0;
   let minus = false;
   let openParen = false;
   let closeParen = false;
   let percent = false;
   let currency = false;
-  let currencySymbol = null;
-  let currencyTrailing = false;
   let i = 0;
   // prefix
   const prefixChars = [ SP, NS, NN, '+', '%', '(', '-' ].concat(currencySymbols);
@@ -53,7 +51,6 @@ export function parseNumberNf (value: string, l10n: LocaleData): ParseDataNum | 
         return undefined;
       }
       currency = true;
-      currencySymbol = char;
     }
     else if (char === '(') {
       if (openParen || minus) {
@@ -129,8 +126,6 @@ export function parseNumberNf (value: string, l10n: LocaleData): ParseDataNum | 
         return undefined;
       }
       currency = true;
-      currencySymbol = char;
-      currencyTrailing = true;
     }
     else if (char === ')') {
       if (closeParen || !openParen) {
@@ -162,7 +157,7 @@ export function parseNumberNf (value: string, l10n: LocaleData): ParseDataNum | 
       return undefined;
     }
     // allow parens and minus, but not %$
-    format = '0.00E+00';
+    format = 11;
   }
   else if (percent) {
     if (currency) {
@@ -170,32 +165,20 @@ export function parseNumberNf (value: string, l10n: LocaleData): ParseDataNum | 
       return undefined;
     }
     // numpart dictates how "deep" the format is: "0" vs "0.00"
-    format = num.includes('.')
-      ? '0.00%'
-      : '0%';
+    format = num.includes('.') ? 10 : 9;
     numberValue *= 0.01;
   }
   else if (currency) {
     // numpart dictates how "deep" the format is: "0" vs "0.00"
-    const currencyFormat = num.includes('.')
-      ? '#,##0.00'
-      : '#,##0';
-    if (currencyTrailing) {
-      format = currencyFormat + currencySymbol;
-    }
-    else {
-      format = currencySymbol + currencyFormat;
-    }
+    format = num.includes('.') ? 7 : 5;
   }
   else if (g) {
-    format = num.includes('.')
-      ? '#,##0.00'
-      : '#,##0';
+    format = num.includes('.') ? 4 : 3;
   }
   // we may want to lower the fidelity of the number: +num.toFixed(13)
-  const ret: ParseDataNum = { v: numberValue * sign };
+  const ret: ParseDataNum = { value: numberValue * sign };
   if (format) {
-    ret.z = format;
+    ret.formatId = format;
   }
   return ret;
 }

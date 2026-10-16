@@ -1,7 +1,6 @@
 import { parseFloat15 } from './parseFloat15.ts';
 import type { LocaleData } from '../locale.ts';
 import type { ParseDataNum } from './types.ts';
-import { getFormatFromId } from '../getFormatFromId.ts';
 
 // const CM = ',';
 const SP = ' ';
@@ -24,7 +23,7 @@ const isAltspace = (c: string) => (c === NS || c === NN);
  * @param [options] Options for the parsing behavior.
  * @returns An object of the parsed value and a corresponding format string
  */
-export function parseNumberXl (value: string, l10n: LocaleData, debug = false): ParseDataNum | undefined {
+export function parseNumberXl (value: string, l10n: LocaleData): ParseDataNum | undefined {
   // we base everything on the decimal separator
   const dec = l10n.decimal;
   const grp = l10n.group !== SP && l10n.group !== dec ? l10n.group : '';
@@ -40,7 +39,6 @@ export function parseNumberXl (value: string, l10n: LocaleData, debug = false): 
   let percent = false;
   let currency = false;
   let currencySymbol = null;
-  let currencyTrailing = false;
   let i = 0;
 
   // don't allow staring with a alternative-whitespace
@@ -48,9 +46,8 @@ export function parseNumberXl (value: string, l10n: LocaleData, debug = false): 
     return;
   }
 
-  // prefix
+  // prefix: [ SP, NN, '+', '%', '(', '-', '€' ] + currency
   const cSymb = l10n.currency ?? '$';
-  // const prefixChars = [ SP, NN, '+', '%', '(', '-', cSymb, '€' ];
   let char = '';
   do {
     char = value[i];
@@ -104,9 +101,6 @@ export function parseNumberXl (value: string, l10n: LocaleData, debug = false): 
     i++;
   }
   while (i < value.length);
-  // while (prefixChars.includes(value[i])) {
-
-  debug && console.log('x1', i, JSON.stringify(value.slice(i)));
 
   // number
   let haveDecimal = false;
@@ -156,7 +150,6 @@ export function parseNumberXl (value: string, l10n: LocaleData, debug = false): 
   if (!haveDecimal && groups && groupSize < 3) {
     return;
   }
-  debug && console.log('x2', i, JSON.stringify(value.slice(i)));
 
   // fractions
   let haveFraction = false;
@@ -169,7 +162,6 @@ export function parseNumberXl (value: string, l10n: LocaleData, debug = false): 
     denominator = fm[2];
     i += fm[0].length;
   }
-  debug && console.log('x3', i, JSON.stringify(value.slice(i)));
 
   // exponent
   if (value[i] === 'e' || value[i] === 'E') {
@@ -189,12 +181,9 @@ export function parseNumberXl (value: string, l10n: LocaleData, debug = false): 
       return;
     }
   }
-  debug && console.log('x4', i, JSON.stringify(value.slice(i)));
-  // suffix
-  // XXX: does a locale that has currency symbol location 1 | 3 allow $ here?
-  // const suffixChars = [ SP, NN, '%', ')', '€' ];
+
+  // suffix: [ SP, NN, '%', ')', '€' ] + currency;
   let lastSuffix = '';
-  // while (suffixChars.includes(value[i])) {
   while (i < value.length) {
     char = value[i];
     lastSuffix = char;
@@ -206,7 +195,6 @@ export function parseNumberXl (value: string, l10n: LocaleData, debug = false): 
       i += Math.max(0, cSymb.length - 1);
       currency = true;
       currencySymbol = char;
-      currencyTrailing = true;
     }
     else if (char === '€') {
       if (currency) {
@@ -214,7 +202,6 @@ export function parseNumberXl (value: string, l10n: LocaleData, debug = false): 
       }
       currency = true;
       currencySymbol = char;
-      currencyTrailing = true;
     }
     else if (char === ')') {
       if (closeParen || !openParen) {
@@ -237,8 +224,6 @@ export function parseNumberXl (value: string, l10n: LocaleData, debug = false): 
     i++;
   }
 
-  debug && console.log('x5', i, JSON.stringify(value.slice(i)));
-
   // don't allow ending with a whitespace
   if (isAltspace(lastSuffix)) {
     return;
@@ -248,16 +233,7 @@ export function parseNumberXl (value: string, l10n: LocaleData, debug = false): 
     return;
   }
 
-  currencyTrailing = false;
-  // XXX: ensure we have tests for unbalanced parens
-  if (
-    (minus && currencyTrailing && currencySymbol !== '€') ||
-    (plus && currencyTrailing) ||
-    (currency && percent) ||
-    (closeParen !== openParen) ||
-    (closeParen && currencyTrailing && currencySymbol !== '€') ||
-    (closeParen && plus)
-  ) {
+  if ((currency && percent) || (closeParen !== openParen) || (closeParen && plus)) {
     return;
   }
 
@@ -289,9 +265,9 @@ export function parseNumberXl (value: string, l10n: LocaleData, debug = false): 
   else if (groups && currencySymbol !== '€') {
     fmt = haveDecimal ? 4 : 3;
   }
-  const ret: ParseDataNum = { v: numberValue ? numberValue * sign : 0 };
+  const ret: ParseDataNum = { value: numberValue ? numberValue * sign : 0 };
   if (fmt) {
-    ret.z = getFormatFromId(fmt, l10n);
+    ret.formatId = fmt;
   }
   return ret;
 }
