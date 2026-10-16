@@ -15,9 +15,11 @@ software does.
 - [FormatOptions](#type-aliasesformatoptionsmd)
 - [LocaleData](#type-aliaseslocaledatamd)
 - [LocaleToken](#type-aliaseslocaletokenmd)
+- [LocalFormat](#type-aliaseslocalformatmd)
 - [MonthNames](#type-aliasesmonthnamesmd)
 - [ParseDataBool](#type-aliasesparsedataboolmd)
 - [ParseDataNum](#type-aliasesparsedatanummd)
+- [ParseValueOptions](#type-aliasesparsevalueoptionsmd)
 - [Token](#type-aliasestokenmd)
 - [TokenType](#type-aliasestokentypemd)
 
@@ -27,9 +29,11 @@ software does.
 - [dateFromSerial](#functionsdatefromserialmd)
 - [dateToSerial](#functionsdatetoserialmd)
 - [dec2frac](#functionsdec2fracmd)
+- [delocalize](#functionsdelocalizemd)
 - [format](#functionsformatmd)
 - [formatColor](#functionsformatcolormd)
 - [getFormatDateInfo](#functionsgetformatdateinfomd)
+- [getFormatFromId](#functionsgetformatfromidmd)
 - [getFormatInfo](#functionsgetformatinfomd)
 - [getLocale](#functionsgetlocalemd)
 - [isDateFormat](#functionsisdateformatmd)
@@ -153,7 +157,8 @@ The date as a spreadsheet serial date, or undefined.
 function dec2frac(
    number: number, 
    numeratorMaxDigits?: number, 
-   denominatorMaxDigits?: number): [number, number];
+   denominatorMaxDigits?: number
+): [number, number];
 ```
 
 Split a fractional number into a numerator and denominator for display as
@@ -174,6 +179,36 @@ vulgar fractions.
 Tuple of two numbers, numerator and denominator.
 
 
+<a name="functionsdelocalizemd"></a>
+
+# delocalize()
+
+```ts
+function delocalize(pattern: string, fromLocale: string | number): string;
+```
+
+Translate a number format pattern from a locale into the default `en-US` variant.
+
+Group and decimal symbols will be flipped as needed, alternative operators letters
+will be changed to the default letters, color names will be translated.
+
+Additionally, non-operator characters as well as escaped characters and quoted strings
+will be collapsed to quoted strings as possible.
+
+## Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `pattern` | `string` | A format pattern in the ECMA-376 number format. |
+| `fromLocale` | `string` \| `number` | A BCP 47 string tag or Excel [MsoLanguageID](https://docs.microsoft.com/en-us/office/vba/api/office.msolanguageid). |
+
+## Returns
+
+`string`
+
+The default equivalent of the input pattern.
+
+
 <a name="functionsformatmd"></a>
 
 # format()
@@ -182,7 +217,8 @@ Tuple of two numbers, numerator and denominator.
 function format(
    pattern: string, 
    value: any, 
-   options?: Partial<FormatOptions>): string;
+   options?: Partial<FormatOptions>
+): string;
 ```
 
 Formats a value as a string and returns the result.
@@ -221,7 +257,8 @@ function formatColor(
   ignoreTimezone?: boolean;
   indexColors?: boolean;
   throws?: boolean;
-}): string | number | undefined;
+}
+): string | number | undefined;
 ```
 
 Find the color appropriate to a value as dictated by a format pattern.
@@ -281,14 +318,36 @@ format pattern is invalid and would cause the formatter to throw.
 An object of format date properties.
 
 
+<a name="functionsgetformatfromidmd"></a>
+
+# getFormatFromId()
+
+```ts
+function getFormatFromId(fmtId: number, l10n?: string | number | LocaleData): string;
+```
+
+Return the correct format for a given built-in ID in a locale.
+
+## Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `fmtId` | `number` | The format ID |
+| `l10n?` | `string` \| `number` \| [`LocaleData`](#type-aliaseslocaledatamd) | The locale to use as either a BCP 47 string tag of the locale, an Excel locale code, or a locale data record. |
+
+## Returns
+
+`string`
+
+The format pattern
+
+
 <a name="functionsgetformatinfomd"></a>
 
 # getFormatInfo()
 
 ```ts
-function getFormatInfo(pattern: string, options?: {
-  currency?: string;
-}): FormatInfo;
+function getFormatInfo(pattern: string): FormatInfo;
 ```
 
 Returns an object detailing the properties and internals of a format parsed
@@ -302,8 +361,6 @@ format pattern is invalid and would cause the formatter to throw.
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
 | `pattern` | `string` | A format pattern in the ECMA-376 number format. |
-| `options?` | \{ `currency?`: `string`; \} | Options for the method |
-| `options.currency?` | `string` | Limit the patterns identified as currency to those that use the give string. If nothing is provided, patterns will be tagged as currency if one of the following currency symbols is used: `¤$£¥֏؋৳฿៛₡₦₩₪₫€₭₮₱₲₴₸₹₺₼₽₾₿` |
 
 ## Returns
 
@@ -468,9 +525,7 @@ A list of locale tags
 # parseBool()
 
 ```ts
-function parseBool(value: string, options?: {
-  locale?: string;
-}): ParseDataBool | undefined;
+function parseBool(value: string, options?: ParseValueOptions): ParseDataBool | undefined;
 ```
 
 Parse a string input and return its equivalent boolean value. If the input was not
@@ -484,8 +539,7 @@ returns an object with a single property:
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
 | `value` | `string` | The supposed boolean to parse |
-| `options?` | \{ `locale?`: `string`; \} | Options for the parser |
-| `options.locale?` | `string` | A BCP 47 string tag. Locale default is english with a `\u00a0` grouping symbol (see [addLocale](#addLocale)) |
+| `options?` | [`ParseValueOptions`](#type-aliasesparsevalueoptionsmd) | Options for the parser |
 
 ## Returns
 
@@ -499,9 +553,7 @@ An object of the parsed value
 # parseDate()
 
 ```ts
-function parseDate(value: string, options?: {
-  locale?: string;
-}): ParseDataNum | undefined;
+function parseDate(value: string, options?: ParseValueOptions): ParseDataNum | undefined;
 ```
 
 Parse a date or datetime string input and return its value and format. If
@@ -516,8 +568,7 @@ valid input it returns an object with two properties:
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
 | `value` | `string` | The string to parse |
-| `options?` | \{ `locale?`: `string`; \} | Options for the parser |
-| `options.locale?` | `string` | A BCP 47 string tag. Locale default is english with a `\u00a0` grouping symbol (see [addLocale](#addLocale)) |
+| `options?` | [`ParseValueOptions`](#type-aliasesparsevalueoptionsmd) | Options for the parser |
 
 ## Returns
 
@@ -559,9 +610,7 @@ If the locale tag is invalid.
 # parseNumber()
 
 ```ts
-function parseNumber(value: string, options?: {
-  locale?: string;
-}): ParseDataNum | undefined;
+function parseNumber(value: string, options?: ParseValueOptions): ParseDataNum | undefined;
 ```
 
 Parse a numeric string input and return its value and format. If the input
@@ -576,8 +625,7 @@ it returns an object with two properties:
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
 | `value` | `string` | The number to parse |
-| `options?` | \{ `locale?`: `string`; \} | Options for the parser |
-| `options.locale?` | `string` | A BCP 47 string tag. Locale default is english with a `\u00a0` grouping symbol (see [addLocale](#addLocale)) |
+| `options?` | [`ParseValueOptions`](#type-aliasesparsevalueoptionsmd) | Options for the parser |
 
 ## Returns
 
@@ -591,9 +639,7 @@ An object of the parsed value and a corresponding format string
 # parseTime()
 
 ```ts
-function parseTime(value: string, options?: {
-  locale?: string;
-}): ParseDataNum | undefined;
+function parseTime(value: string, options?: ParseValueOptions): ParseDataNum | undefined;
 ```
 
 Parse a time string input and return its value and format. If the input was
@@ -608,8 +654,7 @@ returns an object with two properties:
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
 | `value` | `string` | The string to parse |
-| `options?` | \{ `locale?`: `string`; \} | Options for the parser |
-| `options.locale?` | `string` | A BCP 47 string tag. Locale default is english with a `\u00a0` grouping symbol (see [addLocale](#addLocale)) |
+| `options?` | [`ParseValueOptions`](#type-aliasesparsevalueoptionsmd) | Options for the parser |
 
 ## Returns
 
@@ -623,9 +668,7 @@ An object of the parsed value and a corresponding format string
 # parseValue()
 
 ```ts
-function parseValue(value: string, options?: {
-  locale?: string;
-}): 
+function parseValue(value: string, options?: ParseValueOptions): 
   | ParseDataNum
   | ParseDataBool
   | undefined;
@@ -679,8 +722,7 @@ input to a smaller scope.
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
 | `value` | `string` | The value to parse |
-| `options?` | \{ `locale?`: `string`; \} | Options for the parser |
-| `options.locale?` | `string` | A BCP 47 string tag. Locale default is english with a `\u00a0` grouping symbol (see [addLocale](#functionsaddlocalemd)) |
+| `options?` | [`ParseValueOptions`](#type-aliasesparsevalueoptionsmd) | Options for the parser |
 
 ## Returns
 
@@ -701,7 +743,8 @@ function round(number: number, places?: number): number;
 
 Return a number rounded to the specified amount of places. This is the
 rounding function used internally by the formatter (symmetric arithmetic
-rounding). It rounds the same way Excel does.
+rounding). It rounds the same way Excel does: the value is first rounded
+to 15 significant digits, and then to the requested places.
 
 ## Parameters
 
@@ -808,6 +851,7 @@ type FormatInfo = {
   isText: boolean;
   level: number;
   maxDecimals: number;
+  minDecimals: number;
   parentheses: 0 | 1;
   scale: number;
   type:   | "currency"
@@ -840,6 +884,7 @@ See the [getFormatInfo](#functionsgetformatinfomd) method.
 | <a id="property-istext"></a> `isText` | `boolean` | Corresponds to the output from isTextFormat. |
 | <a id="property-level"></a> `level` | `number` | An arbirarty number that represents the format's specificity if you want to compare one to another. Integer comparisons roughly match Excel's resolutions when it determines which format wins out. |
 | <a id="property-maxdecimals"></a> `maxDecimals` | `number` | The maximum number of decimals this format will emit. |
+| <a id="property-mindecimals"></a> `minDecimals` | `number` | The minimum number of decimal places this format will reserve. |
 | <a id="property-parentheses"></a> `parentheses` | `0` \| `1` | 1 if the positive portion of the number format contains an open parenthesis, else a 0. This is replicates Excel's `CELL("parentheses")` functionality. |
 | <a id="property-scale"></a> `scale` | `number` | The multiplier used when formatting the number (100 for percentages). |
 | <a id="property-type"></a> `type` | \| `"currency"` \| `"date"` \| `"datetime"` \| `"error"` \| `"fraction"` \| `"general"` \| `"grouped"` \| `"number"` \| `"percent"` \| `"scientific"` \| `"text"` \| `"time"` | A string identifier for the type of the number formatter. |
@@ -892,6 +937,51 @@ Options that control the behavior of the formatter.
 | <a id="property-throws"></a> `throws` | `boolean` | Should the formatter throw an error if a provided pattern is invalid. If false, a formatter will be constructed which instead outputs an error string (see _invalid_ in this type). **Default** `true` |
 
 
+<a name="type-aliaseslocalformatmd"></a>
+
+# LocalFormat
+
+```ts
+type LocalFormat = {
+  currencyPos?: 0 | 1 | 2 | 3;
+  dateOrder?: 0 | 1 | 2;
+  dateSep?: string;
+  minus?: boolean;
+  monthFirst?: boolean;
+  padDd?: boolean;
+  padHh?: boolean;
+  padHhAlt?: boolean;
+  padMm?: boolean;
+  shortDateSep?: string;
+  shortYear?: boolean;
+  sign?: boolean;
+  spacePercent?: boolean;
+  timeSep?: string;
+};
+```
+
+An object of instructive properties on how default formats should be constructed.
+
+## Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| <a id="property-currencypos"></a> `currencyPos?` | `0` \| `1` \| `2` \| `3` | Currency symbol location: - 0: prefix (`$0`) - 1: postfix (`0$`) - 2: prefix spaced (`$ 0`) - 3: postfix spaced (`0 $`) **Default** `0` |
+| <a id="property-dateorder"></a> `dateOrder?` | `0` \| `1` \| `2` | Date order: - 0: mm/dd/yy - 1: dd/mm/yy - 2: yy/mm/dd **Default** `0` |
+| <a id="property-datesep"></a> `dateSep?` | `string` | Date separator character (default: `/`) **Default** `"/"` |
+| <a id="property-minus"></a> `minus?` | `boolean` | Use a minus for negative values (`-#,##0`) over putting parenthesis around the value (`(#,##0)`). **Default** `false` |
+| <a id="property-monthfirst"></a> `monthFirst?` | `boolean` | The long date puts the month before the day (`mmmm d, yyyy`). If not set, this is worked out from `sysdate` when the locale is created. |
+| <a id="property-paddd"></a> `padDd?` | `boolean` | Pad date part (`dd`) or not (`d`). **Default** `false` |
+| <a id="property-padhh"></a> `padHh?` | `boolean` | Pad hours part (`hh`) or not (`h`). **Default** `false` |
+| <a id="property-padhhalt"></a> `padHhAlt?` | `boolean` | Pad hours part (`hh`) or not (`h`) in alternate time format. **Default** `false` |
+| <a id="property-padmm"></a> `padMm?` | `boolean` | Pad month part (`mm`) or not (`m`). **Default** `false` |
+| <a id="property-shortdatesep"></a> `shortDateSep?` | `string` | Short date separator character (default: `-`) **Default** `"-"` |
+| <a id="property-shortyear"></a> `shortYear?` | `boolean` | Use 2 digit year rather than 4 digit in dates. **Default** `false` |
+| <a id="property-sign"></a> `sign?` | `boolean` | Sign location: - `false` or `undefined`: after currency (`$-10`) - `true`: before currency (`-$10`) **Default** `false` |
+| <a id="property-spacepercent"></a> `spacePercent?` | `boolean` | Print a space before a percent sign. **Default** `false` |
+| <a id="property-timesep"></a> `timeSep?` | `string` | Time separator character (default: `:`) **Default** `":"` |
+
+
 <a name="type-aliaseslocaledatamd"></a>
 
 # LocaleData
@@ -900,10 +990,23 @@ Options that control the behavior of the formatter.
 type LocaleData = {
   ampm: [string, string];
   bool: [string, string];
+  color?: string;
+  colors?: Record<string, 
+     | "Black"
+     | "White"
+     | "Red"
+     | "Green"
+     | "Blue"
+     | "Yellow"
+     | "Magenta"
+    | "Cyan">;
+  currency: string;
   ddd: DayNames;
   dddd: DayNames;
   decimal: string;
   exponent: string;
+  format?: LocalFormat;
+  general?: string;
   group: string;
   infinity: string;
   mmm: MonthNames;
@@ -912,9 +1015,20 @@ type LocaleData = {
   mmmm6: MonthNames;
   nan: string;
   negative: string;
+  opcodes?: {
+     dd?: string;
+     dm?: string;
+     dy?: string;
+     en?: string;
+     th?: string;
+     tm?: string;
+     ts?: string;
+     wd?: string;
+  };
   percent: string;
   positive: string;
-  preferMDY: boolean;
+  sysdate?: string;
+  systime?: string;
 };
 ```
 
@@ -926,10 +1040,15 @@ An object of properties used by a formatter when printing a number in a certain 
 | ------ | ------ | ------ |
 | <a id="property-ampm"></a> `ampm` | \[`string`, `string`\] | How AM and PM should be presented. **Default** `["AM", "PM"]` |
 | <a id="property-bool"></a> `bool` | \[`string`, `string`\] | How TRUE and FALSE should be presented. **Default** `["TRUE", "FALSE"]` |
+| <a id="property-color"></a> `color?` | `string` | How the "Color" keyword is written in the language. **Default** `"Color"` |
+| <a id="property-colors"></a> `colors?` | `Record`\<`string`, \| `"Black"` \| `"White"` \| `"Red"` \| `"Green"` \| `"Blue"` \| `"Yellow"` \| `"Magenta"` \| `"Cyan"`\> | A map for the color keywords in the language, into US English. The keys should be the lower-case localized versions (`bianco`) and the values should be title-cased English equivalents (`Black`). **Default** `{black:"Black", white:"White", red:"Red", green:"Green", blue:"Blue", yellow:"Yellow", magenta:"Magenta", cyan:"Cyan"}` |
+| <a id="property-currency"></a> `currency` | `string` | The currency symbol used by the Locale. **Default** `"$"` |
 | <a id="property-ddd"></a> `ddd` | [`DayNames`](#type-aliasesdaynamesmd) | Shortened day names (`Wed`). **Default** `["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]` |
 | <a id="property-dddd"></a> `dddd` | [`DayNames`](#type-aliasesdaynamesmd) | Long day names (`Wednesday`). **Default** `["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]` |
 | <a id="property-decimal"></a> `decimal` | `string` | Symbol used to separate integers from fractions (usually `.`). **Default** `"."` |
 | <a id="property-exponent"></a> `exponent` | `string` | Symbol used to indicate an exponent (usually `E`). **Default** `"E"` |
+| <a id="property-format"></a> `format?` | [`LocalFormat`](#type-aliaseslocalformatmd) | Instructive properties on how formats should be constructed. |
+| <a id="property-general"></a> `general?` | `string` | How the "General" keyword is written in the language. **Default** `"General"` |
 | <a id="property-group"></a> `group` | `string` | Symbol used as a grouping separator (`1,000,000` uses `,`). **Default** `"\u00a0"` |
 | <a id="property-infinity"></a> `infinity` | `string` | Symbol used to indicate infinite values (`∞`). **Default** `"∞"` |
 | <a id="property-mmm"></a> `mmm` | [`MonthNames`](#type-aliasesmonthnamesmd) | Short month names for the Gregorian calendar (`Nov`). **Default** `["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]` |
@@ -938,9 +1057,19 @@ An object of properties used by a formatter when printing a number in a certain 
 | <a id="property-mmmm6"></a> `mmmm6` | [`MonthNames`](#type-aliasesmonthnamesmd) | Long month names for the Islamic calendar (`Rajab`). **Default** `["Muharram", "Safar", "Rabiʻ I", "Rabiʻ II", "Jumada I", "Jumada II", "Rajab", "Shaʻban", "Ramadan", "Shawwal", "Dhuʻl-Qiʻdah", "Dhuʻl-Hijjah"]` |
 | <a id="property-nan"></a> `nan` | `string` | Symbol used to indicate NaN values (`NaN`). **Default** `"NaN"` |
 | <a id="property-negative"></a> `negative` | `string` | Symbol used to indicate positive numbers (usually `-`). **Default** `"-"` |
+| <a id="property-opcodes"></a> `opcodes?` | \{ `dd?`: `string`; `dm?`: `string`; `dy?`: `string`; `en?`: `string`; `th?`: `string`; `tm?`: `string`; `ts?`: `string`; `wd?`: `string`; \} | Operator symbol map.This is a record of characters, one for each operator. The value should be single character lower case strings. Keys are as follows: \| property \| description \| default \|-- \|-- \|-- \| `dy` \| Year of a date \| `y` \| \| `dm` \| Month of a date \| `m` \| \| `dd` \| Day of a date \| `d` \| \| `th` \| Hours of time \| `h` \| \| `tm` \| Minutes of time \| `m` \| \| `ts` \| Seconds of time \| `s` \| \| `wd` \| Weekday (alt.) \| `a` \| \| `en` \| Era name \| `g` \| |
+| `opcodes.dd?` | `string` | Day of a date. **Default** `"d".` |
+| `opcodes.dm?` | `string` | Month of a date. **Default** `"m".` |
+| `opcodes.dy?` | `string` | Year of a date. **Default** `"y".` |
+| `opcodes.en?` | `string` | Era name. **Default** `"g".` |
+| `opcodes.th?` | `string` | Hours of time. **Default** `"h".` |
+| `opcodes.tm?` | `string` | Minutes of time. **Default** `"m".` |
+| `opcodes.ts?` | `string` | Seconds of time. **Default** `"s".` |
+| `opcodes.wd?` | `string` | Weekday (alt.). **Default** `"a".` |
 | <a id="property-percent"></a> `percent` | `string` | Symbol used to indicate a percentage (usually `%`). **Default** `"%"` |
 | <a id="property-positive"></a> `positive` | `string` | Symbol used to indicate positive numbers (usually `+`). **Default** `"+"` |
-| <a id="property-prefermdy"></a> `preferMDY` | `boolean` | Is the prefered date format month first (12/31/2025) or day first (31/12/2025). **Default** `false` |
+| <a id="property-sysdate"></a> `sysdate?` | `string` | A format pattern to use when [$-x-sysdate] is found in a pattern. **Default** `"dd mmmm yyyy"` |
+| <a id="property-systime"></a> `systime?` | `string` | A format pattern to use when [$-x-systime] is found in a pattern. **Default** `"hh:mm:ss"` |
 
 
 <a name="type-aliaseslocaletokenmd"></a>
@@ -987,8 +1116,8 @@ A list of the names of the months of the year.
 
 ```ts
 type ParseDataBool = {
-  v: boolean;
-  z?: never;
+  formatId?: never;
+  value: boolean;
 };
 ```
 
@@ -998,8 +1127,8 @@ Output from the boolean value parser.
 
 | Property | Type | Description |
 | ------ | ------ | ------ |
-| <a id="property-v"></a> `v` | `boolean` | A boolean value |
-| <a id="property-z"></a> `z?` | `never` | A number format pattern |
+| <a id="property-formatid"></a> `formatId?` | `never` | Built in format id number, use with getFormatFromId() |
+| <a id="property-value"></a> `value` | `boolean` | A boolean value |
 
 
 <a name="type-aliasesparsedatanummd"></a>
@@ -1008,8 +1137,8 @@ Output from the boolean value parser.
 
 ```ts
 type ParseDataNum = {
-  v: number;
-  z?: string;
+  formatId?: number;
+  value: number;
 };
 ```
 
@@ -1019,8 +1148,29 @@ Output from a number or date value parser.
 
 | Property | Type | Description |
 | ------ | ------ | ------ |
-| <a id="property-v"></a> `v` | `number` | A number value |
-| <a id="property-z"></a> `z?` | `string` | A number format pattern |
+| <a id="property-formatid"></a> `formatId?` | `number` | Built in format id number, use with getFormatFromId() |
+| <a id="property-value"></a> `value` | `number` | A number value |
+
+
+<a name="type-aliasesparsevalueoptionsmd"></a>
+
+# ParseValueOptions
+
+```ts
+type ParseValueOptions = {
+  locale?: string;
+  mode?: number;
+};
+```
+
+Options for a value parser function.
+
+## Properties
+
+| Property | Type | Description |
+| ------ | ------ | ------ |
+| <a id="property-locale"></a> `locale?` | `string` | A BCP 47 string tag. Locale default is english with a `\u00a0` grouping symbol (see [addLocale](#addLocale)) |
+| <a id="property-mode"></a> `mode?` | `number` | Parsing mode: - 0: Excel - Permits the same things Excel's `Range.Value` assignments. - 1: Numfmt - Permits a curated set of strings, omitting many of Excel's stranger allowances. By default the parser uses mode 0. For modern GUI, mode 1 is reccommended. Mode 1 is more permissive when it comes to accepting some fairly obvious things like dates that include weekdays (which mode 0 rejects) and is less accepting of strange formats like undelimited ("sep10") or mixed delimited ("1984/07-4"). |
 
 
 <a name="type-aliasestokenmd"></a>
@@ -1085,7 +1235,8 @@ type TokenType =
   | typeof TOKEN_EXP
   | typeof TOKEN_FILL
   | typeof TOKEN_PAREN
-  | typeof TOKEN_CHAR;
+  | typeof TOKEN_CHAR
+  | typeof TOKEN_CURRENCY;
 ```
 
 A valid token type.
@@ -1099,6 +1250,7 @@ A valid token type.
 | TOKEN_COLOR     | Color modifier (`[Black]`, `[color 5]`)
 | TOKEN_COMMA     | Plain non-operator comma (`,`)
 | TOKEN_CONDITION | Condition modifier for a section (`[>=10]`)
+| TOKEN_CURRENCY  | A currency character (`$`)
 | TOKEN_DATETIME  | Date-time operator (`mmmm`, `YY`)
 | TOKEN_DBNUM     | Number display modifier (`[DBNum23]`)
 | TOKEN_DIGIT     | A digit between 1 and 9 (`3`)
