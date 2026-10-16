@@ -102,6 +102,15 @@ test('locale options', () => {
 
   expect(format('[$-0409]B2yyyy mmmm d', 42999), '[$-0409]yyyy mmmm d').toBe('2017 September 21');
 
+  // BCP 47 tag with a calendar: [$-tag,calendar]
+  // the locale applies as usual, the calendar only affects dates (6 = Hijri, 1 = Gregorian)
+  expect(format('[$-is-IS,6]0', 1234.5)).toBe('1235');
+  expect(format('[$-is-IS,6]#,##0.00', 1234.5)).toBe('1.234,50');
+  expect(format('[$-is-IS,6]dddd d. mmmm yyyy', 45356)).toBe('þriðjudagur 25. Shaʻban 1445');
+  expect(format('[$-is-IS,1]dddd d. mmmm yyyy', 45356)).toBe('þriðjudagur 5. mars 2024');
+  expect(format('[$-ar-SA,6]dd/mm/yyyy', 45356)).toBe('25/08/1445');
+  expect(format('[$-ar-SA]dd/mm/yyyy', 45356)).toBe('05/03/2024');
+
   expect(format('General', true, { locale: 'en' })).toBe('TRUE');
   expect(format('General', false, { locale: 'en' })).toBe('FALSE');
   expect(format('General', true, { locale: 'fr' })).toBe('VRAI');
