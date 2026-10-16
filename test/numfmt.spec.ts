@@ -372,8 +372,32 @@ test('Exponent notation rounds as in Excel', () => {
   expect(numfmt('0.00E+00', 501.5)).toBe('5.02E+02');
 });
 
+test('Engineering notation moves to the next exponent when rounding carries', () => {
+  expect(numfmt('##0.0E+0', 999.96)).toBe('1.0E+3');
+  expect(numfmt('##0.0E+0', 999960)).toBe('1.0E+6');
+  expect(numfmt('##0.0E+0', 999999999999999.5)).toBe('1.0E+15');
+  expect(numfmt('##0.0E+0', 99.96)).toBe('100.0E+0');
+});
+
 test('Subnormal numbers are rounded from their shortest representation', () => {
   expect(numfmt('0.00E+00', 1e-320)).toBe('1.00E-320');
   expect(numfmt('0E+00', 5e-324)).toBe('5E-324');
   expect(numfmt('0.00000000000000E+00', 2.225073858507201e-308)).toBe('2.22507385850720E-308');
+});
+
+test('General rounds a tie at the tenth digit as Excel does', () => {
+  expect(numfmt('General', 4.2394791745)).toBe('4.239479175');
+  expect(numfmt('General', 19147467.115)).toBe('19147467.12');
+  expect(numfmt('General', 42299445.995)).toBe('42299446');
+});
+
+test('Fixed denominator fractions round the numerator as Excel does', () => {
+  // (36.305 - 36) * 100 is stored as 30.4999999999999716
+  expect(numfmt('# ?/100', 36.305)).toBe('36 30/100');
+});
+
+// 0.285 * 100 is stored as 28.4999999999999964, but Excel rounds it up.
+// Remove .fails once vulgar fractions round as Excel does.
+test.fails('Fixed denominator fractions round a near tie up as Excel does', () => {
+  expect(numfmt('# ?/100', 0.285)).toBe(' 29/100');
 });

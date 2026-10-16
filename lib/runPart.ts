@@ -1,4 +1,4 @@
-import { round } from './round.ts';
+import { roundBinary } from './round.ts';
 import { clamp } from './clamp.ts';
 import { dec2frac } from './dec2frac.ts';
 import { general } from './general.ts';
@@ -48,7 +48,7 @@ import {
   TOKEN_CURRENCY
 } from './constants.ts';
 import { pad } from './pad.ts';
-import { getExponent, getSignificand } from './numberProps.ts';
+import { decToText, pow10, roundPlaces, roundSignificand } from './dec15.ts';
 import type { Partition } from './types.ts';
 import type { FormatOptions } from './options.ts';
 
@@ -104,38 +104,41 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
     value = clamp(value * part.scale);
   }
 
-  // calc exponent
-  if (part.exponential && typeof value === 'number') {
-    let v = Math.abs(value);
-    if (v) {
-      exp = getExponent(v, part.int_max);
+  if (typeof value === 'number' && part.fractions) {
+    // vulgar fractions round like the stored double, which matches Excel better
+    if (part.integer) {
+      const i = Math.abs(roundBinary(value, 1));
+      integer += (i < 1) ? '' : Math.floor(i);
     }
-    if (value && !part.integer) {
-      // when there isn't an integer part, the exp gets shifted by 1
-      exp++;
+  }
+  else if (
+    typeof value === 'number' && isFinite(value) &&
+    (part.exponential || part.integer || part.dec_fractions)
+  ) {
+    // Excel rounds the value to 15 significant digits, then to the pattern's
+    // last digit. The result is the decimal q × 10^k.
+    let q: number;
+    let k: number;
+    if (part.exponential) {
+      [ q, k, exp ] = roundSignificand(Math.abs(value), part.frac_max, part.int_max, !!part.integer);
+      mantissa += Math.abs(exp);
+      value = (value < 0 ? -q : q) * pow10(k);
     }
-    v = getSignificand(v, exp);
-    if (part.int_max === 1 && round(v, part.frac_max) === 10) {
-      v = 1;
-      exp++;
+    else {
+      [ q, k ] = roundPlaces(Math.abs(value), part.frac_max);
     }
-    value = (value < 0) ? -v : v;
-    mantissa += Math.abs(exp);
+    const [ intDigits, fracDigits ] = decToText(q, k);
+    if (part.integer) {
+      integer = intDigits;
+    }
+    if (part.dec_fractions) {
+      fraction = fracDigits;
+    }
   }
 
-  // integer to text
-  if (part.integer && typeof value === 'number') {
-    const i = Math.abs(round(value, part.fractions ? 1 : part.frac_max));
-    integer += (i < 1) ? '' : Math.floor(i);
-  }
   // integer grouping
   const group_pri = opts.grouping[0] ?? 3;
   const group_sec = opts.grouping[1] ?? group_pri;
-
-  // fraction to text
-  if (part.dec_fractions && typeof value === 'number') {
-    fraction = String(round(value, part.frac_max)).split('.')[1] || '';
-  }
 
   // using vulgar fractions
   const fixed_slash = !part.error && (part.num_p.includes('0') || part.den_p.includes('0'));
@@ -149,7 +152,7 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
       if (part.denominator && isFinite(part.denominator)) {
         // predefined denominator
         denominator += part.denominator;
-        numerator += round(_dec * part.denominator);
+        numerator += roundBinary(_dec * part.denominator);
         if (numerator === '0') {
           numerator = '';
           denominator = '';
