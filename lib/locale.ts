@@ -1,5 +1,7 @@
 import { codeToLocale } from './codeToLocale.ts';
+import { TOKEN_DATETIME } from './constants.ts';
 import { initLocales } from './locales.ts';
+import { tokenize } from './tokenize.ts';
 
 // Locale: [language[_territory][.codeset][@modifier]]
 const re_locale = /^([a-z\d]+)(?:[_-]([a-z\d]+))?(?:\.([a-z\d]+))?(?:@([a-z\d]+))?$/i;
@@ -95,6 +97,11 @@ export type LocalFormat = {
    * @default 0
    */
   currencyPos?: 0 | 1 | 2 | 3;
+  /**
+   * The long date puts the month before the day (`mmmm d, yyyy`).
+   * If not set, this is worked out from `sysdate` when the locale is created.
+   */
+  monthFirst?: boolean;
 };
 
 /**
@@ -391,13 +398,30 @@ export function getLocale (locale: string | number): LocaleData | undefined {
   return obj;
 }
 
+// Does a long date pattern put the month before the day ("mmmm d, yyyy")?
+function isMonthFirst (sysdate?: string): boolean {
+  // Warning: tokenizer will crash here if defaultLocale does not have format.monthFirst set
+  const t = tokenize(sysdate || '');
+  const monthIndex = t.findIndex(tok => tok.type === TOKEN_DATETIME && /^m/i.test(tok.value));
+  const dayIndex = t.findIndex(tok => tok.type === TOKEN_DATETIME && /^dd?$/i.test(tok.value));
+  return monthIndex >= 0 && dayIndex >= 0 && monthIndex < dayIndex;
+}
+
 // creates a new locale options object
 export function createLocale (data: Partial<LocaleData>): LocaleData {
+  const sysdate = data.sysdate ?? baseLocaleData.sysdate;
   return {
     ...baseLocaleData,
     ...data,
-    opcodes: { ...baseLocaleData.opcodes, ...data.opcodes },
-    format: { ...baseLocaleData.format, ...data.format }
+    opcodes: {
+      ...baseLocaleData.opcodes,
+      ...data.opcodes
+    },
+    format: {
+      ...baseLocaleData.format,
+      ...data.format,
+      monthFirst: data.format?.monthFirst ?? isMonthFirst(sysdate)
+    }
   };
 }
 
@@ -432,7 +456,7 @@ export function listLocales () {
 
 export const defaultLocale: LocaleData & { isDefault?: boolean } = createLocale({
   group: ',',
-  format: { dateOrder: 1 }
+  format: { dateOrder: 1, monthFirst: false }
 });
 defaultLocale.isDefault = true;
 

@@ -135,17 +135,6 @@ const DATE_MY = 17;
 const DATE_ORDER_MDY = 0;
 const DATE_ORDER_YMD = 2;
 
-// XXX: capture this beforehand
-const isMonthFirst = (sysdate?: string): boolean => {
-  const fmt = (sysdate ?? '')
-    .replace(/"[^"]*"/g, '')
-    .replace(/d{3,}/gi, '')
-    .toLowerCase();
-  const m = fmt.indexOf('m');
-  const d = fmt.indexOf('d');
-  return m >= 0 && d >= 0 && m < d;
-};
-
 export function parseDateXl (value: string, l10n: LocaleData): ParseDataNum | undefined {
   const lang = getLookups2(l10n);
   const isMMM = (s: string) => !!lang[s] && lang[s][0] === 'mmm'; // normDateStr
@@ -167,7 +156,8 @@ export function parseDateXl (value: string, l10n: LocaleData): ParseDataNum | un
   const isMDY = dateOrder === DATE_ORDER_MDY;
   const isYMD = dateOrder === DATE_ORDER_YMD;
   const isDMY = !isMDY && !isYMD;
-  const monthFirst = isMonthFirst(l10n.sysdate);
+  // the long date has the month before the day; set by createLocale
+  const monthFirst = !!l10n.format?.monthFirst;
 
   // "/" and "-" always separate date parts, "." only where it is the locale's date separator
   const dotSep = l10n.format?.dateSep === '.';
