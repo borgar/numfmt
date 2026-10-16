@@ -82,6 +82,12 @@ export const T_TYPE_SEC_E = 'SEC-ELAP';
 export const T_TYPE_B_YEAR = 'B-YEAR';
 export const T_TYPE_B_YEAR_S = 'B-YEAR-SHORT';
 
+/**
+ * How many parsed patterns are kept. Past this, the oldest one is dropped, so a
+ * long-running process that formats many distinct patterns doesn't grow forever.
+ */
+export const MAX_CACHED_PATTERNS = 1000;
+
 export const indexColors = [
   '#000000',
   '#FFFFFF',

@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest';
-import { MAX_CACHED_PATTERNS, prepareFormatterData } from '../lib/prepareFormatterData.ts';
+import { prepareFormatterData } from '../lib/prepareFormatterData.ts';
+import { MAX_CACHED_PATTERNS } from '../lib/constants.ts';
 
 test('Parsed patterns are cached', () => {
   const pattern = '0.00 "cached"';
