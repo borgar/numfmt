@@ -2,6 +2,7 @@ import { isValidDate } from '../isValidDate.ts';
 import { parseTimeNf } from './parseTimeNf.ts';
 import type { LocaleData } from '../locale.ts';
 import type { ParseDataNum } from './types.ts';
+import { LRUCache } from '../lruCache.ts';
 
 type LData = {
   mon: [ string, number, string ][],
@@ -248,20 +249,34 @@ const normDateStr = (s: string): string => (
     .toLowerCase()
 );
 
-const getLookups = (arr: string[], sym: string) => {
+const getLookupArray = (arr: string[], sym: string) => {
   const s: [ string, number, string ][] = arr.map((d, i) => [ normDateStr(d), i + 1, sym ]);
   s.sort((a, b) => b[0].length - a[0].length);
   return s;
 };
 
-export function parseDateNf (value: string, l10n: LocaleData): ParseDataNum | undefined {
-  const lData: LData = {
-    mon: getLookups(l10n.mmmm, 'F').concat(getLookups(l10n.mmm, 'M')),
+const getLookups = (l10n: LocaleData): LData => {
+  return {
+    mon: [
+      ...getLookupArray(l10n.mmmm, 'F'),
+      ...getLookupArray(l10n.mmm, 'M')
+    ],
     mp: l10n.mmm[0].at(-1) === '.',
-    day: getLookups(l10n.dddd, 'l').concat(getLookups(l10n.ddd, 'D')),
+    day: [
+      ...getLookupArray(l10n.dddd, 'l'),
+      ...getLookupArray(l10n.ddd, 'D')
+    ],
     dp: l10n.ddd[0].at(-1) === '.',
     l10n: l10n
   };
+};
+
+// the lookups only depend on the locale, so keep them for the most recently used locales
+const lookupsCache = new LRUCache<LocaleData, ReturnType<typeof getLookups>>(10);
+
+export function parseDateNf (value: string, l10n: LocaleData): ParseDataNum | undefined {
+  // const lData = getLookups(l10n);
+  const lData = lookupsCache.getOrSet(l10n, getLookups);
   // possible shortcut: quickly dismiss if there isn't a number?
   const date = nextToken(
     normDateStr(value),

@@ -1,4 +1,5 @@
 import { daysInMonth, isValidDate } from '../isValidDate.ts';
+import { LRUCache } from '../lruCache.ts';
 import { parseTimeXl } from './parseTimeXl.ts';
 import type { LocaleData } from '../locale.ts';
 import type { ParseDataNum } from './types.ts';
@@ -14,7 +15,7 @@ const normDateStr = (s: string) => (
 
 const isNum = (d: string) => /^\d+$/.test(d);
 
-const getLookups2 = (l10n: { mmm: string[], mmmm: string[], ddd: string[], dddd: string[] }) => {
+const getLookups = (l10n: { mmm: string[], mmmm: string[], ddd: string[], dddd: string[] }) => {
   const l: Record<string, [ string, number ]> = {};
   // days
   l10n.dddd.forEach(d => {
@@ -48,6 +49,9 @@ const getLookups2 = (l10n: { mmm: string[], mmmm: string[], ddd: string[], dddd:
   });
   return l;
 };
+
+// the lookups only depend on the locale, so keep them for the most recently used locales
+const lookupsCache = new LRUCache<LocaleData, ReturnType<typeof getLookups>>(10);
 
 function toSerialDate (year: number, month: number, day: number) {
   if (isValidDate(year, month, day)) {
@@ -136,7 +140,7 @@ const DATE_ORDER_MDY = 0;
 const DATE_ORDER_YMD = 2;
 
 export function parseDateXl (value: string, l10n: LocaleData): ParseDataNum | undefined {
-  const lang = getLookups2(l10n);
+  const lang = lookupsCache.getOrSet(l10n, getLookups);
   const isMMM = (s: string) => !!lang[s] && lang[s][0] === 'mmm'; // normDateStr
   const isMMMM = (s: string) => !!lang[s] && lang[s][0] === 'mmmm'; // normDateStr
   const parseWord = (s: string): number => (lang[s] ? lang[s][1] : 0);
