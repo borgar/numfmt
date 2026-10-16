@@ -8,7 +8,7 @@ const NS = ' ';
 const NN = ' ';
 
 const isDigit = (d: string) => d?.length === 1 && d >= '0' && d <= '9';
-const isWS = (c: string) => (c === NS || c === SP || c === NN);
+const isAltspace = (c: string) => (c === NS || c === NN);
 
 /**
  * Parse a numeric string input and return its value and format. If the input
@@ -27,11 +27,11 @@ export function parseNumberXl (value: string, l10n: LocaleData): ParseDataNum | 
   // we base everything on the decimal separator
   const dec = l10n.decimal;
   const grp = l10n.group !== SP && l10n.group !== dec ? l10n.group : '';
+  const currencyPos = l10n.format?.currencyPos ?? 0;
 
   let num = '';
   let exp = '';
   let sign = 1;
-  let format = '';
   let minus = false;
   let plus = false;
   let openParen = false;
@@ -39,18 +39,18 @@ export function parseNumberXl (value: string, l10n: LocaleData): ParseDataNum | 
   let percent = false;
   let currency = false;
   let currencySymbol = null;
-  let currencyTrailing = false;
   let i = 0;
 
   // don't allow staring with a alternative-whitespace
-  if (value[i] === NS || value[i] === NN) {
+  if (isAltspace(value[i])) {
     return;
   }
 
-  // prefix
-  const prefixChars = [ SP, NN, '+', '%', '(', '-', '$', '€' ];
-  while (prefixChars.includes(value[i])) {
-    const char = value[i];
+  // prefix: [ SP, NN, '+', '%', '(', '-', '€' ] + currency
+  const cSymb = l10n.currency ?? '$';
+  let char = '';
+  do {
+    char = value[i];
     if (char === '-') {
       if (minus || openParen || plus) {
         return;
@@ -64,7 +64,15 @@ export function parseNumberXl (value: string, l10n: LocaleData): ParseDataNum | 
       }
       plus = true;
     }
-    else if (char === '$' || char === '€') {
+    else if ((currencyPos === 0 || currencyPos === 2) && value.slice(i).startsWith(cSymb)) {
+      if (currency) {
+        return;
+      }
+      i += Math.max(0, cSymb.length - 1);
+      currency = true;
+      currencySymbol = char;
+    }
+    else if (char === '€') {
       if (currency) {
         return;
       }
@@ -84,8 +92,15 @@ export function parseNumberXl (value: string, l10n: LocaleData): ParseDataNum | 
       }
       percent = true;
     }
+    else if (char === SP || char === NN) {
+      // no-op
+    }
+    else {
+      break;
+    }
     i++;
   }
+  while (i < value.length);
 
   // number
   let haveDecimal = false;
@@ -167,20 +182,26 @@ export function parseNumberXl (value: string, l10n: LocaleData): ParseDataNum | 
     }
   }
 
-  // suffix
-  const suffixChars = [ SP, NS, NN, '%', ')', '€' ];
+  // suffix: [ SP, NN, '%', ')', '€' ] + currency;
   let lastSuffix = '';
-  while (suffixChars.includes(value[i])) {
-    const char = value[i];
+  while (i < value.length) {
+    char = value[i];
     lastSuffix = char;
     // only 1 occurance of these is allowed
-    if (char === '$' || char === '€') {
+    if ((currencyPos === 1 || currencyPos === 3) && value.slice(i).startsWith(cSymb)) {
+      if (currency) {
+        return;
+      }
+      i += Math.max(0, cSymb.length - 1);
+      currency = true;
+      currencySymbol = char;
+    }
+    else if (char === '€') {
       if (currency) {
         return;
       }
       currency = true;
       currencySymbol = char;
-      currencyTrailing = true;
     }
     else if (char === ')') {
       if (closeParen || !openParen) {
@@ -194,11 +215,17 @@ export function parseNumberXl (value: string, l10n: LocaleData): ParseDataNum | 
       }
       percent = true;
     }
+    else if (char === SP || char === NN) {
+      // no-op
+    }
+    else {
+      break;
+    }
     i++;
   }
 
   // don't allow ending with a whitespace
-  if (isWS(lastSuffix)) {
+  if (isAltspace(lastSuffix)) {
     return;
   }
 
@@ -206,15 +233,7 @@ export function parseNumberXl (value: string, l10n: LocaleData): ParseDataNum | 
     return;
   }
 
-  // XXX: ensure we have tests for unbalanced parens
-  if (
-    (minus && currencyTrailing && currencySymbol !== '€') ||
-    (plus && currencyTrailing) ||
-    (currency && percent) ||
-    (closeParen !== openParen) ||
-    (closeParen && currencyTrailing && currencySymbol !== '€') ||
-    (closeParen && plus)
-  ) {
+  if ((currency && percent) || (closeParen !== openParen) || (closeParen && plus)) {
     return;
   }
 
@@ -230,28 +249,25 @@ export function parseNumberXl (value: string, l10n: LocaleData): ParseDataNum | 
     return;
   }
 
+  let fmt: number | undefined;
   if (exp) {
-    format = '0.00E+00';
+    fmt = 11;
   }
   else if (haveFraction) {
-    format = denominator.length > 1 ? '# ??/??' : '# ?/?';
+    fmt = denominator.length > 1 ? 13 : 12;
   }
   else if (percent) {
-    format = haveDecimal
-      ? '0.00%'
-      : '0%';
+    fmt = haveDecimal ? 10 : 9;
   }
   else if (currency && currencySymbol !== '€') {
-    format = haveDecimal
-      ? '$#,##0.00_);[Red]($#,##0.00)'
-      : '$#,##0_);[Red]($#,##0)';
+    fmt = haveDecimal ? 8 : 6;
   }
   else if (groups && currencySymbol !== '€') {
-    format = haveDecimal ? '#,##0.00' : '#,##0';
+    fmt = haveDecimal ? 4 : 3;
   }
-  const ret: ParseDataNum = { v: numberValue ? numberValue * sign : 0 };
-  if (format) {
-    ret.z = format;
+  const ret: ParseDataNum = { value: numberValue ? numberValue * sign : 0 };
+  if (fmt) {
+    ret.formatId = fmt;
   }
   return ret;
 }

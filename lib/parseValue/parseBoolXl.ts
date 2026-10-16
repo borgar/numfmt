@@ -5,11 +5,11 @@ export function parseBoolXl (value: string, l10n: LocaleData): ParseDataBool | u
   const v = value.toLowerCase();
   const bT = l10n.bool[0].toLowerCase();
   if (v === 'true' || v === bT) {
-    return { v: true };
+    return { value: true };
   }
   const bF = l10n.bool[1].toLowerCase();
   if (v === 'false' || v === bF) {
-    return { v: false };
+    return { value: false };
   }
   return undefined;
 }

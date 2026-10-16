@@ -27,24 +27,24 @@ export function parseTimeNf (value: string, l10n: LocaleData): ParseDataNum | un
       }
     }
     else if (tail) {
-      return undefined;
+      return;
     }
   }
   if (parts) {
     const [ , h, m, s, f ] = parts;
     // don't allow milliseconds without seconds
     if (f && !s) {
-      return undefined;
+      return;
     }
     // single number must also include AM/PM part
     if (!ampm && !m && !s) {
-      return undefined;
+      return;
     }
     // AM/PM part must align with hours
     let hrs = +(h || 0) * 1;
     if (ampm) {
       if (hrs >= 13) {
-        return undefined;
+        return;
       }
       // 00:00 AM - 12:00 AM
       if (ampm === 'a') {
@@ -62,15 +62,14 @@ export function parseTimeNf (value: string, l10n: LocaleData): ParseDataNum | un
     const sec = +(s || 0) * 1;
     const mss = +(f || 0) * 1;
 
+    let formatId = ampm ? 18 : 20; // H:M => 18: "h:mm AM/PM" | 20: "h:mm"
+    if (s) {
+      formatId++; // H:M:S => 19: "h:mm:ss AM/PM" | 21: "h:mm:ss"
+    }
     return {
-      v: ((hrs * 60 * 60) + (min * 60) + sec + mss) / (60 * 60 * 24),
-      z: (
-        (h.length === 2 ? 'hh' : 'h') +
-        ':mm' +
-        (s ? ':ss' : '') +
-        (ampm ? ' AM/PM' : '')
-      )
+      value: ((hrs * 60 * 60) + (min * 60) + sec + mss) / (60 * 60 * 24),
+      formatId
     };
   }
-  return undefined;
+  return;
 }

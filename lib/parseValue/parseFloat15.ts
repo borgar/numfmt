@@ -1,3 +1,8 @@
+// add more strictness to this:
+// - if exp then don't allow another exp
+// - if minus then don'w allow another minus
+// - ...?
+
 export function parseFloat15 (s: string): number {
   let num = '';
   let digits = 0;

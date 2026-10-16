@@ -1,5 +1,5 @@
 import type { LocaleData } from '../locale.ts';
-import { splitString, timeSplitter, type TokenS } from './splitString.ts';
+import { splitString, timeSplitter, timeSplitterComma, type TokenS } from './splitString.ts';
 import { toSerialTime, type AmPm } from './toSerialTime.ts';
 import type { ParseDataNum } from './types.ts';
 
@@ -29,7 +29,7 @@ const ampmMatch = (str: string, loc: string) => {
   return str === norm || str === norm.charAt(0);
 };
 
-type TimeBits = { h: string, m: string, s: string, f: string, ap: string, z: string };
+type TimeBits = { h: string, m: string, s: string, f: string, ap: string, z: number };
 
 function hms1 (p: TokenS[]): TimeBits | null {
   if (p[1]?.value !== ':') {
@@ -41,7 +41,7 @@ function hms1 (p: TokenS[]): TimeBits | null {
     s: p[4]?.value ?? '0',
     f: '0',
     ap: '',
-    z: +p[0].value > 23 ? '[h]:mm:ss' : (p[4] ? 'h:mm:ss' : 'h:mm')
+    z: +p[0].value > 23 ? 46 : (p[4] ? 21 : 20)
   };
 }
 
@@ -52,7 +52,7 @@ function h_ (p: TokenS[]): TimeBits | null {
     s: '0',
     f: '0',
     ap: normAMPMStr(p[2].value),
-    z: 'h:mm AM/PM'
+    z: 18
   };
 }
 
@@ -63,42 +63,58 @@ function hm_ (p: TokenS[]): TimeBits | null {
     s: '0',
     f: '0',
     ap: normAMPMStr(p[4].value),
-    z: 'h:mm AM/PM'
+    z: 18
   };
 }
 
-const allowedPatterns: Record<string, (p: TokenS[]) => TimeBits | null> = {
+const allowedPatterns: Record<string, (p: TokenS[], withDate?: boolean) => TimeBits | null> = {
   '0:': hms1,
   '0:0': hms1,
+  '0:0.': hms1,
+  '0:0!': hms1,
   '0:0:': hms1,
   '0:0:0': hms1,
-  '0:0.0': p => ({ h: '0', m: p[0].value, s: p[2].value, f: p[4].value, ap: '', z: 'mm:ss.0' }),
-  '0:0:0.0': p => ({ h: p[0].value, m: p[2].value, s: p[4].value, f: p[6].value, ap: '', z: 'mm:ss.0' }),
+  '0:0.0': p => ({ h: '0', m: p[0].value, s: p[2].value, f: p[4].value, ap: '', z: 47 }),
+  '0:0:0.0': p => ({ h: p[0].value, m: p[2].value, s: p[4].value, f: p[6].value, ap: '', z: 47 }),
+  '0:0:0!0': (p, withDate) => {
+    // after a date, Excel drops the fraction, so this is a plain h:mm:ss
+    if (withDate) {
+      return { h: p[0].value, m: p[2].value, s: p[4].value, f: '0', ap: '', z: 21 };
+    }
+    return null;
+  },
   '0_?': h_,
   '0_?:': h_,
   '0:0_?': hm_,
   '0:0_?:': hm_,
-  '0:0:0_?': p => ({ h: p[0].value, m: p[2].value, s: p[4].value, f: '0', ap: normAMPMStr(p[6].value), z: +p[0].value > 23 ? '[h]:mm:ss AM/PM' : 'h:mm:ss AM/PM' })
+  '0:0:0_?': p => ({
+    h: p[0].value,
+    m: p[2].value,
+    s: p[4].value,
+    f: '0',
+    ap: normAMPMStr(p[6].value),
+    z: +p[0].value > 23 ? 46 : 19
+  })
 };
 
-export function parseTimeXl (value: string, l10n: LocaleData): ParseDataNum | undefined {
-  const parts = splitString(value, timeSplitter);
+export function parseTimeXl (value: string, l10n: LocaleData, withDate = false): ParseDataNum | undefined {
+  const parts = splitString(value, l10n.decimal === ',' ? timeSplitterComma : timeSplitter);
+  const pattern = parts.reduce((a, c) => a + c.type, '');
 
-  const lastType = parts.at(-1)?.type;
-  const pattern = (lastType === '~' || lastType === '.')
-    ? parts.slice(0, -1).reduce((a, c) => a + c.type, '')
-    : parts.reduce((a, c) => a + c.type, '');
-
-  const sss = allowedPatterns[pattern]?.(parts);
+  const sss = allowedPatterns[pattern]?.(parts, withDate);
   if (!sss) { return; }
 
   const { h, m, s, f, ap, z } = sss;
   if (isDigits(h) && isDigits(m) && isDigits(s) && isFrac(f)) {
+    let tail = TAILS[ap];
+    if (!tail && (ap === 'a,' || ap === 'p,') && l10n.decimal === ',') {
+      tail = TAILS[ap[0]];
+    }
     let ampm: AmPm = '';
-    if (ampmMatch(ap, l10n.ampm[0]) || TAILS[ap] === 'a') {
+    if (ampmMatch(ap, l10n.ampm[0]) || tail === 'a') {
       ampm = 'a';
     }
-    else if (ampmMatch(ap, l10n.ampm[1]) || TAILS[ap] === 'p') {
+    else if (ampmMatch(ap, l10n.ampm[1]) || tail === 'p') {
       ampm = 'p';
     }
     else if (ap) {
@@ -107,9 +123,12 @@ export function parseTimeXl (value: string, l10n: LocaleData): ParseDataNum | un
 
     const v = toSerialTime(h, m, s, f, ampm);
     if (isFinite(v)) {
-      const out: ParseDataNum = { v, z };
+      const out: ParseDataNum = {
+        value: v,
+        formatId: z
+      };
       if (+m > 59 || +s > 59) {
-        delete out.z;
+        delete out.formatId;
       }
       return out;
     }

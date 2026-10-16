@@ -2,6 +2,7 @@ import { isValidDate } from '../isValidDate.ts';
 import { parseTimeNf } from './parseTimeNf.ts';
 import type { LocaleData } from '../locale.ts';
 import type { ParseDataNum } from './types.ts';
+import { LRUCache } from '../lruCache.ts';
 
 type LData = {
   mon: [ string, number, string ][],
@@ -74,10 +75,6 @@ const okDateFormats = [
   'Y-M'  // 1908-Apr
 ];
 
-// letter to excel
-const tx0: Record<string, string> = { j: 'd', d: 'd', D: 'ddd', l: 'dddd', n: 'm', m: 'm', M: 'mmm', F: 'mmmm', y: 'yy', Y: 'yyyy' };
-const tx00: Record<string, string> = { j: 'dd', d: 'dd', D: 'ddd', l: 'dddd', n: 'mm', m: 'mm', M: 'mmm', F: 'mmmm', y: 'yy', Y: 'yyyy' };
-
 // date formats are stored as a token-tree in a trie
 // for minimal looping and branching while parsing
 type DateTrieNode = { $?: number } & { [token: string]: DateTrieNode };
@@ -149,7 +146,7 @@ type DtData = {
   path?: string,
   sep?: string,
   day?: string,
-  tf?: string,
+  tf?: number,
   _mon?: string,
   month?: number,
   year?: number,
@@ -230,7 +227,7 @@ const nextToken = (str: string, node: DateTrieNode, data: DtData, lData: LData):
     else if (t === 'x') {
       const time = parseTimeNf(str, lData.l10n);
       if (time) {
-        r = nextToken('', node[t], { ...data, time: time.v, tf: time.z, path: path + t }, lData);
+        r = nextToken('', node[t], { ...data, time: time.value, tf: time.formatId, path: path + t }, lData);
       }
     }
     else {
@@ -252,20 +249,34 @@ const normDateStr = (s: string): string => (
     .toLowerCase()
 );
 
-const getLookups = (arr: string[], sym: string) => {
+const getLookupArray = (arr: string[], sym: string) => {
   const s: [ string, number, string ][] = arr.map((d, i) => [ normDateStr(d), i + 1, sym ]);
   s.sort((a, b) => b[0].length - a[0].length);
   return s;
 };
 
-export function parseDateNf (value: string, l10n: LocaleData): ParseDataNum | undefined {
-  const lData: LData = {
-    mon: getLookups(l10n.mmmm, 'F').concat(getLookups(l10n.mmm, 'M')),
+const getLookups = (l10n: LocaleData): LData => {
+  return {
+    mon: [
+      ...getLookupArray(l10n.mmmm, 'F'),
+      ...getLookupArray(l10n.mmm, 'M')
+    ],
     mp: l10n.mmm[0].at(-1) === '.',
-    day: getLookups(l10n.dddd, 'l').concat(getLookups(l10n.ddd, 'D')),
+    day: [
+      ...getLookupArray(l10n.dddd, 'l'),
+      ...getLookupArray(l10n.ddd, 'D')
+    ],
     dp: l10n.ddd[0].at(-1) === '.',
     l10n: l10n
   };
+};
+
+// the lookups only depend on the locale, so keep them for the most recently used locales
+const lookupsCache = new LRUCache<LocaleData, ReturnType<typeof getLookups>>(10);
+
+export function parseDateNf (value: string, l10n: LocaleData): ParseDataNum | undefined {
+  // const lData = getLookups(l10n);
+  const lData = lookupsCache.getOrSet(l10n, getLookups);
   // possible shortcut: quickly dismiss if there isn't a number?
   const date = nextToken(
     normDateStr(value),
@@ -294,19 +305,28 @@ export function parseDateNf (value: string, l10n: LocaleData): ParseDataNum | un
     }
     const dateValue = (Date.UTC(year, (date.month ?? 1) - 1, +date.day) / 864e5) + epoch + (date.time || 0);
     if (dateValue >= 0 && dateValue <= 2958465) {
-      const lead0 = (
-        // either has a leading zero
-        ((date._mon?.startsWith('0')) || date.day?.startsWith('0')) ||
-        // both are 2-digits long
-        (date._mon?.length === 2 && date.day.length === 2)
-      );
-      const format = (date.path ?? '').replace(/[jdlDnmMFyYx]/g, (a: string) => {
-        if (a === 'x') {
-          return date.tf || '';
+      let format = 0;
+      let found = 0;
+      if (date.path) {
+        for (const a of date.path) {
+          if (a === 'j' || a === 'd') {
+            found |= 1;
+          }
+          else if (a === 'n' || a === 'm' || a === 'M' || a === 'F') {
+            found |= 2;
+          }
+          else if (a === 'y' || a === 'Y') {
+            found |= 4;
+          }
         }
-        return (lead0 ? tx00[a] : tx0[a]) || a;
-      });
-      return { v: dateValue, z: format };
+        if (found === 3) { format = 16; } // MD
+        if (found === 6) { format = 17; } // YM
+        if (found === 7) { format = 14; } // YMD
+      }
+      if (date.tf) {
+        format = 22;
+      }
+      return { value: dateValue, formatId: format };
     }
   }
   return undefined;
