@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 import { format } from '../lib/index.ts';
 
 test('bigint', () => {
-  expect(format('0', Number.MAX_SAFE_INTEGER)).toBe(String(Number.MAX_SAFE_INTEGER));
+  expect(format('0', Number.MAX_SAFE_INTEGER)).toBe('9007199254740990');
   expect(format('0', 10n)).toBe('10');
 
   expect(format('General', 10n)).toBe('10');
