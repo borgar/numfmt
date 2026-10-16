@@ -332,3 +332,72 @@ test('General rounds 10 and 11 digit numbers with a fraction', () => {
   expect(numfmt('General', -4403928373.5)).toBe('-4403928374');
   expect(numfmt('General', -99999999999.6)).toBe('-1E+11');
 });
+
+test('Fixed-point numbers are written out in full, never in exponent notation', () => {
+  expect(numfmt('#,##0', 2 ** 70)).toBe('1,180,591,620,717,410,000,000');
+  expect(numfmt('0', 1e21)).toBe('1000000000000000000000');
+  expect(numfmt('#,##0', -1e21)).toBe('-1,000,000,000,000,000,000,000');
+  expect(numfmt('0.00', 1.23456789012345e22)).toBe('12345678901234500000000.00');
+  expect(numfmt('#,##0', 1e300)).toBe('1' + ',000'.repeat(100));
+  expect(numfmt('0.0000000000', 1e-7)).toBe('0.0000001000');
+  expect(numfmt('0.00000000000000000000', 1.5e-19)).toBe('0.00000000000000000015');
+});
+
+test('Fixed-point numbers round as in Excel', () => {
+  // the exact value is first rounded to 15 significant digits, a tie going toward zero
+  expect(numfmt('0', 10 ** 15 + 5)).toBe('1000000000000000');
+  expect(numfmt('0', -(10 ** 15 + 5))).toBe('-1000000000000000');
+  expect(numfmt('0', 10 ** 15 + 15)).toBe('1000000000000010');
+  expect(numfmt('0', 246913578024691 / 2)).toBe('123456789012345');
+  expect(numfmt('0', 2.5 - 2 ** -51)).toBe('3');
+  expect(numfmt('#,##0', 2 ** 60 + 1)).toBe('1,152,921,504,606,850,000');
+  // a tie whose upper neighbour is a power of ten
+  expect(numfmt('0', 999999999999999.5)).toBe('999999999999999');
+  expect(numfmt('0.0', 99999999999999.25)).toBe('99999999999999.2');
+  // then that decimal is rounded to the pattern's last digit, a tie going away from zero
+  expect(numfmt('0.00', 1.005)).toBe('1.01');
+  expect(numfmt('0.00', 1.015)).toBe('1.02');
+  expect(numfmt('0.00', 0.285)).toBe('0.29');
+  expect(numfmt('0.0', -0.15)).toBe('-0.2');
+  expect(numfmt('0', 2.5)).toBe('3');
+  expect(numfmt('0', -2.5)).toBe('-3');
+  expect(numfmt('0.00', 0.125)).toBe('0.13');
+  expect(numfmt('0', 12345678901234.5)).toBe('12345678901235');
+});
+
+test('Exponent notation rounds as in Excel', () => {
+  expect(numfmt('0.00000000000000E+00', 3 * 2 ** 51 + 1)).toBe('6.75539944105574E+15');
+  expect(numfmt('0.00E+00', 1.005)).toBe('1.01E+00');
+  expect(numfmt('0.00E+00', 9.995)).toBe('1.00E+01');
+  expect(numfmt('0.00E+00', 501.5)).toBe('5.02E+02');
+});
+
+test('Engineering notation moves to the next exponent when rounding carries', () => {
+  expect(numfmt('##0.0E+0', 999.96)).toBe('1.0E+3');
+  expect(numfmt('##0.0E+0', 999960)).toBe('1.0E+6');
+  expect(numfmt('##0.0E+0', 999999999999999.5)).toBe('1.0E+15');
+  expect(numfmt('##0.0E+0', 99.96)).toBe('100.0E+0');
+});
+
+test('Subnormal numbers are rounded from their shortest representation', () => {
+  expect(numfmt('0.00E+00', 1e-320)).toBe('1.00E-320');
+  expect(numfmt('0E+00', 5e-324)).toBe('5E-324');
+  expect(numfmt('0.00000000000000E+00', 2.225073858507201e-308)).toBe('2.22507385850720E-308');
+});
+
+test('General rounds a tie at the tenth digit as Excel does', () => {
+  expect(numfmt('General', 4.2394791745)).toBe('4.239479175');
+  expect(numfmt('General', 19147467.115)).toBe('19147467.12');
+  expect(numfmt('General', 42299445.995)).toBe('42299446');
+});
+
+test('Fixed denominator fractions round the numerator as Excel does', () => {
+  // (36.305 - 36) * 100 is stored as 30.4999999999999716
+  expect(numfmt('# ?/100', 36.305)).toBe('36 30/100');
+});
+
+// 0.285 * 100 is stored as 28.4999999999999964, but Excel rounds it up.
+// Remove .fails once vulgar fractions round as Excel does.
+test.fails('Fixed denominator fractions round a near tie up as Excel does', () => {
+  expect(numfmt('# ?/100', 0.285)).toBe(' 29/100');
+});
