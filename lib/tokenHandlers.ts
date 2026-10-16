@@ -83,7 +83,7 @@ export function getTokenHandlers (l10n: LocaleData): [ TokenType, RegExp, number
     [ TOKEN_CONDITION, /^\[((?:<[=>]?|>=?|=)\s*(?:-?[.\d]+))\]/, 1 ],
     [ TOKEN_DBNUM, /^\[(DBNum[0-4]?\d)\]/i, 1 ],
     [ TOKEN_NATNUM, /^\[(NatNum[0-4]?\d)\]/i, 1 ],
-    [ TOKEN_LOCALE, /^\[\$([^\]]+)\]/, 1 ],
+    [ TOKEN_LOCALE, /^\[\$([^\]]*)\]/, 1 ],
     [ TOKEN_COLOR, /^\[(black|blue|cyan|green|magenta|red|white|yellow|color\s*\d+)\]/i, 1 ],
     // conditionally allow these open ended directions?
     [ TOKEN_MODIFIER, /^\[([^\]]+)\]/, 1 ],

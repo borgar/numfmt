@@ -401,3 +401,8 @@ test('Fixed denominator fractions round the numerator as Excel does', () => {
 test.fails('Fixed denominator fractions round a near tie up as Excel does', () => {
   expect(numfmt('# ?/100', 0.285)).toBe(' 29/100');
 });
+
+test('Issue #90 ([$]0 incorrectly throws)', () => {
+  expect(numfmt('[$]0', 1)).toBe('1');
+  expect(numfmt('[$]\\]0', 1)).toBe(']1');
+});
