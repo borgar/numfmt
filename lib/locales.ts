@@ -77,7 +77,7 @@ type CompressedFormat = {
  * @param p Compressed format params
  * @returns Expanded format params
  */
-const xf = (p: CompressedFormat): Required<LocalFormat> => {
+const xf = (p: CompressedFormat): Required<Omit<LocalFormat, 'monthFirst'>> => {
   return {
     minus: !p.p,
     sign: !!p.s,
