@@ -730,4 +730,25 @@ describe('parseValue: NUMFMT mode', () => {
     expect(parseBool('IGAZ', { locale: 'hu', mode: 1 }), 'hu: IGAZ').toEqual({ value: true });
     expect(parseBool('HAMIS', { locale: 'hu', mode: 1 }), 'hu: HAMIS').toEqual({ value: false });
   });
+
+  test('all parsers default to en-US when no locale is given', () => {
+    const mode1 = { mode: 1 };
+    expect(parseDate('07/05/82', mode1), 'parseDate: 07/05/82').toEqual({ value: 30137, formatId: 14 });
+    expect(parseValue('07/05/82', mode1), 'parseValue: 07/05/82').toEqual({ value: 30137, formatId: 14 });
+    expect(parseDate('05/31/82', mode1), 'parseDate: 05/31/82').toEqual({ value: 30102, formatId: 14 });
+    expect(parseDate('31/05/82', mode1), 'parseDate: 31/05/82').toBe(undefined);
+
+    const enUS = { locale: 'en-US', mode: 1 };
+    const inputs = [
+      '07/05/82', '31/05/82', '5/15', 'Apr 23', 'Apr 23, 2021', '12/31/2024 14:30',
+      '1,234.5', '1.234,5', '$5', '10%', '9:30 PM', '13:30', 'TRUE', 'FALSE'
+    ];
+    for (const input of inputs) {
+      expect(parseValue(input, mode1), `parseValue: ${input}`).toEqual(parseValue(input, enUS));
+      expect(parseNumber(input, mode1), `parseNumber: ${input}`).toEqual(parseNumber(input, enUS));
+      expect(parseDate(input, mode1), `parseDate: ${input}`).toEqual(parseDate(input, enUS));
+      expect(parseTime(input, mode1), `parseTime: ${input}`).toEqual(parseTime(input, enUS));
+      expect(parseBool(input, mode1), `parseBool: ${input}`).toEqual(parseBool(input, enUS));
+    }
+  });
 });

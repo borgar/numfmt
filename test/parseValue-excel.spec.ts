@@ -167,4 +167,25 @@ describe('parseValue: EXCEL mode', () => {
   test('issue #72', () => {
     expect(parseValue('01.01.01')).toBe(undefined);
   });
+
+  test('all parsers default to en-US when no locale is given', () => {
+    expect(parseDate('07/05/82'), 'parseDate: 07/05/82').toEqual({ value: 30137, formatId: 14 });
+    expect(parseValue('07/05/82'), 'parseValue: 07/05/82').toEqual({ value: 30137, formatId: 14 });
+    expect(parseDate('05/31/82'), 'parseDate: 05/31/82').toEqual({ value: 30102, formatId: 14 });
+    expect(parseDate('31/05/82'), 'parseDate: 31/05/82').toBe(undefined);
+    expect(parseDate('Apr 23, 2021'), 'parseDate: Apr 23, 2021').toEqual({ value: 44309, formatId: 15 });
+
+    const enUS = { locale: 'en-US' };
+    const inputs = [
+      '07/05/82', '31/05/82', '5/15', 'Apr 23', 'Apr 23, 2021', '12/31/2024 14:30',
+      '1,234.5', '1.234,5', '$5', '10%', '9:30 PM', '13:30', 'TRUE', 'FALSE'
+    ];
+    for (const input of inputs) {
+      expect(parseValue(input), `parseValue: ${input}`).toEqual(parseValue(input, enUS));
+      expect(parseNumber(input), `parseNumber: ${input}`).toEqual(parseNumber(input, enUS));
+      expect(parseDate(input), `parseDate: ${input}`).toEqual(parseDate(input, enUS));
+      expect(parseTime(input), `parseTime: ${input}`).toEqual(parseTime(input, enUS));
+      expect(parseBool(input), `parseBool: ${input}`).toEqual(parseBool(input, enUS));
+    }
+  });
 });
