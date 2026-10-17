@@ -23,9 +23,9 @@ export type ParseDataBool = {
  */
 export type ParseValueOptions = {
   /**
-   * A BCP 47 string tag. Defaults to `en-US` (see [addLocale](#addLocale))
+   * A BCP 47 string tag. Defaults to `en` (see [addLocale](#addLocale))
    *
-   * @default 'en-US'
+   * @default 'en'
    */
   locale?: string;
   /**

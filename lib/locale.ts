@@ -1,7 +1,8 @@
 import { codeToLocale } from './codeToLocale.ts';
 import { TOKEN_DATETIME } from './constants.ts';
 import { initLocales } from './locales.ts';
-import { tokenize } from './tokenize.ts';
+import { getTokenHandlers } from './tokenHandlers.ts';
+import { lexer } from './tokenize.ts';
 
 // Locale: [language[_territory][.codeset][@modifier]]
 const re_locale = /^([a-z\d]+)(?:[_-]([a-z\d]+))?(?:\.([a-z\d]+))?(?:@([a-z\d]+))?$/i;
@@ -319,6 +320,8 @@ const baseLocaleData: LocaleData = {
   bool: [ 'TRUE', 'FALSE' ],
   general: 'General',
   currency: '$',
+  sysdate: 'dddd, mmmm d, yyyy',
+  systime: 'h:mm:ss AM/PM',
   color: 'Color',
   colors: {
     black: 'Black',
@@ -334,6 +337,7 @@ const baseLocaleData: LocaleData = {
     minus: true,
     dateOrder: 1,
     currencyPos: 2,
+    monthFirst: true,
     padMm: true,
     padDd: true,
     padHh: true
@@ -388,20 +392,22 @@ export function resolveLocale (l4e: number | string): string | undefined {
  * @returns An object of locale properties if one was found.
  * @throws If the locale tag is invalid.
  */
-export function getLocale (locale: string | number): LocaleData | undefined {
-  const tag = resolveLocale(locale);
+export function getLocale (locale?: string | number): LocaleData | undefined {
   let obj;
-  if (tag) {
-    const c = parseLocale(tag);
-    obj = locales[c.lang] || locales[c.language] || undefined;
+  if (locale) {
+    const tag = resolveLocale(locale);
+    if (tag) {
+      const c = parseLocale(tag);
+      obj = locales[c.lang] || locales[c.language] || undefined;
+    }
   }
   return obj;
 }
 
 // Does a long date pattern put the month before the day ("mmmm d, yyyy")?
 function isMonthFirst (sysdate?: string): boolean {
-  // Warning: tokenizer will crash here if defaultLocale does not have format.monthFirst set
-  const t = tokenize(sysdate || '');
+  // Warning: tokenizer will crash here if baseLocaleData does not have format.monthFirst set
+  const t = lexer(sysdate || '', getTokenHandlers(baseLocaleData));
   const monthIndex = t.findIndex(tok => tok.type === TOKEN_DATETIME && /^m/i.test(tok.value));
   const dayIndex = t.findIndex(tok => tok.type === TOKEN_DATETIME && /^dd?$/i.test(tok.value));
   return monthIndex >= 0 && dayIndex >= 0 && monthIndex < dayIndex;
@@ -454,10 +460,9 @@ export function listLocales () {
   return Object.keys(locales);
 }
 
-export const defaultLocale: LocaleData & { isDefault?: boolean } = createLocale({
-  group: ',',
-  format: { dateOrder: 1, monthFirst: false }
-});
-defaultLocale.isDefault = true;
-
 initLocales();
+
+export const defaultLocale = getLocale('en')!;
+if (!defaultLocale) {
+  throw new Error('numfmt default locale is missing!');
+}

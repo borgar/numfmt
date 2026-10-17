@@ -16,7 +16,7 @@ import type { ParseDataNum, ParseValueOptions } from './types.ts';
  * @returns An object of the parsed value and a corresponding format string
  */
 export function parseDate (value: string, options?: ParseValueOptions): ParseDataNum | undefined {
-  const l10n = getLocale(options?.locale || 'en-US') || defaultLocale;
+  const l10n = getLocale(options?.locale) || defaultLocale;
   if (options?.mode === 1) {
     return parseDateNf(value, l10n);
   }

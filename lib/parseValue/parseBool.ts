@@ -15,7 +15,7 @@ import type { ParseDataBool, ParseValueOptions } from './types.ts';
  * @returns An object of the parsed value
  */
 export function parseBool (value: string, options?: ParseValueOptions): ParseDataBool | undefined {
-  const l10n = getLocale(options?.locale || 'en-US') || defaultLocale;
+  const l10n = getLocale(options?.locale) || defaultLocale;
   if (options?.mode === 1) {
     return parseBoolNf(value, l10n);
   }
