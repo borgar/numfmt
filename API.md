@@ -374,7 +374,7 @@ An object of format properties.
 # getLocale()
 
 ```ts
-function getLocale(locale: string | number): LocaleData | undefined;
+function getLocale(locale?: string | number): LocaleData | undefined;
 ```
 
 Used by the formatter to pull a locate from its registered locales. If
@@ -386,7 +386,7 @@ returns `undefined`.
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `locale` | `string` \| `number` | A BCP 47 string tag of the locale, or an Excel locale code. |
+| `locale?` | `string` \| `number` | A BCP 47 string tag of the locale, or an Excel locale code. |
 
 ## Returns
 
@@ -1169,8 +1169,8 @@ Options for a value parser function.
 
 | Property | Type | Description |
 | ------ | ------ | ------ |
-| <a id="property-locale"></a> `locale?` | `string` | A BCP 47 string tag. Locale default is english with a `\u00a0` grouping symbol (see [addLocale](#addLocale)) |
-| <a id="property-mode"></a> `mode?` | `number` | Parsing mode: - 0: Excel - Permits the same things Excel's `Range.Value` assignments. - 1: Numfmt - Permits a curated set of strings, omitting many of Excel's stranger allowances. By default the parser uses mode 0. For modern GUI, mode 1 is reccommended. Mode 1 is more permissive when it comes to accepting some fairly obvious things like dates that include weekdays (which mode 0 rejects) and is less accepting of strange formats like undelimited ("sep10") or mixed delimited ("1984/07-4"). |
+| <a id="property-locale"></a> `locale?` | `string` | A BCP 47 string tag. Defaults to `en` (see [addLocale](#addLocale)) **Default** `'en'` |
+| <a id="property-mode"></a> `mode?` | `number` | Parsing mode: - 0: Excel - Permits the same things Excel's `Range.Value` assignments. - 1: Numfmt - Permits a curated set of strings, omitting many of Excel's stranger allowances. By default the parser uses mode 0. For modern GUI, mode 1 is reccommended. Mode 1 is more permissive when it comes to accepting some fairly obvious things like dates that include weekdays (which mode 0 rejects) and is less accepting of strange formats like undelimited ("sep10") or mixed delimited ("1984/07-4"). **Default** `0` |
 
 
 <a name="type-aliasestokenmd"></a>
