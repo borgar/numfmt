@@ -86,7 +86,7 @@ export function getTokenHandlers (l10n: LocaleData): [ TokenType, RegExp, number
     [ TOKEN_LOCALE, /^\[\$([^\]]*)\]/, 1 ],
     [ TOKEN_COLOR, /^\[(black|blue|cyan|green|magenta|red|white|yellow|color\s*\d+)\]/i, 1 ],
     // conditionally allow these open ended directions?
-    [ TOKEN_MODIFIER, /^\[([^\]]+)\]/, 1 ],
+    [ TOKEN_MODIFIER, /^\[([^\]])\]/, 1 ],
     [ TOKEN_ESCAPED, /^\\(.)/, 1 ],
     [ TOKEN_STRING, /^"([^"]*?)"/, 1 ],
     [ TOKEN_SKIP, /^_(\\.|.)/, 1 ],

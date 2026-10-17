@@ -63,12 +63,11 @@ export function formatValue (
   opts: FormatOptions
 ): string {
   const parts = parseData.partitions;
-  const l10n = getLocale(parseData.locale || opts.locale);
+  const l10n = getLocale(parseData.locale || opts.locale) ?? defaultLocale;
   const text_part = parts[3] ? parts[3] : default_text;
   // booleans get converted to string
   if (typeof value === 'boolean') {
-    const loc = l10n || defaultLocale;
-    value = loc.bool[value ? 0 : 1];
+    value = l10n.bool[value ? 0 : 1];
   }
   // null | undefined => ''
   if (value == null) {
@@ -81,21 +80,20 @@ export function formatValue (
   }
   // guard against non-finite numbers:
   if (!n && !Number.isFinite(value)) {
-    const loc = l10n || defaultLocale;
     if (Number.isNaN(value)) {
-      return loc.nan;
+      return l10n.nan;
     }
-    return ((value as number) < 0 ? loc.negative : '') + loc.infinity;
+    return ((value as number) < 0 ? l10n.negative : '') + l10n.infinity;
   }
   // find and run the pattern part that applies to this number
   const v = value as number | string | bigint;
   let part = getPart(v, parts);
   if (part?.sysdate) {
-    const syspattern = l10n?.sysdate ?? 'dd mmmm yyyy';
+    const syspattern = l10n.sysdate ?? 'dd mmmm yyyy';
     part = prepareFormatterData(syspattern, false).partitions[0];
   }
   if (part?.systime) {
-    const syspattern = l10n?.systime ?? 'hh:mm:ss';
+    const syspattern = l10n.systime ?? 'hh:mm:ss';
     part = prepareFormatterData(syspattern, false).partitions[0];
   }
   return part ? runPart(v, part, opts, l10n) : opts.overflow;

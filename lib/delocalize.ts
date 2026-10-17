@@ -56,7 +56,7 @@ function eq (a: string, b: string): boolean {
  * @returns The default equivalent of the input pattern.
  */
 export function delocalize (pattern: string, fromLocale: string | number): string {
-  const l = parseLocale(resolveLocale(fromLocale) ?? 'en-US');
+  const l = parseLocale(resolveLocale(fromLocale) ?? 'en');
   const l10n = getLocale(l.lang) ?? defaultLocale;
 
   const flipNum = l10n?.decimal !== '.';
