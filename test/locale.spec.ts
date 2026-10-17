@@ -129,3 +129,15 @@ describe('all locales have format settings', () => {
     });
   }
 });
+
+test('A/P prints A or P in every locale, AM/PM uses the locale', () => {
+  // morning (0.3 is 7:12) and afternoon (0.7 is 16:48)
+  for (const locale of [ undefined, 'en', 'en-US', 'is', 'de' ]) {
+    const opts = locale ? { locale } : {};
+    expect(format('A/P', 0.3, opts), `${locale}: A/P 0.3`).toBe('A');
+    expect(format('A/P', 0.7, opts), `${locale}: A/P 0.7`).toBe('P');
+    expect(format('h:mm A/P', 0.7, opts), `${locale}: h:mm A/P`).toBe('4:48 P');
+  }
+  expect(format('AM/PM', 0.7)).toBe('PM');
+  expect(format('AM/PM', 0.7, { locale: 'is' })).toBe('e.h.');
+});
