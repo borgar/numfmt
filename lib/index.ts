@@ -53,6 +53,7 @@ import { formatColor as fmtColor, formatValue as fmtValue } from './formatNumber
 import { info, dateInfo, isDate, isPercent, isText } from './formatInfo.ts';
 import type { FormatDateInfo, FormatInfo } from './types.ts';
 import { prepareFormatterData } from './prepareFormatterData.ts';
+import type { LocaleData } from './locale.ts';
 
 export { tokenize } from './tokenize.ts';
 export { getFormatFromId } from './getFormatFromId.ts';
@@ -204,14 +205,12 @@ export function isValidFormat (pattern: string): boolean {
  * format pattern is invalid and would cause the formatter to throw.
  *
  * @param pattern A format pattern in the ECMA-376 number format.
+ * @param l10n The locale to use as either a BCP 47 string tag of the locale, an Excel locale code, or a locale data record.
  * @returns An object of format properties.
  */
-export function getFormatInfo (pattern: string): FormatInfo {
+export function getFormatInfo (pattern: string, l10n?: LocaleData | string | number): FormatInfo {
   const data = prepareFormatterData(pattern, false);
-  if (!data.info) {
-    data.info = info(data.partitions);
-  }
-  return data.info;
+  return info(data.partitions, l10n);
 }
 
 /**
@@ -225,8 +224,5 @@ export function getFormatInfo (pattern: string): FormatInfo {
  */
 export function getFormatDateInfo (pattern: string): FormatDateInfo {
   const data = prepareFormatterData(pattern, false);
-  if (!data.dateInfo) {
-    data.dateInfo = dateInfo(data.partitions);
-  }
-  return data.dateInfo;
+  return dateInfo(data.partitions);
 }

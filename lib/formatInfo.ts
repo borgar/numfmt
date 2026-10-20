@@ -1,4 +1,5 @@
-import { u_YEAR, u_MONTH, u_DAY, u_HOUR, u_MIN, u_SEC, T_TYPE_YEAR, T_TYPE_YEAR_S, T_TYPE_B_YEAR, T_TYPE_B_YEAR_S, T_TYPE_MON, T_TYPE_MNAME, T_TYPE_MNAME_S, T_TYPE_MNAME_1, T_TYPE_WEEKDAY, T_TYPE_WEEKDAY_S, T_TYPE_DAY, T_TYPE_HOUR, T_TYPE_MIN, T_TYPE_SEC, TOKEN_AMPM, TOKEN_CURRENCY } from './constants.ts';
+import { u_YEAR, u_MONTH, u_DAY, u_HOUR, u_MIN, u_SEC, T_TYPE_YEAR, T_TYPE_YEAR_S, T_TYPE_B_YEAR, T_TYPE_B_YEAR_S, T_TYPE_MON, T_TYPE_MNAME, T_TYPE_MNAME_S, T_TYPE_MNAME_1, T_TYPE_WEEKDAY, T_TYPE_WEEKDAY_S, T_TYPE_DAY, T_TYPE_HOUR, T_TYPE_MIN, T_TYPE_SEC, TOKEN_AMPM, TOKEN_CURRENCY, TOKEN_STRING } from './constants.ts';
+import { getLocale, type LocaleData } from './locale.ts';
 import type { FormatDateInfo, FormatInfo, Partition } from './types.ts';
 
 export function isPercent (partitions: Partition[]): boolean {
@@ -56,7 +57,10 @@ const dateCodes: [ string, number ][] = [
   [ 'hm', 9 ]
 ];
 
-export function info (partitions: Partition[]): FormatInfo {
+export function info (partitions: Partition[], l10n?: LocaleData | string | number): FormatInfo {
+  if (typeof l10n === 'string' || typeof l10n === 'number') {
+    l10n = getLocale(l10n);
+  }
   const [ partPos, partNeg ] = partitions;
   const frac_max = partPos.frac_max;
   const output: FormatInfo = {
@@ -76,11 +80,17 @@ export function info (partitions: Partition[]): FormatInfo {
 
   // currency identifier may be passed in, but otherwise we report
   // if we find any known glyph in the tokens
+  const currencySymbol = l10n?.currency ?? '$';
   const isCurrency = (
     !output.isDate &&
     !output.isText &&
     !partPos.error &&
-    partPos.tokens.some(tok => tok.type === TOKEN_CURRENCY)
+    partPos.tokens.some(tok => {
+      return (
+        (tok.type === TOKEN_CURRENCY && tok.value === currencySymbol) ||
+        (tok.type === TOKEN_STRING && tok.value === currencySymbol && !tok.escaped)
+      );
+    })
   );
 
   let codeType = 'G';
@@ -197,13 +207,32 @@ export function info (partitions: Partition[]): FormatInfo {
 
 export function dateInfo (partitions: Partition[]): FormatDateInfo {
   const [ partPos ] = partitions;
+  const year = !!(partPos.date & u_YEAR);
+  const month = !!(partPos.date & u_MONTH);
+  const day = !!(partPos.date & u_DAY);
+  const hours = !!(partPos.date & u_HOUR);
+  const minutes = !!(partPos.date & u_MIN);
+  const seconds = !!(partPos.date & u_SEC);
+  const hasDateOp = year || month || day;
+  const hasTimeOp = hours || minutes || seconds;
+  let type: FormatDateInfo['type'] = 'none';
+  if (hasDateOp && hasTimeOp) {
+    type = 'datetime';
+  }
+  else if (hasDateOp) {
+    type = 'date';
+  }
+  else if (hasTimeOp) {
+    type = 'time';
+  }
   const r: FormatDateInfo = {
-    year: !!(partPos.date & u_YEAR),
-    month: !!(partPos.date & u_MONTH),
-    day: !!(partPos.date & u_DAY),
-    hours: !!(partPos.date & u_HOUR),
-    minutes: !!(partPos.date & u_MIN),
-    seconds: !!(partPos.date & u_SEC),
+    type,
+    year,
+    month,
+    day,
+    hours,
+    minutes,
+    seconds,
     clockType: partPos.clock === 12 ? 12 : 24
   };
   return r;

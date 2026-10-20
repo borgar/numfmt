@@ -1,5 +1,5 @@
-import { expect, test } from 'vitest';
-import { getFormatDateInfo, getFormatInfo } from '../lib/index.ts';
+import { describe, expect, test } from 'vitest';
+import { getFormatDateInfo, getFormatInfo, type LocaleData } from '../lib/index.ts';
 
 const commonProps = {
   isDate: false,
@@ -14,24 +14,9 @@ const commonProps = {
   level: 0
 };
 
-function assertInfo (fmtString: string, expectProps: object) {
+function assertInfo (fmtString: string, expectProps: any) {
   expect({ ...getFormatInfo(fmtString) }, fmtString)
     .toEqual({ ...commonProps, ...expectProps });
-}
-
-const commonDateProps = {
-  year: false,
-  month: false,
-  day: false,
-  hours: false,
-  minutes: false,
-  seconds: false,
-  clockType: 24
-};
-
-function assertDateInfo (fmtString: string, expectProps: object) {
-  expect(getFormatDateInfo(fmtString), fmtString)
-    .toEqual({ ...commonDateProps, ...expectProps });
 }
 
 test('getFormatInfo', () => {
@@ -287,14 +272,14 @@ test('Text', () => {
   });
 });
 
-test('Currency', () => {
-  assertInfo('$#,##0;($#,##0)', {
+describe('Currency', () => {
+  expect(getFormatInfo('$#,##0;($#,##0)')).toMatchObject({
     type: 'currency',
     code: 'C0',
     grouped: 1,
     level: 10.4
   });
-  assertInfo('#,##0.00 €', {
+  expect(getFormatInfo('#,##0.00 €', 'fr-FR')).toMatchObject({
     type: 'currency',
     code: 'C2',
     minDecimals: 2,
@@ -302,12 +287,62 @@ test('Currency', () => {
     grouped: 1,
     level: 10.4
   });
-  assertInfo('₿ 0.0000', {
+  expect(getFormatInfo('₿ 0.0000', { currency: '₿' } as LocaleData)).toMatchObject({
     type: 'currency',
     code: 'C4',
     minDecimals: 4,
     maxDecimals: 4,
     level: 10.4
+  });
+
+  test('default locale', () => {
+    // by default only dollar is identified as a currency
+    expect(getFormatInfo('$0').type).toBe('currency');
+    expect(getFormatInfo('"$"0').type).toBe('currency');
+    expect(getFormatInfo('\\$0').type).not.toBe('currency');
+    expect(getFormatInfo('[$$-en-US]$0').type).toBe('currency');
+    expect(getFormatInfo('[$$-en-US]0').type).not.toBe('currency');
+    // euro is not a currency in the default locale
+    expect(getFormatInfo('€0').type).not.toBe('currency');
+    expect(getFormatInfo('"€"0').type).not.toBe('currency');
+    expect(getFormatInfo('\\€0').type).not.toBe('currency');
+    expect(getFormatInfo('[$€-en-US]€0').type).not.toBe('currency');
+    expect(getFormatInfo('[$€-en-US]0').type).not.toBe('currency');
+  });
+
+  test('fr-FR', () => {
+    // dollar is not accepted
+    expect(getFormatInfo('$0', 'fr-FR').type).not.toBe('currency');
+    expect(getFormatInfo('"$"0', 'fr-FR').type).not.toBe('currency');
+    expect(getFormatInfo('\\$0', 'fr-FR').type).not.toBe('currency');
+    expect(getFormatInfo('[$$-en-US]$0', 'fr-FR').type).not.toBe('currency');
+    expect(getFormatInfo('[$$-en-US]0', 'fr-FR').type).not.toBe('currency');
+    // ...but the euro is
+    expect(getFormatInfo('€0', 'fr-FR').type).toBe('currency');
+    expect(getFormatInfo('"€"0', 'fr-FR').type).toBe('currency');
+    expect(getFormatInfo('\\€0', 'fr-FR').type).not.toBe('currency');
+    expect(getFormatInfo('[$€-en-US]€0', 'fr-FR').type).toBe('currency');
+    expect(getFormatInfo('[$€-en-US]0', 'fr-FR').type).not.toBe('currency');
+  });
+
+  test('is-IS', () => {
+    // dollar is not accepted
+    expect(getFormatInfo('$0', 'is-IS').type).not.toBe('currency');
+    expect(getFormatInfo('"$"0', 'is-IS').type).not.toBe('currency');
+    expect(getFormatInfo('\\$0', 'is-IS').type).not.toBe('currency');
+    expect(getFormatInfo('[$$-en-US]$0', 'is-IS').type).not.toBe('currency');
+    expect(getFormatInfo('[$$-en-US]0', 'is-IS').type).not.toBe('currency');
+    // ...nor is the euro
+    expect(getFormatInfo('€0').type).not.toBe('currency');
+    expect(getFormatInfo('"€"0').type).not.toBe('currency');
+    expect(getFormatInfo('\\€0').type).not.toBe('currency');
+    expect(getFormatInfo('[$€-en-US]€0').type).not.toBe('currency');
+    expect(getFormatInfo('[$€-en-US]0').type).not.toBe('currency');
+    // ...but the króna is
+    expect(getFormatInfo('"kr." 0', 'is-IS').type).toBe('currency');
+    expect(getFormatInfo('\\k\\r\\. 0', 'is-IS').type).not.toBe('currency');
+    expect(getFormatInfo('[$kr.-en-US]"kr."0', 'is-IS').type).toBe('currency');
+    expect(getFormatInfo('[$kr.-en-US]0', 'is-IS').type).not.toBe('currency');
   });
 });
 
@@ -425,46 +460,48 @@ test('Dates', () => {
   assertInfo('dddd h:mm:ss', { ...dt, code: 'G', type: 'datetime' });
 });
 
-test('dateInfo', () => {
+test('getFormatDateInfo', () => {
+  const common = { year: false, month: false, day: false, hours: false, minutes: false, seconds: false, clockType: 24 };
+
   // numfmt.getDateInfo returns "all off" for non dates
-  assertDateInfo('0', {});
+  expect(getFormatDateInfo('0')).toEqual({ ...common, type: 'none' });
 
   // dateInfo makes sense even when pattern is bogus
-  assertDateInfo('y 0', {});
+  expect(getFormatDateInfo('y 0')).toEqual({ ...common, type: 'none' });
 
-  assertDateInfo('yyyy', { year: true });
-  assertDateInfo('yyy', { year: true });
-  assertDateInfo('yy', { year: true });
-  assertDateInfo('y', { year: true });
-  assertDateInfo('mmmm', { month: true });
-  assertDateInfo('mmm', { month: true });
-  assertDateInfo('mm', { month: true });
-  assertDateInfo('m', { month: true });
-  assertDateInfo('dddd', { day: true });
-  assertDateInfo('ddd', { day: true });
-  assertDateInfo('dd', { day: true });
-  assertDateInfo('d', { day: true });
-  assertDateInfo('hh', { hours: true });
-  assertDateInfo('h', { hours: true });
-  assertDateInfo('h:mm', { hours: true, minutes: true });
-  assertDateInfo('h:m', { hours: true, minutes: true });
-  assertDateInfo('ss', { seconds: true });
-  assertDateInfo('s', { seconds: true });
-  assertDateInfo('hh am/pm', { hours: true, clockType: 12 });
-  assertDateInfo('hh A/P', { hours: true, clockType: 12 });
+  expect(getFormatDateInfo('yyyy')).toEqual({ ...common, year: true, type: 'date' });
+  expect(getFormatDateInfo('yyy')).toEqual({ ...common, year: true, type: 'date' });
+  expect(getFormatDateInfo('yy')).toEqual({ ...common, year: true, type: 'date' });
+  expect(getFormatDateInfo('y')).toEqual({ ...common, year: true, type: 'date' });
+  expect(getFormatDateInfo('mmmm')).toEqual({ ...common, month: true, type: 'date' });
+  expect(getFormatDateInfo('mmm')).toEqual({ ...common, month: true, type: 'date' });
+  expect(getFormatDateInfo('mm')).toEqual({ ...common, month: true, type: 'date' });
+  expect(getFormatDateInfo('m')).toEqual({ ...common, month: true, type: 'date' });
+  expect(getFormatDateInfo('dddd')).toEqual({ ...common, day: true, type: 'date' });
+  expect(getFormatDateInfo('ddd')).toEqual({ ...common, day: true, type: 'date' });
+  expect(getFormatDateInfo('dd')).toEqual({ ...common, day: true, type: 'date' });
+  expect(getFormatDateInfo('d')).toEqual({ ...common, day: true, type: 'date' });
+  expect(getFormatDateInfo('hh')).toEqual({ ...common, hours: true, type: 'time' });
+  expect(getFormatDateInfo('h')).toEqual({ ...common, hours: true, type: 'time' });
+  expect(getFormatDateInfo('h:mm')).toEqual({ ...common, hours: true, minutes: true, type: 'time' });
+  expect(getFormatDateInfo('h:m')).toEqual({ ...common, hours: true, minutes: true, type: 'time' });
+  expect(getFormatDateInfo('ss')).toEqual({ ...common, seconds: true, type: 'time' });
+  expect(getFormatDateInfo('s')).toEqual({ ...common, seconds: true, type: 'time' });
+  expect(getFormatDateInfo('hh am/pm')).toEqual({ ...common, hours: true, clockType: 12, type: 'time' });
+  expect(getFormatDateInfo('hh A/P')).toEqual({ ...common, hours: true, clockType: 12, type: 'time' });
 
-  assertDateInfo('yyyy-mm', { year: true, month: true });
-  assertDateInfo('yyyy-mm-dd', { year: true, month: true, day: true });
-  assertDateInfo('yyyy-mm-ddThh', { year: true, month: true, day: true, hours: true });
-  assertDateInfo('yyyy-mm-ddThh:mm', { year: true, month: true, day: true, hours: true, minutes: true });
-  assertDateInfo('yyyy-mm-ddThh:mm:ss', { year: true, month: true, day: true, hours: true, minutes: true, seconds: true });
-  assertDateInfo('yyyy-mm-ddThh:mm:ss AM/PM', { year: true, month: true, day: true, hours: true, minutes: true, seconds: true, clockType: 12 });
+  expect(getFormatDateInfo('yyyy-mm')).toEqual({ ...common, year: true, month: true, type: 'date' });
+  expect(getFormatDateInfo('yyyy-mm-dd')).toEqual({ ...common, year: true, month: true, day: true, type: 'date' });
+  expect(getFormatDateInfo('yyyy-mm-ddThh')).toEqual({ ...common, year: true, month: true, day: true, hours: true, type: 'datetime' });
+  expect(getFormatDateInfo('yyyy-mm-ddThh:mm')).toEqual({ ...common, year: true, month: true, day: true, hours: true, minutes: true, type: 'datetime' });
+  expect(getFormatDateInfo('yyyy-mm-ddThh:mm:ss')).toEqual({ ...common, year: true, month: true, day: true, hours: true, minutes: true, seconds: true, type: 'datetime' });
+  expect(getFormatDateInfo('yyyy-mm-ddThh:mm:ss AM/PM')).toEqual({ ...common, year: true, month: true, day: true, hours: true, minutes: true, seconds: true, clockType: 12, type: 'datetime' });
 
-  assertDateInfo('yy dd mm:ss', { year: true, day: true, month: true, seconds: true });
+  expect(getFormatDateInfo('yy dd mm:ss')).toEqual({ ...common, year: true, day: true, month: true, seconds: true, type: 'datetime' });
 
-  assertDateInfo('dd', { year: false, month: false, day: true });
+  expect(getFormatDateInfo('dd')).toEqual({ ...common, year: false, month: false, day: true, type: 'date' });
 
-  assertDateInfo('yyyy-mm-dd', { year: true, month: true, day: true });
-  assertDateInfo('dd-mm-yyyy', { year: true, month: true, day: true });
-  assertDateInfo('dd yyyy', { year: true, day: true });
+  expect(getFormatDateInfo('yyyy-mm-dd')).toEqual({ ...common, year: true, month: true, day: true, type: 'date' });
+  expect(getFormatDateInfo('dd-mm-yyyy')).toEqual({ ...common, year: true, month: true, day: true, type: 'date' });
+  expect(getFormatDateInfo('dd yyyy')).toEqual({ ...common, year: true, day: true, type: 'date' });
 });

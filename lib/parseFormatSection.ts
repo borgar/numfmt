@@ -316,7 +316,10 @@ export function parseFormatSection (inputTokens: Token[]) {
     }
 
     // escaped character, string
-    else if (type === TOKEN_STRING || type === TOKEN_ESCAPED || type === TOKEN_CHAR) {
+    else if (type === TOKEN_ESCAPED) {
+      add({ type: TOKEN_STRING, value: token.value, escaped: true }, outputTokens);
+    }
+    else if (type === TOKEN_STRING || type === TOKEN_CHAR) {
       add(token.value, outputTokens);
     }
 
@@ -338,7 +341,7 @@ export function parseFormatSection (inputTokens: Token[]) {
     else if (type === TOKEN_LOCALE) {
       const props = parseLocaleInstr(token.value);
       if (props.currency) {
-        add(props.currency, outputTokens);
+        add({ type: TOKEN_STRING, value: props.currency, escaped: true }, outputTokens);
       }
       if (props.sysdate) {
         part.sysdate = true;
