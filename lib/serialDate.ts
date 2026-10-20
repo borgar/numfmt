@@ -7,7 +7,8 @@ const DAYSIZE = 86400;
  * Convert a native JavaScript Date, or an array of date parts to an spreadsheet serial date.
  *
  * Returns a serial date number if input was a Date object or an array of
- * numbers, else an undefined.
+ * numbers, else an undefined. The result is the same value that Excel stores
+ * when you enter the same date and time.
  *
  * ```js
  * // input as Date
@@ -57,8 +58,15 @@ export function dateToSerial (
     }
   }
   if (ts != null && isFinite(ts)) {
-    const d = (ts / 864e5);
-    return d - (d <= -25509 ? -25568 : -25569);
+    // Split into whole days and time of day so the fraction isn't computed
+    // from a large intermediate value, which loses precision. This yields
+    // the same double that Excel stores for the same date and time.
+    const days = floor(ts / 864e5);
+    const msOfDay = ts - days * 864e5;
+    // Excel treats 1900 as a leap year, so days before 1900-03-01 are one
+    // lower than they would otherwise be.
+    const offset = days <= -25509 ? -25568 : -25569;
+    return (days - offset) + msOfDay / 864e5;
   }
   return;
 }

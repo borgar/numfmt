@@ -1,6 +1,6 @@
 /* globals process */
 
-import { expect, test } from 'vitest';
+import { describe, expect, test } from 'vitest';
 import { getTimeZoneName } from './utils.ts';
 import { dateToSerial, dateFromSerial } from '../lib/index.ts';
 
@@ -79,4 +79,36 @@ test('dateFromSerial', () => {
     dateFromSerial(42341),
     'dateFromSerial(42341)'
   ).toEqual([ 2015, 12, 3, 0, 0, 0 ]);
+});
+
+const opts = { ignoreTimezone: true };
+type Numbers = [ number, number, number, number, number, number, number ];
+const utcDate = (y: number, m: number, ...args: number[]): Date => new Date(Date.UTC(y, m - 1, ...args));
+const serialFromDate = (...args: Numbers): number => dateToSerial(utcDate(...args), opts)!;
+
+describe('dateToSerial matches Excel', () => {
+  test('input: Date', () => {
+    expect(serialFromDate(1899, 12, 31, 18, 22, 35, 0), '18:22:35').toEqual(0.7656828703703704);
+    expect(serialFromDate(1899, 12, 31, 0, 0, 1, 0), '0:00:01').toEqual(0.000011574074074074073);
+    expect(serialFromDate(1899, 12, 31, 23, 59, 59, 0), '23:59:59').toEqual(0.999988425925926);
+    expect(serialFromDate(1899, 12, 31, 12, 0, 0, 0), '12:00:00').toEqual(0.5);
+    expect(serialFromDate(1978, 6, 17, 10, 25, 30, 0), '1978-06-17 10:25:30').toEqual(28658.434375);
+    expect(serialFromDate(2020, 1, 1, 0, 0, 0, 1), '2020-01-01 00:00:00.001').toEqual(43831.000000011576);
+    expect(serialFromDate(1899, 12, 31, 10, 25, 30, 123), '10:25:30.123').toEqual(0.4343764236111111);
+    expect(serialFromDate(1899, 12, 31, 10, 25, 30, 999), '10:25:30.999').toEqual(0.4343865625);
+    expect(serialFromDate(1900, 2, 28, 12, 0, 0, 0), '1900-02-28 12:00').toEqual(59.5);
+    expect(serialFromDate(1900, 3, 1, 12, 0, 0, 0), '1900-03-01 12:00').toEqual(61.5);
+    expect(serialFromDate(9999, 12, 31, 23, 59, 59, 0), '9999-12-31 23:59:59').toEqual(2958465.999988426);
+  });
+
+  test('input: Array', () => {
+    expect(dateToSerial([ 1899, 12, 31, 18, 22, 35 ], opts), '18:22:35').toEqual(0.7656828703703704);
+    expect(dateToSerial([ 1899, 12, 31, 0, 0, 1 ], opts), '0:00:01').toEqual(0.000011574074074074073);
+    expect(dateToSerial([ 1899, 12, 31, 23, 59, 59 ], opts), '23:59:59').toEqual(0.999988425925926);
+    expect(dateToSerial([ 1899, 12, 31, 12, 0, 0 ], opts), '12:00:00').toEqual(0.5);
+    expect(dateToSerial([ 1978, 6, 17, 10, 25, 30 ], opts), '1978-06-17 10:25:30').toEqual(28658.434375);
+    expect(dateToSerial([ 1900, 2, 28, 12, 0, 0 ], opts), '1900-02-28 12:00').toEqual(59.5);
+    expect(dateToSerial([ 1900, 3, 1, 12, 0, 0 ], opts), '1900-03-01 12:00').toEqual(61.5);
+    expect(dateToSerial([ 9999, 12, 31, 23, 59, 59 ], opts), '9999-12-31 23:59:59').toEqual(2958465.999988426);
+  });
 });
