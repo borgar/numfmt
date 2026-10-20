@@ -123,7 +123,8 @@ function dateToSerial(date: number[] | Date, options?: {
 Convert a native JavaScript Date, or an array of date parts to an spreadsheet serial date.
 
 Returns a serial date number if input was a Date object or an array of
-numbers, else an undefined.
+numbers, else an undefined. The result is the same value that Excel stores
+when you enter the same date and time.
 
 ```js
 // input as Date
@@ -347,7 +348,7 @@ The format pattern
 # getFormatInfo()
 
 ```ts
-function getFormatInfo(pattern: string): FormatInfo;
+function getFormatInfo(pattern: string, l10n?: string | number | LocaleData): FormatInfo;
 ```
 
 Returns an object detailing the properties and internals of a format parsed
@@ -361,6 +362,7 @@ format pattern is invalid and would cause the formatter to throw.
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
 | `pattern` | `string` | A format pattern in the ECMA-376 number format. |
+| `l10n?` | `string` \| `number` \| [`LocaleData`](#type-aliaseslocaledatamd) | The locale to use as either a BCP 47 string tag of the locale, an Excel locale code, or a locale data record. |
 
 ## Returns
 
@@ -817,6 +819,7 @@ type FormatDateInfo = {
   minutes: boolean;
   month: boolean;
   seconds: boolean;
+  type: "date" | "datetime" | "time" | "none";
   year: boolean;
 };
 ```
@@ -834,6 +837,7 @@ See the [getFormatDateInfo](#functionsgetformatdateinfomd) method.
 | <a id="property-minutes"></a> `minutes` | `boolean` | true if the pattern uses minutes else false. |
 | <a id="property-month"></a> `month` | `boolean` | true if the pattern uses months else false. |
 | <a id="property-seconds"></a> `seconds` | `boolean` | true if the pattern uses seconds else false. |
+| <a id="property-type"></a> `type` | `"date"` \| `"datetime"` \| `"time"` \| `"none"` | The type of date pattern: - `date`: the pattern uses date specifiers (year, month, or day) but no time specifiers. - `datetime`: the pattern uses both date and time specifiers. - `time`: the pattern uses time specifiers (hours, minutes, seconds) but no date specifiers. - `none`: the pattern isn't a date pattern, or it's invalid. |
 | <a id="property-year"></a> `year` | `boolean` | true if the pattern uses years else false. |
 
 
