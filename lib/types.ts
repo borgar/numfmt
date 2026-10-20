@@ -102,7 +102,7 @@ export type RenderToken =
   { type: typeof TOKEN_TEXT, value: string } |
   { type: typeof TOKEN_POINT, value: string } |
   { type: typeof TOKEN_CURRENCY, value: string } |
-  { type: typeof TOKEN_STRING, value: string, rule?: RenderRule } |
+  { type: typeof TOKEN_STRING, value: string, rule?: RenderRule, escaped?: boolean } |
   { type: typeof TOKEN_SPACE, rule?: RenderRule } |
   { type: typeof TOKEN_FILL, value: string } |
   { type: typeof TOKEN_SKIP, value: string } |
@@ -229,6 +229,15 @@ export type FormatInfo = {
  * See the {@link getFormatDateInfo} method.
  */
 export type FormatDateInfo = {
+  /**
+   * The type of date pattern:
+   *
+   * - `date`: the pattern uses date specifiers (year, month, or day) but no time specifiers.
+   * - `datetime`: the pattern uses both date and time specifiers.
+   * - `time`: the pattern uses time specifiers (hours, minutes, seconds) but no date specifiers.
+   * - `none`: the pattern isn't a date pattern, or it's invalid.
+   */
+  type: 'date' | 'datetime' | 'time' | 'none';
   /** true if the pattern uses years else false. */
   year: boolean;
   /** true if the pattern uses months else false. */
