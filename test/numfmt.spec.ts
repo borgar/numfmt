@@ -2,7 +2,7 @@
 /* eslint-disable no-loss-of-precision */
 import { expect, test } from 'vitest';
 import { getTimeZoneName, getTimeZoneOffset } from './utils.ts';
-import { format as numfmt, isDateFormat, isPercentFormat, isTextFormat } from '../lib/index.ts';
+import { format as numfmt, isDateFormat, isPercentFormat, isTextFormat } from '../src/index.ts';
 
 test('near zero negatives:', () => {
   expect(numfmt('-0', -1)).toBe('--1');

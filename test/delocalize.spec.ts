@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { delocalize } from '../lib/delocalize.ts';
+import { delocalize } from '../src/delocalize.ts';
 
 describe('delocalize', () => {
   test('english', () => {

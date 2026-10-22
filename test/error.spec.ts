@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { format, isDateFormat, isPercentFormat, isTextFormat } from '../lib/index.ts';
+import { format, isDateFormat, isPercentFormat, isTextFormat } from '../src/index.ts';
 
 const excelOpts = { dateSpanLarge: false, dateErrorNumber: false };
 

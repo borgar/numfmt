@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { parseLocaleInstr } from '../lib/parseLocaleInstr.ts';
+import { parseLocaleInstr } from '../src/parseLocaleInstr.ts';
 
 describe('parseLocaleInstr', () => {
   describe('LCID style', () => {

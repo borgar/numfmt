@@ -1,6 +1,6 @@
 {
   "include": [
-    "lib/**/*",
+    "src/**/*",
     "test/**/*",
     "eslint.config.mjs"
   ],

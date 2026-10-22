@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import { getTimeZoneName, isLeapYear } from './utils.ts';
-import { addLocale, dateToSerial, format, parseBool, parseDate, parseNumber, parseTime, parseValue } from '../lib/index.ts';
-import { getLocale, listLocales } from '../lib/locale.ts';
+import { addLocale, dateToSerial, format, parseBool, parseDate, parseNumber, parseTime, parseValue } from '../src/index.ts';
+import { getLocale, listLocales } from '../src/locale.ts';
 
 const currentYear = dateToSerial([ new Date().getUTCFullYear(), 1, 1 ]) || 0;
 const leapDay = isLeapYear(new Date().getUTCFullYear()) ? 1 : 0;

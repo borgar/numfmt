@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { roundDigits, toDec15 } from '../lib/dec15.ts';
+import { roundDigits, toDec15 } from '../src/dec15.ts';
 
 describe('toDec15', () => {
   test('returns 15 digits and the decimal exponent', () => {

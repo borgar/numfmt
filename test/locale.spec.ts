@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { addLocale, format, getLocale, listLocales } from '../lib/index.ts';
+import { addLocale, format, getLocale, listLocales } from '../src/index.ts';
 
 const date = 3290.1278435; // 1909-01-02 03:04:05.678
 
