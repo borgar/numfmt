@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { getFormatFromId } from '../lib/getFormatFromId.ts';
+import { getFormatFromId } from '../src/getFormatFromId.ts';
 
 describe('getFormatFromId', () => {
   test('works without a locale argument', () => {

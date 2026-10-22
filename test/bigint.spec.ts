@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { format } from '../lib/index.ts';
+import { format } from '../src/index.ts';
 
 test('bigint', () => {
   expect(format('0', Number.MAX_SAFE_INTEGER)).toBe('9007199254740990');

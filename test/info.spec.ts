@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { getFormatDateInfo, getFormatInfo, type LocaleData } from '../lib/index.ts';
+import { getFormatDateInfo, getFormatInfo, type LocaleData } from '../src/index.ts';
 
 const commonProps = {
   isDate: false,

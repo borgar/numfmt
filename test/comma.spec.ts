@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { format } from '../lib/index.ts';
+import { format } from '../src/index.ts';
 
 test('Correct handling of the comma operator', () => {
   expect(format('0,', 1234567.89)).toBe('1235');

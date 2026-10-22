@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { format } from '../lib/index.ts';
+import { format } from '../src/index.ts';
 
 const MAGICDATE = 3290.1278435;
 

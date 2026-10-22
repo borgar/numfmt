@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { format } from '../lib/index.ts';
+import { format } from '../src/index.ts';
 
 test('Fragmented number parts', () => {
   // exps with fragments

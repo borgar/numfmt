@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { format } from '../lib/index.ts';
+import { format } from '../src/index.ts';
 
 const date = 3290.1278435; // 1909-01-02 03:04:05.678
 

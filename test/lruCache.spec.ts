@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { LRUCache } from '../lib/lruCache.ts';
+import { LRUCache } from '../src/lruCache.ts';
 
 describe('LRUCache', () => {
   test('returns stored values and undefined for missing keys', () => {

@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { addLocale, getLocale, listLocales, parseBool, parseDate, parseNumber, parseTime, parseValue } from '../lib/index.ts';
+import { addLocale, getLocale, listLocales, parseBool, parseDate, parseNumber, parseTime, parseValue } from '../src/index.ts';
 import { describe, expect, test } from 'vitest';
 
 type TestCase = {
