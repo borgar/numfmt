@@ -406,3 +406,10 @@ test('Issue #90 ([$]0 incorrectly throws)', () => {
   expect(numfmt('[$]0', 1)).toBe('1');
   expect(numfmt('[$]\\]0', 1)).toBe(']1');
 });
+
+test('A time within the epsilon of midnight carries the date once (#104)', () => {
+  expect(numfmt('yyyy-mm-dd', 0.99999999999)).toBe('1900-01-01');
+  expect(numfmt('yyyy-mm-dd hh:mm:ss', 0.99999999999)).toBe('1900-01-01 00:00:00');
+  expect(numfmt('yyyy-mm-dd', 45000.99999999999)).toBe('2023-03-16');
+  expect(numfmt('yyyy-mm-dd hh:mm:ss', 45000.99999999999)).toBe('2023-03-16 00:00:00');
+});

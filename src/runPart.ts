@@ -194,6 +194,11 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
       subsec = 0;
       time += 1;
     }
+    // a time within the epsilon of midnight is midnight, even for a date alone
+    if (time === DAYSIZE) {
+      time = 0;
+      date += 1;
+    }
     if (subsec) {
       // round time based on smallest used unit
       const minU = part.date & u_MSEC || part.date & u_CSEC || part.date & u_DSEC;
@@ -214,7 +219,7 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
     }
     // serial date/time to gregorian calendar
     if (date || part.date_system) {
-      const dout = toYMD(value + date - Math.trunc(value), part.date_system, opts.leap1900);
+      const dout = toYMD(Math.floor(value) + date - Math.trunc(value), part.date_system, opts.leap1900);
       year = dout[0];
       month = dout[1];
       day = dout[2];
