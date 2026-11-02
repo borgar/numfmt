@@ -8,7 +8,6 @@ const fixLocale = (s: string, l10n: LocaleData): string => {
 };
 
 const getExp = (n: number, exp: number, l10n: LocaleData): [ string, string, string, string, number ] => {
-  const x = Math.abs(exp);
   let m: number;
   if (n === 1) {
     m = n;
@@ -16,6 +15,12 @@ const getExp = (n: number, exp: number, l10n: LocaleData): [ string, string, str
   else {
     m = round(n, 5);
   }
+  // rounding the mantissa may carry it to 10 (9.999997 -> 10)
+  if (m >= 10) {
+    m = 1;
+    exp++;
+  }
+  const x = Math.abs(exp);
   return [
     fixLocale(m + '', l10n),
     l10n.exponent,

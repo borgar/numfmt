@@ -517,3 +517,12 @@ test('No decimal point', () => {
   expect(format('General', 0.9999999)).toBe('0.9999999');
   expect(format('General', 0.999999)).toBe('0.999999');
 });
+
+test('General: mantissa carry from rounding bumps the exponent (#105)', () => {
+  expect(format('General', 999999999999997)).toBe('1E+15');
+  expect(format('General', -999999999999997)).toBe('-1E+15');
+  expect(format('General', 999999500000001)).toBe('1E+15');
+  expect(format('General', 99999999999999.7)).toBe('1E+14');
+  expect(format('General', 9.9999999999997E-11)).toBe('1E-10');
+  expect(format('General', 999999999999999)).toBe('1E+15');
+});
