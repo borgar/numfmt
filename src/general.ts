@@ -13,7 +13,8 @@ const getExp = (n: number, exp: number, l10n: LocaleData): [ string, string, str
     m = n;
   }
   else {
-    m = round(n, 5);
+    // from an exponent of ±99 on, Excel keeps five significant digits, not six
+    m = round(n, Math.abs(exp) >= 99 ? 4 : 5);
   }
   // rounding the mantissa may carry it to 10 (9.999997 -> 10)
   if (m >= 10) {
