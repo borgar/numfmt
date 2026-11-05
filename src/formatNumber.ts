@@ -1,5 +1,5 @@
 import { TOKEN_TEXT, indexColors } from './constants.ts';
-import { readsAsZero } from './dec15.ts';
+import { isSubnormal, readsAsZero } from './dec15.ts';
 import { defaultLocale, getLocale } from './locale.ts';
 import type { FormatOptions } from './options.ts';
 import { parseFormatSection } from './parseFormatSection.ts';
@@ -40,7 +40,7 @@ function getPart (value: string | number | bigint, parts: Partition[]): Partitio
 
 /**
  * Get the value that a number is formatted as, and the section that applies to it. Excel formats a
- * positive number below 2^-1026 as 0.
+ * positive number below 2^-1026 as 0, and a subnormal number under a General section as 0.
  *
  * @param value The value to format.
  * @param parts The pattern's sections.
@@ -51,7 +51,10 @@ function selectPart<T extends string | number | bigint> (
   parts: Partition[]
 ): [ T | number, Partition | undefined ] {
   const v = typeof value === 'number' && readsAsZero(value) ? 0 : value;
-  return [ v, getPart(v, parts) ];
+  const part = getPart(v, parts);
+  return part?.general && typeof v === 'number' && isSubnormal(v)
+    ? [ 0, getPart(0, parts) ]
+    : [ v, part ];
 }
 
 export function formatColor (

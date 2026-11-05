@@ -101,17 +101,24 @@ describe('a one-digit scientific pattern on a subnormal number', () => {
 describe('General on a subnormal number', () => {
   test.each([ ...FROM_CUT_UP, ...BELOW_CUT ])('%d × 2^-1074', n => {
     expect(format('General', k(n))).toBe('0');
-    expect(format('General', -k(n))).toBe('-0');
+    expect(format('General', -k(n))).toBe('0');
   });
 
   test('the largest subnormal', () => {
     expect(format('General', 2 ** -1022 - Number.MIN_VALUE)).toBe('0');
-    expect(format('General', Number.MIN_VALUE - 2 ** -1022)).toBe('-0');
+    expect(format('General', Number.MIN_VALUE - 2 ** -1022)).toBe('0');
   });
 
   test('a negative number in its own section', () => {
     expect(format('General;General', -k(2))).toBe('0');
-    expect(format('General;(General)', -k(2))).toBe('(0)');
+    expect(format('General;(General)', -k(2))).toBe('0');
+  });
+
+  test('other patterns with General', () => {
+    expect(format('@', -k(2))).toBe('0');
+    expect(format('"x"General', -k(2))).toBe('x0');
+    expect(format('General;General', -0.4)).toBe('0.4');
+    expect(format('yyyy-mm-dd', -k(2), { dateSpanLarge: false, dateErrorNumber: true })).toBe('-0');
   });
 });
 
