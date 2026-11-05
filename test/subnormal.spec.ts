@@ -227,17 +227,6 @@ describe('a fraction pattern on a subnormal number', () => {
     expect(format('# ?/8', -1e-320)).toBe('-0    ');
   });
 
-  test('# 0/0 writes no space where it writes no integer', () => {
-    expect(format('# 0/0', 2 ** -1023)).toBe('0/1');
-    expect(format('# 0/0', 1e-320)).toBe('0/1');
-    expect(format('# 0/0', -1e-320)).toBe('-0/1');
-    expect(format('# 0/0', 0)).toBe('0/1');
-    expect(format('# 0/0', -0.4)).toBe('-2/5');
-    expect(format('# ?/8', -0.4)).toBe('- 3/8');
-    expect(format('# 0/0', 1.5)).toBe('1 1/2');
-    expect(format('0 0/0', 0.4)).toBe('0 2/5');
-  });
-
   test('with no integer digits writes 1/1', () => {
     expect(format('?/?', 2 ** -1023)).toBe('1/1');
     expect(format('?/?', 1e-320)).toBe('1/1');

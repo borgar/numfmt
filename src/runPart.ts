@@ -318,7 +318,7 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
       if (tok.rule === 'num+int') {
         if (
           (have_fraction || part.num_min || part.den_min) &&
-          (integer || (part.num_min && !(part.int_min === 0 && part.num_p.includes('0'))))
+          (integer || part.num_min)
         ) {
           ret.push(padQ);
         }
