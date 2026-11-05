@@ -254,15 +254,17 @@ export function roundSignificand (
 
 /**
  * Get the exponent Excel writes for a subnormal number under a scientific pattern, whose
- * significand it writes as 0. It is the exponent that the pattern gives 0.4.
+ * significand it writes as 0. A number that reads as 0 gets 0, and any other the exponent that the
+ * pattern gives 0.4.
  *
  * @internal
+ * @param a A subnormal number.
  * @param intMax The pattern's number of integer digits.
  * @param hasInt Whether the pattern has integer digits.
  * @returns The exponent.
  */
-export function subnormalExponent (intMax: number, hasInt: boolean): number {
-  return roundSignificand(0.4, 0, intMax, hasInt)[2];
+export function subnormalExponent (a: number, intMax: number, hasInt: boolean): number {
+  return readsAsZero(a) ? 0 : roundSignificand(0.4, 0, intMax, hasInt)[2];
 }
 
 /**

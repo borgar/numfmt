@@ -39,8 +39,8 @@ function getPart (value: string | number | bigint, parts: Partition[]): Partitio
 }
 
 /**
- * Get the value that a number is formatted as, and the section that applies to it. Excel formats a
- * positive number below 2^-1026 as 0, and a subnormal number under a General section as 0.
+ * Get the value that a number is formatted as, and the section that applies to it. A positive number
+ * below 2^-1026 takes the section for 0, as does a subnormal number under a General section.
  *
  * @param value The value to format.
  * @param parts The pattern's sections.
@@ -50,11 +50,10 @@ function selectPart<T extends string | number | bigint> (
   value: T,
   parts: Partition[]
 ): [ T | number, Partition | undefined ] {
-  const v = typeof value === 'number' && readsAsZero(value) ? 0 : value;
-  const part = getPart(v, parts);
-  return part?.general && typeof v === 'number' && isSubnormal(v)
+  const part = getPart(typeof value === 'number' && readsAsZero(value) ? 0 : value, parts);
+  return part?.general && typeof value === 'number' && isSubnormal(value)
     ? [ 0, getPart(0, parts) ]
-    : [ v, part ];
+    : [ value, part ];
 }
 
 export function formatColor (
