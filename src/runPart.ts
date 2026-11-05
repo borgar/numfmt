@@ -465,7 +465,7 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
           else if (
             !denominator_fixed &&
             (i === len - 1) &&
-            c === CHAR_0 &&
+            (c === CHAR_0 || have_fraction) &&
             !denominator
           ) {
             digit = '1';
