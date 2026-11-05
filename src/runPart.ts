@@ -105,9 +105,13 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
     value = clamp(value * part.scale);
   }
 
-  // with no integer digits, a fraction pattern writes the number's fraction, 1/1 or -1/1
-  if (typeof value === 'number' && part.fractions && part.integer && isSubnormal(value)) {
-    negative_subnormal = value < 0;
+  // a fraction pattern with neither integer digits nor a fixed denominator writes 1/1 or -1/1
+  if (
+    typeof value === 'number' && part.fractions && isSubnormal(value) &&
+    (part.integer || part.denominator)
+  ) {
+    // Excel writes -0 under # ?/8 but 0/8 under ?/8
+    negative_subnormal = value < 0 && !!part.integer;
     value = 0;
   }
 
@@ -186,7 +190,7 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
     else if (!value && !part.integer) {
       have_fraction = true;
       numerator = '0';
-      denominator = '1';
+      denominator = String(part.denominator || 1);
     }
     if (part.integer && !have_fraction && !Math.trunc(value)) {
       integer = '0';
