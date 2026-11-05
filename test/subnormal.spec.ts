@@ -70,6 +70,18 @@ describe('a one-digit scientific pattern on a subnormal number', () => {
   });
 });
 
+describe('General on a subnormal number', () => {
+  test.each([ ...FROM_CUT_UP, ...BELOW_CUT ])('%d × 2^-1074', n => {
+    expect(format('General', k(n))).toBe('0');
+    expect(format('General', -k(n))).toBe('-0');
+  });
+
+  test('the largest subnormal', () => {
+    expect(format('General', 2 ** -1022 - Number.MIN_VALUE)).toBe('0');
+    expect(format('General', Number.MIN_VALUE - 2 ** -1022)).toBe('-0');
+  });
+});
+
 describe('numbers that are not subnormal keep their digits', () => {
   test('zero', () => {
     expect(format(SCI, 0)).toBe('0.000E+000');

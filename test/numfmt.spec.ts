@@ -276,7 +276,7 @@ test('Issue #64 (very small number):', () => {
   expect(numfmt('0.000E+000', 2.33e+307)).toBe('2.330E+307');
   expect(numfmt('0.000E+000', 2.33e+309)).toBe('∞');
 
-  expect(numfmt('General', 2.33e-321)).toBe('2.33E-321');
+  expect(numfmt('General', 2.33e-321)).toBe('0');
   expect(numfmt('0.0', 2.33e-321)).toBe('0.0');
 });
 
