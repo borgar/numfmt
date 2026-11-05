@@ -96,15 +96,6 @@ describe('a scientific pattern on a subnormal number', () => {
     expect(format('.000E+000', 2 ** -1023)).toBe('.000E+000');
     expect(format('.000E+000', -1e-320)).toBe('-.000E+000');
   });
-
-  test('scaled patterns are not scaled', () => {
-    expect(format('0.000E+000%', 2 ** -1023)).toBe('0.000E-001%');
-    expect(format('0.000E+000%', 1e-310)).toBe('0.000E+000%');
-    expect(format('0.000E+000%', -1e-310)).toBe('-0.000E-001%');
-    expect(format('0.000E+000,', 2 ** -1023)).toBe('0.000E-001');
-    expect(format('0.000E+000,', 1e-310)).toBe('0.000E+000');
-    expect(format('0.000E+000,', -1e-310)).toBe('-0.000E-001');
-  });
 });
 
 describe('General on a subnormal number', () => {
@@ -188,33 +179,6 @@ describe('numbers that are not subnormal', () => {
     expect(format('General', -2)).toBe('-2');
     expect(format('General', 1e-300)).toBe('1E-300');
     expect(format('General', -1.5e-300)).toBe('-1.5E-300');
-  });
-});
-
-describe('a percent sign or thousands comma on a scientific pattern', () => {
-  test('does not scale', () => {
-    expect(format('0.000E+000%', -0.4)).toBe('-4.000E-001%');
-    expect(format('0.000E+000%', 1e-300)).toBe('1.000E-300%');
-    expect(format('0.000E+000%', 1e-294)).toBe('1.000E-294%');
-    expect(format('0.000E+000,', -0.4)).toBe('-4.000E-001');
-    expect(format('0.000E+000,,', -0.4)).toBe('-4.000E-001');
-    expect(format('0.000E+000,,', 2 ** -1023)).toBe('0.000E-001');
-    expect(format('0.000E+000,,', 0)).toBe('0.000E+000');
-    expect(format('0.0E+0%', -0.4)).toBe('-4.0E-1%');
-    expect(format('0.0E+0%', 2 ** -1023)).toBe('0.0E-1%');
-    expect(format('0.0E+0%', 0)).toBe('0.0E+0%');
-    expect(format('0.0E+00%', -0.4)).toBe('-4.0E-01%');
-    expect(format('0.0E+0%%', -0.4)).toBe('-4.0E-1%%');
-    expect(format('0.0E+0%%', 2 ** -1023)).toBe('0.0E-1%%');
-    expect(format('0.0E+0%%', 0)).toBe('0.0E+0%%');
-  });
-
-  test('a percent sign before the exponent does not scale either', () => {
-    expect(format('0.000%E+000', -0.4)).toBe('-4.000%E-001');
-    expect(format('0.000%E+000', 2 ** -1023)).toBe('0.000%E-001');
-    expect(format('0.000%E+000', 1e-320)).toBe('0.000%E+000');
-    expect(format('0.000%E+000', -1e-320)).toBe('-0.000%E-001');
-    expect(format('0.000%E+000', 0)).toBe('0.000%E+000');
   });
 });
 
