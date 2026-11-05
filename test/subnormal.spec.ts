@@ -3,10 +3,10 @@ import { format, formatColor } from '../src/index.ts';
 
 const SCI = '0.000E+000';
 
-// A subnormal double is k × 2^-1074, with 0 < k < 2^52. Excel read 0.000E+000 and General on each k
-// here, and the other patterns on 2^-1023, EXP(-720) and its negative, not on every value in these
-// tests. In Excel, a formula =2^-1023 reads as 0 and =-EXP(-720) as positive, so those two values
-// were built as =1.5*2^-1022-2^-1022 and =0-EXP(-720).
+// A subnormal double is k × 2^-1074, with 0 < k < 2^52. Excel read 0.000E+000 and General on each
+// k here, and the other patterns on 2^-1023, EXP(-720) and its negative, not on every value in
+// these tests. In Excel, a formula =2^-1023 reads as 0 and =-EXP(-720) as positive, so those two
+// values were built as =1.5*2^-1022-2^-1022 and =0-EXP(-720).
 const k = (n: number) => n * Number.MIN_VALUE;
 const FROM_CUT_UP = [
   2 ** 51, // 2^-1023

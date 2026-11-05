@@ -39,8 +39,8 @@ function getPart (value: string | number | bigint, parts: Partition[]): Partitio
 }
 
 /**
- * Get the value that a number is formatted as, and the section that applies to it. A positive number
- * below 2^-1026 takes the section for 0, as does a negative subnormal number under a General
+ * Get the value that a number is formatted as, and the section that applies to it. A positive
+ * number below 2^-1026 takes the section for 0, as does a negative subnormal number under a General
  * section.
  *
  * @param value The value to format.
