@@ -19,11 +19,6 @@ const maybeAddMinus = (part: Partition): void => {
   }
 };
 
-const isLiteralOnly = (part: Partition): boolean => !(
-  part.integer || part.dec_fractions || part.fractions || part.exponential ||
-  part.date || part.general || part.text
-);
-
 const clonePart = (part: Partition, prefixToken?: RenderToken): Partition => {
   const r: Partial<Partition> = {};
   for (const key in part) {
@@ -128,14 +123,19 @@ export function parsePattern (pattern: string): PatternParseData {
         maybeAddMinus(part2);
       }
       else {
-        // ...else it *seems* to follow logic based on first condition
+        // ...else it *seems* to follow logic based on first condition: Excel writes no minus after
+        // [>0] or [>=0] and writes one after [>=1], so the minus goes where the first condition takes
+        // in every positive number. That is inferred from those conditions alone, and an implied
+        // General section keeps its minus unchecked.
         const cond = part1.condition;
         if (
           cond && (
             cond[0] === '=' ||
-            (cond[1] >= 0 && (cond[0] === '>' || cond[0] === '>='))
-          ) &&
-          !(cond[0] === '>' && cond[1] === 0 && isLiteralOnly(part2))
+            (
+              (cond[0] === '>' || cond[0] === '>=') &&
+              (cond[1] > 0 || (cond[1] === 0 && part2.generated))
+            )
+          )
         ) {
           part2.tokens.unshift({ type: TOKEN_MINUS, volatile: true });
         }

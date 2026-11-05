@@ -190,6 +190,39 @@ describe('a condition on the first section', () => {
     expect(format('[>0]0.0E+0;"n"', -0.4)).toBe('n');
     expect(format('[>0]0.0E+0;"n"', 0.4)).toBe('4.0E-1');
   });
+
+  test('[>0] and [>=0] leave any second section with no minus', () => {
+    expect(format('[>0]0;0.0', -0.4)).toBe('0.4');
+    expect(format('[>0]0;0.0', 0)).toBe('0.0');
+    expect(format('[>0]"p";0.0', -0.4)).toBe('0.4');
+    expect(format('[>=0]"p";"n"', -0.4)).toBe('n');
+    expect(format('[>=0]"p";"n"', -1e-320)).toBe('n');
+    expect(format('[>=0]"p";"n"', 1e-320)).toBe('p');
+    expect(format('[>=0]"p";"n"', 0)).toBe('p');
+  });
+
+  test('[>=1] leaves the minus on the second section', () => {
+    expect(format('[>=1]"p";"n"', -0.4)).toBe('-n');
+    expect(format('[>=1]"p";"n"', 0.4)).toBe('n');
+    expect(format('[>=1]"p";"n"', 0)).toBe('n');
+    expect(format('[>=1]"p";"n"', 1)).toBe('p');
+  });
+
+  test('a section General implied by [>0] keeps the minus', () => {
+    expect(format('[>0]0', -5)).toBe('-5');
+    expect(format('[>=0]0', -5)).toBe('-5');
+  });
+
+  test('the section changes between 2^-1026 and its predecessor', () => {
+    expect(format('[>0]"p";"n"', 2 ** -1026)).toBe('p');
+    expect(format('[>0]"p";"n"', 2 ** -1026 - 2 ** -1074)).toBe('n');
+    expect(format('[>0]"p";"n"', -(2 ** -1023))).toBe('n');
+    expect(format('General;(General);"z"', 2 ** -1026)).toBe('0');
+    expect(format('General;(General);"z"', 2 ** -1026 - 2 ** -1074)).toBe('z');
+    expect(format('General;(General);"z"', -(2 ** -1026))).toBe('z');
+    expect(format('General;(General);"z"', -(2 ** -1026 - 2 ** -1074))).toBe('z');
+    expect(format('General;(General);"z"', -(2 ** -1023))).toBe('z');
+  });
 });
 
 describe('a percent sign or thousands comma on a scientific pattern', () => {
