@@ -65,8 +65,11 @@ describe('a one-digit scientific pattern on a subnormal number', () => {
   test('engineering and scaled patterns are unchanged', () => {
     expect(format('##0.0E+0', 1e-320)).toBe('10.0E-321');
     expect(format('##0.0E+0', -1e-320)).toBe('-10.0E-321');
+    expect(format('#0.0E+0', 1e-320)).toBe('1.0E-320');
+    expect(format('#0.0E+0', -1e-320)).toBe('-1.0E-320');
     expect(format('0.000E+000%', 1e-310)).toBe('0.000E+000%');
     expect(format('0.000E+000%', -1e-310)).toBe('0.000E+000%');
+    expect(format('0.000E+000,', -1e-310)).toBe('0.000E+000');
   });
 });
 
