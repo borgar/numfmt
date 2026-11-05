@@ -162,6 +162,13 @@ describe('a percent sign or thousands comma on a scientific pattern', () => {
   });
 });
 
+describe('a fraction pattern on a subnormal number', () => {
+  test('writes the text for 0, with a minus if negative', () => {
+    expect(format('# ?/?', 2 ** -1023)).toBe('0    ');
+    expect(format('# ?/?', -k(2))).toBe('-0    ');
+  });
+});
+
 describe('digit patterns with no exponent', () => {
   test('write zero with no sign', () => {
     expect(format('0', k(2 ** 48))).toBe('0');

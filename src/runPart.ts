@@ -105,6 +105,11 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
     value = clamp(value * part.scale);
   }
 
+  if (typeof value === 'number' && part.fractions && isSubnormal(value)) {
+    negative_subnormal = value < 0;
+    value = 0;
+  }
+
   if (typeof value === 'number' && part.fractions) {
     // vulgar fractions round like the stored double, which matches Excel better
     if (part.integer) {
@@ -337,7 +342,7 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
     }
     else if (tokenType === TOKEN_MINUS) {
       if (negative_subnormal) {
-        // Excel writes the minus although the significand is 0
+        // Excel writes the minus although the number's digits are 0
         ret.push(l10n.negative);
       }
       else if (tok.volatile && part.date) {
