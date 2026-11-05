@@ -174,6 +174,23 @@ describe('numbers that are not subnormal', () => {
   });
 });
 
+describe('a condition on the first section', () => {
+  test('[>0] leaves a literal second section with no minus', () => {
+    expect(format('[>0]"p";"n"', 2 ** -1023)).toBe('p');
+    expect(format('[>0]"p";"n"', 1e-320)).toBe('n');
+    expect(format('[>0]"p";"n"', -1e-320)).toBe('n');
+    expect(format('[>0]"p";"n"', 0)).toBe('n');
+    expect(format('[>0]"p";"n"', -0.4)).toBe('n');
+    expect(format('[>0]"p";"n"', 0.4)).toBe('p');
+    expect(format('[>0]0.0E+0;"n"', 2 ** -1023)).toBe('0.0E-1');
+    expect(format('[>0]0.0E+0;"n"', 1e-320)).toBe('n');
+    expect(format('[>0]0.0E+0;"n"', -1e-320)).toBe('n');
+    expect(format('[>0]0.0E+0;"n"', 0)).toBe('n');
+    expect(format('[>0]0.0E+0;"n"', -0.4)).toBe('n');
+    expect(format('[>0]0.0E+0;"n"', 0.4)).toBe('4.0E-1');
+  });
+});
+
 describe('a percent sign or thousands comma on a scientific pattern', () => {
   test('does not scale', () => {
     expect(format('0.000E+000%', -0.4)).toBe('-4.000E-001%');

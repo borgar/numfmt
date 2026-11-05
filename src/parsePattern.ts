@@ -19,6 +19,11 @@ const maybeAddMinus = (part: Partition): void => {
   }
 };
 
+const isLiteralOnly = (part: Partition): boolean => !(
+  part.integer || part.dec_fractions || part.fractions || part.exponential ||
+  part.date || part.general || part.text
+);
+
 const clonePart = (part: Partition, prefixToken?: RenderToken): Partition => {
   const r: Partial<Partition> = {};
   for (const key in part) {
@@ -129,7 +134,8 @@ export function parsePattern (pattern: string): PatternParseData {
           cond && (
             cond[0] === '=' ||
             (cond[1] >= 0 && (cond[0] === '>' || cond[0] === '>='))
-          )
+          ) &&
+          !(cond[0] === '>' && cond[1] === 0 && isLiteralOnly(part2))
         ) {
           part2.tokens.unshift({ type: TOKEN_MINUS, volatile: true });
         }
