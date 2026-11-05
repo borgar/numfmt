@@ -3,8 +3,9 @@ import { format, formatColor } from '../src/index.ts';
 
 const SCI = '0.000E+000';
 
-// A subnormal double is k × 2^-1074, with 0 < k < 2^52. Expected text is as read in Excel 16.116
-// Beta for Mac and Excel for Windows 16.0.20527.20150, on these k and on 2^-1023 and -EXP(-720).
+// A subnormal double is k × 2^-1074, with 0 < k < 2^52. Excel 16.116 Beta for Mac and Excel for
+// Windows 16.0.20527.20150 read 0.000E+000 and General on each k here, and the other patterns on
+// 2^-1023, EXP(-720) and -EXP(-720), not on every value in these tests.
 const k = (n: number) => n * Number.MIN_VALUE;
 const FROM_CUT_UP = [
   2 ** 51, // 2^-1023
