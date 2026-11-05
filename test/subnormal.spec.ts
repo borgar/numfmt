@@ -45,7 +45,7 @@ describe('a one-digit scientific pattern on a subnormal number', () => {
     expect(format(SCI, 2 ** -1026 - Number.MIN_VALUE)).toBe('0.000E+000');
   });
 
-  test('other patterns follow the checked one', () => {
+  test('patterns not checked in Excel follow 0.000E+000', () => {
     expect(format('0.00E+00', k(2 ** 48))).toBe('0.00E-01');
     expect(format('0.00E+00', k(2))).toBe('0.00E+00');
     expect(format('0.00E+00', -k(2))).toBe('-0.00E-01');
@@ -57,7 +57,9 @@ describe('a one-digit scientific pattern on a subnormal number', () => {
     expect(format('#.##E+00', k(2))).toBe('0.E+00');
     expect(format('.000E+000', -k(2))).toBe('-.000E-001');
     expect(format('0.000E+000;(0.000E+000)', -k(2))).toBe('(0.000E-001)');
-    // the largest subnormal, the one next to 2^-1022
+  });
+
+  test('the largest subnormal, not checked in Excel', () => {
     expect(format(SCI, 2 ** -1022 - Number.MIN_VALUE)).toBe('0.000E-001');
     expect(format(SCI, Number.MIN_VALUE - 2 ** -1022)).toBe('-0.000E-001');
   });
@@ -69,7 +71,7 @@ describe('a one-digit scientific pattern on a subnormal number', () => {
     expect(format('0.000E+000;(0.000E+000)', -(2 ** -1022))).toBe('(2.225E-308)');
   });
 
-  test('engineering and scaled patterns are unchanged', () => {
+  test('engineering patterns write digits, and scaled patterns write zero with no sign', () => {
     expect(format('##0.0E+0', 1e-320)).toBe('10.0E-321');
     expect(format('##0.0E+0', -1e-320)).toBe('-10.0E-321');
     expect(format('#0.0E+0', 1e-320)).toBe('1.0E-320');
@@ -97,7 +99,7 @@ describe('General on a subnormal number', () => {
   });
 });
 
-describe('numbers that are not subnormal keep their digits', () => {
+describe('numbers that are not subnormal', () => {
   test('zero', () => {
     expect(format(SCI, 0)).toBe('0.000E+000');
     expect(format(SCI, -0)).toBe('0.000E+000');
@@ -128,8 +130,8 @@ describe('numbers that are not subnormal keep their digits', () => {
   });
 });
 
-describe('patterns with no exponent are unchanged', () => {
-  test('digits and sign', () => {
+describe('digit patterns with no exponent', () => {
+  test('write zero with no sign', () => {
     expect(format('0', k(2 ** 48))).toBe('0');
     expect(format('0', -k(2 ** 48))).toBe('0');
     expect(format('0.0', k(2))).toBe('0.0');

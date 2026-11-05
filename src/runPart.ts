@@ -121,7 +121,7 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
     let q: number;
     let k: number;
     if (part.exponential) {
-      // engineering notation (more than one integer digit) has not been checked in Excel
+      // more than one integer digit is engineering notation, which keeps its digits
       if (part.int_max <= 1 && isSubnormal(value)) {
         [ q, k, exp ] = [ 0, 0, subnormalExponent(value) ];
         negative_subnormal = value < 0;
@@ -338,7 +338,7 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
     }
     else if (tokenType === TOKEN_MINUS) {
       if (negative_subnormal) {
-        // the significand is 0, and Excel writes the minus nonetheless
+        // Excel writes the minus although the significand is 0
         ret.push(l10n.negative);
       }
       else if (tok.volatile && part.date) {

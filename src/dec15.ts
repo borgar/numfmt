@@ -126,7 +126,7 @@ export function toDec15 (a: number): [ number, number ] {
 }
 
 /**
- * Tell whether a number is subnormal. Excel shows none of a subnormal number's digits.
+ * Tell whether a number is subnormal.
  *
  * @internal
  * @param a A number.
@@ -137,9 +137,8 @@ export function isSubnormal (a: number): boolean {
 }
 
 /**
- * Get the exponent Excel writes for a subnormal number under a scientific pattern, whose
- * significand it writes as 0. It treats a positive number below 2^-1026 as 0, and writes -1 for
- * any other subnormal number.
+ * Get the exponent Excel writes for a subnormal number under a scientific pattern: 0 for a
+ * positive number below 2^-1026, as for 0 itself, and -1 for any other.
  *
  * @internal
  * @param a A subnormal number.
