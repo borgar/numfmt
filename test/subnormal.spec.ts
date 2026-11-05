@@ -3,7 +3,8 @@ import { format, formatColor } from '../src/index.ts';
 
 const SCI = '0.000E+000';
 
-// A subnormal double is k × 2^-1074, with 0 < k < 2^52. Each k here was checked in Excel 16.116.
+// A subnormal double is k × 2^-1074, with 0 < k < 2^52. Expected text is as read in Excel 16.116
+// Beta for Mac and Excel for Windows 16.0.20527.20150, on these k and on 2^-1023 and -EXP(-720).
 const k = (n: number) => n * Number.MIN_VALUE;
 const FROM_CUT_UP = [
   2 ** 51, // 2^-1023
@@ -26,7 +27,7 @@ const BELOW_CUT = [
   1 // Number.MIN_VALUE
 ];
 
-describe('a one-digit scientific pattern on a subnormal number', () => {
+describe('a scientific pattern on a subnormal number', () => {
   test.each(FROM_CUT_UP)('positive, from 2^-1026 up: %d × 2^-1074', n => {
     expect(format(SCI, k(n))).toBe('0.000E-001');
   });
@@ -45,7 +46,7 @@ describe('a one-digit scientific pattern on a subnormal number', () => {
     expect(format(SCI, 2 ** -1026 - Number.MIN_VALUE)).toBe('0.000E+000');
   });
 
-  test('patterns not checked in Excel follow 0.000E+000', () => {
+  test('other scientific patterns', () => {
     expect(format('0.00E+00', k(2 ** 48))).toBe('0.00E-01');
     expect(format('0.00E+00', k(2))).toBe('0.00E+00');
     expect(format('0.00E+00', -k(2))).toBe('-0.00E-01');
@@ -55,16 +56,20 @@ describe('a one-digit scientific pattern on a subnormal number', () => {
     expect(format('0E-0', -k(2))).toBe('-0E-1');
     expect(format('#.##E+00', k(2 ** 48))).toBe('0.E-01');
     expect(format('#.##E+00', k(2))).toBe('0.E+00');
+    expect(format('#.##E+00', -k(2))).toBe('-0.E-01');
+    expect(format('?.0E+0', 2 ** -1023)).toBe('0.0E-1');
+    expect(format('?.0E+0', -k(2))).toBe('-0.0E-1');
     expect(format('0.000E+000;(0.000E+000)', -k(2))).toBe('(0.000E-001)');
   });
 
-  test('the largest subnormal, not checked in Excel', () => {
+  test('the largest subnormal', () => {
     expect(format(SCI, 2 ** -1022 - Number.MIN_VALUE)).toBe('0.000E-001');
     expect(format(SCI, Number.MIN_VALUE - 2 ** -1022)).toBe('-0.000E-001');
   });
 
   test('a negative number in its own section', () => {
     expect(format('0.000E+000;-0.000E+000', -k(2))).toBe('-0.000E-001');
+    expect(format('[<0]0.000E+000;0', -k(2))).toBe('0.000E-001');
     expect(format('0.000E+000;(0.000E+000);"zero"', 2 ** -1023)).toBe('0.000E-001');
     expect(format('0.000E+000;(0.000E+000);"zero"', k(2))).toBe('zero');
     expect(formatColor('[Red]0;[Blue]0;[Green]0', k(2))).toBe('green');
@@ -74,6 +79,8 @@ describe('a one-digit scientific pattern on a subnormal number', () => {
   });
 
   test('engineering patterns write the exponent they give 0.4', () => {
+    expect(format('##0.0E+0', 0)).toBe('000.0E+0');
+    expect(format('#0.0E+0', 0)).toBe('00.0E+0');
     expect(format('##0.0E+0', 2 ** -1023)).toBe('000.0E-3');
     expect(format('##0.0E+0', 1e-320)).toBe('000.0E+0');
     expect(format('##0.0E+0', -1e-320)).toBe('-000.0E-3');
@@ -118,7 +125,11 @@ describe('General on a subnormal number', () => {
     expect(format('@', -k(2))).toBe('0');
     expect(format('"x"General', -k(2))).toBe('x0');
     expect(format('General;General', -0.4)).toBe('0.4');
-    expect(format('yyyy-mm-dd', -k(2), { dateSpanLarge: false, dateErrorNumber: true })).toBe('-0');
+  });
+
+  test('a date falls back to General as any negative number does', () => {
+    expect(format('yyyy-mm-dd', -1, { dateSpanLarge: false })).toBe('-1');
+    expect(format('yyyy-mm-dd', -k(2), { dateSpanLarge: false })).toBe('-0');
   });
 });
 
@@ -176,5 +187,7 @@ describe('digit patterns with no exponent', () => {
     expect(format('0.0', k(2))).toBe('0.0');
     expect(format('0.0', -k(2))).toBe('0.0');
     expect(format('0.00%', -k(2))).toBe('0.00%');
+    expect(format('#,##0.00', 2 ** -1023)).toBe('0.00');
+    expect(format('#,##0.00', -k(2))).toBe('0.00');
   });
 });
