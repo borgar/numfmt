@@ -460,6 +460,11 @@ export function parseFormatSection (inputTokens: Token[]) {
     throw new SyntaxError(`Invalid pattern: ${patternSource}`);
   }
 
+  // Excel does not scale a scientific pattern for a percent sign or thousands comma
+  if (part.exponential) {
+    part.scale = 1;
+  }
+
   const intPattern = part.int_pattern.join('');
   const manPattern = part.man_pattern.join('');
   const fracPattern = part.frac_pattern.join('');

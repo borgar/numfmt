@@ -71,14 +71,17 @@ describe('a one-digit scientific pattern on a subnormal number', () => {
     expect(format('0.000E+000;(0.000E+000)', -(2 ** -1022))).toBe('(2.225E-308)');
   });
 
-  test('engineering patterns write digits, and scaled patterns write zero with no sign', () => {
+  test('engineering patterns write digits, and scaled patterns are not scaled', () => {
     expect(format('##0.0E+0', 1e-320)).toBe('10.0E-321');
     expect(format('##0.0E+0', -1e-320)).toBe('-10.0E-321');
     expect(format('#0.0E+0', 1e-320)).toBe('1.0E-320');
     expect(format('#0.0E+0', -1e-320)).toBe('-1.0E-320');
+    expect(format('0.000E+000%', 2 ** -1023)).toBe('0.000E-001%');
     expect(format('0.000E+000%', 1e-310)).toBe('0.000E+000%');
-    expect(format('0.000E+000%', -1e-310)).toBe('0.000E+000%');
-    expect(format('0.000E+000,', -1e-310)).toBe('0.000E+000');
+    expect(format('0.000E+000%', -1e-310)).toBe('-0.000E-001%');
+    expect(format('0.000E+000,', 2 ** -1023)).toBe('0.000E-001');
+    expect(format('0.000E+000,', 1e-310)).toBe('0.000E+000');
+    expect(format('0.000E+000,', -1e-310)).toBe('-0.000E-001');
   });
 });
 
@@ -127,6 +130,15 @@ describe('numbers that are not subnormal', () => {
     expect(format('General', -2)).toBe('-2');
     expect(format('General', 1e-300)).toBe('1E-300');
     expect(format('General', -1.5e-300)).toBe('-1.5E-300');
+  });
+});
+
+describe('a percent sign or thousands comma on a scientific pattern', () => {
+  test('does not scale', () => {
+    expect(format('0.000E+000%', -0.4)).toBe('-4.000E-001%');
+    expect(format('0.000E+000%', 1e-300)).toBe('1.000E-300%');
+    expect(format('0.000E+000%', 1e-294)).toBe('1.000E-294%');
+    expect(format('0.000E+000,', -0.4)).toBe('-4.000E-001');
   });
 });
 
