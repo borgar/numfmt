@@ -62,6 +62,13 @@ describe('a one-digit scientific pattern on a subnormal number', () => {
     expect(format(SCI, Number.MIN_VALUE - 2 ** -1022)).toBe('-0.000E-001');
   });
 
+  test('a negative number in its own section', () => {
+    expect(format('0.000E+000;-0.000E+000', -k(2))).toBe('-0.000E-001');
+    expect(format('0.000E+000;(0.000E+000);"zero"', k(2))).toBe('0.000E+000');
+    expect(format('0.000E+000;(0.000E+000);"zero"', -k(2))).toBe('(0.000E-001)');
+    expect(format('0.000E+000;(0.000E+000)', -(2 ** -1022))).toBe('(2.225E-308)');
+  });
+
   test('engineering and scaled patterns are unchanged', () => {
     expect(format('##0.0E+0', 1e-320)).toBe('10.0E-321');
     expect(format('##0.0E+0', -1e-320)).toBe('-10.0E-321');
@@ -82,6 +89,11 @@ describe('General on a subnormal number', () => {
   test('the largest subnormal', () => {
     expect(format('General', 2 ** -1022 - Number.MIN_VALUE)).toBe('0');
     expect(format('General', Number.MIN_VALUE - 2 ** -1022)).toBe('-0');
+  });
+
+  test('a negative number in its own section', () => {
+    expect(format('General;General', -k(2))).toBe('0');
+    expect(format('General;(General)', -k(2))).toBe('(0)');
   });
 });
 
