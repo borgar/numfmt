@@ -3,9 +3,10 @@ import { format, formatColor } from '../src/index.ts';
 
 const SCI = '0.000E+000';
 
-// A subnormal double is k × 2^-1074, with 0 < k < 2^52. Excel 16.116 Beta for Mac and Excel for
-// Windows 16.0.20527.20150 read 0.000E+000 and General on each k here, and the other patterns on
-// 2^-1023, EXP(-720) and -EXP(-720), not on every value in these tests.
+// A subnormal double is k × 2^-1074, with 0 < k < 2^52. Excel read 0.000E+000 and General on each k
+// here, and the other patterns on 2^-1023, EXP(-720) and its negative, not on every value in these
+// tests. In Excel, a formula =2^-1023 reads as 0 and =-EXP(-720) as positive, so those two values
+// were built as =1.5*2^-1022-2^-1022 and =0-EXP(-720).
 const k = (n: number) => n * Number.MIN_VALUE;
 const FROM_CUT_UP = [
   2 ** 51, // 2^-1023
@@ -197,6 +198,24 @@ describe('a percent sign or thousands comma on a scientific pattern', () => {
     expect(format('0.000E+000%', 1e-300)).toBe('1.000E-300%');
     expect(format('0.000E+000%', 1e-294)).toBe('1.000E-294%');
     expect(format('0.000E+000,', -0.4)).toBe('-4.000E-001');
+    expect(format('0.000E+000,,', -0.4)).toBe('-4.000E-001');
+    expect(format('0.000E+000,,', 2 ** -1023)).toBe('0.000E-001');
+    expect(format('0.000E+000,,', 0)).toBe('0.000E+000');
+    expect(format('0.0E+0%', -0.4)).toBe('-4.0E-1%');
+    expect(format('0.0E+0%', 2 ** -1023)).toBe('0.0E-1%');
+    expect(format('0.0E+0%', 0)).toBe('0.0E+0%');
+    expect(format('0.0E+00%', -0.4)).toBe('-4.0E-01%');
+    expect(format('0.0E+0%%', -0.4)).toBe('-4.0E-1%%');
+    expect(format('0.0E+0%%', 2 ** -1023)).toBe('0.0E-1%%');
+    expect(format('0.0E+0%%', 0)).toBe('0.0E+0%%');
+  });
+
+  test('a percent sign before the exponent does not scale either', () => {
+    expect(format('0.000%E+000', -0.4)).toBe('-4.000%E-001');
+    expect(format('0.000%E+000', 2 ** -1023)).toBe('0.000%E-001');
+    expect(format('0.000%E+000', 1e-320)).toBe('0.000%E+000');
+    expect(format('0.000%E+000', -1e-320)).toBe('-0.000%E-001');
+    expect(format('0.000%E+000', 0)).toBe('0.000%E+000');
   });
 });
 
