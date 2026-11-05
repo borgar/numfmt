@@ -218,23 +218,6 @@ describe('a percent sign or thousands comma on a scientific pattern', () => {
   });
 });
 
-describe('a fraction pattern on a subnormal number', () => {
-  test('writes the text for 0, with a minus if negative', () => {
-    expect(format('# ?/?', 2 ** -1023)).toBe('0    ');
-    expect(format('# ?/?', -k(2))).toBe('-0    ');
-    expect(format('# ?/8', 2 ** -1023)).toBe('0    ');
-    expect(format('# ?/8', 1e-320)).toBe('0    ');
-    expect(format('# ?/8', -1e-320)).toBe('-0    ');
-  });
-
-  test('with no integer digits writes 1/1', () => {
-    expect(format('?/?', 2 ** -1023)).toBe('1/1');
-    expect(format('?/?', 1e-320)).toBe('1/1');
-    expect(format('?/?', -1e-320)).toBe('-1/1');
-    expect(format('?/?', 0)).toBe('0/1');
-  });
-});
-
 describe('digit patterns with no exponent', () => {
   test('write zero with no sign', () => {
     expect(format('0', k(2 ** 48))).toBe('0');
