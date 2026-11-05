@@ -148,17 +148,6 @@ export function readsAsZero (a: number): boolean {
 }
 
 /**
- * Get the exponent Excel writes for a subnormal number that does not read as 0, under a scientific
- * pattern, whose significand it writes as 0.
- *
- * @internal
- * @returns The exponent.
- */
-export function subnormalExponent (): number {
-  return -1;
-}
-
-/**
  * Convert a decimal `q × 10^k` back to a number, the reverse of `toDec15`.
  *
  * @internal
@@ -261,6 +250,19 @@ export function roundSignificand (
     N = 1e14;
     e++;
   }
+}
+
+/**
+ * Get the exponent Excel writes for a subnormal number under a scientific pattern, whose
+ * significand it writes as 0. It is the exponent that the pattern gives 0.4.
+ *
+ * @internal
+ * @param intMax The pattern's number of integer digits.
+ * @param hasInt Whether the pattern has integer digits.
+ * @returns The exponent.
+ */
+export function subnormalExponent (intMax: number, hasInt: boolean): number {
+  return roundSignificand(0.4, 0, intMax, hasInt)[2];
 }
 
 /**

@@ -55,7 +55,6 @@ describe('a one-digit scientific pattern on a subnormal number', () => {
     expect(format('0E-0', -k(2))).toBe('-0E-1');
     expect(format('#.##E+00', k(2 ** 48))).toBe('0.E-01');
     expect(format('#.##E+00', k(2))).toBe('0.E+00');
-    expect(format('.000E+000', -k(2))).toBe('-.000E-001');
     expect(format('0.000E+000;(0.000E+000)', -k(2))).toBe('(0.000E-001)');
   });
 
@@ -74,11 +73,22 @@ describe('a one-digit scientific pattern on a subnormal number', () => {
     expect(format('0.000E+000;(0.000E+000)', -(2 ** -1022))).toBe('(2.225E-308)');
   });
 
-  test('engineering patterns write digits, and scaled patterns are not scaled', () => {
+  test('engineering patterns write the exponent they give 0.4', () => {
+    expect(format('##0.0E+0', 2 ** -1023)).toBe('000.0E-3');
     expect(format('##0.0E+0', 1e-320)).toBe('000.0E+0');
-    expect(format('##0.0E+0', -1e-320)).toBe('-10.0E-321');
+    expect(format('##0.0E+0', -1e-320)).toBe('-000.0E-3');
+    expect(format('#0.0E+0', 2 ** -1023)).toBe('00.0E-2');
     expect(format('#0.0E+0', 1e-320)).toBe('00.0E+0');
-    expect(format('#0.0E+0', -1e-320)).toBe('-1.0E-320');
+    expect(format('#0.0E+0', -1e-320)).toBe('-00.0E-2');
+  });
+
+  test('a pattern with no integer digit writes the exponent it gives 0.4', () => {
+    expect(format('.000E+000', -0.4)).toBe('-.400E+000');
+    expect(format('.000E+000', 2 ** -1023)).toBe('.000E+000');
+    expect(format('.000E+000', -1e-320)).toBe('-.000E+000');
+  });
+
+  test('scaled patterns are not scaled', () => {
     expect(format('0.000E+000%', 2 ** -1023)).toBe('0.000E-001%');
     expect(format('0.000E+000%', 1e-310)).toBe('0.000E+000%');
     expect(format('0.000E+000%', -1e-310)).toBe('-0.000E-001%');

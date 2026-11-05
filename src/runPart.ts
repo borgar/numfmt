@@ -121,9 +121,8 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
     let q: number;
     let k: number;
     if (part.exponential) {
-      // more than one integer digit is engineering notation, which keeps its digits
-      if (part.int_max <= 1 && isSubnormal(value)) {
-        [ q, k, exp ] = [ 0, 0, subnormalExponent() ];
+      if (isSubnormal(value)) {
+        [ q, k, exp ] = [ 0, 0, subnormalExponent(part.int_max, !!part.integer) ];
         negative_subnormal = value < 0;
       }
       else {
