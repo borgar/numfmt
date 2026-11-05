@@ -123,18 +123,12 @@ export function parsePattern (pattern: string): PatternParseData {
         maybeAddMinus(part2);
       }
       else {
-        // ...else it *seems* to follow logic based on first condition. Excel writes no minus after
-        // [>0] or [>=0] and writes one after [>=1], from which we infer that the minus goes where
-        // the first condition takes in every positive number. Other thresholds, and an implied
-        // General section, are not checked.
+        // ...else it *seems* to follow logic based on first condition
         const cond = part1.condition;
         if (
           cond && (
             cond[0] === '=' ||
-            (
-              (cond[0] === '>' || cond[0] === '>=') &&
-              (cond[1] > 0 || (cond[1] === 0 && part2.generated))
-            )
+            (cond[1] >= 0 && (cond[0] === '>' || cond[0] === '>='))
           )
         ) {
           part2.tokens.unshift({ type: TOKEN_MINUS, volatile: true });

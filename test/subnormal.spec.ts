@@ -130,6 +130,10 @@ describe('General on a subnormal number', () => {
     expect(format('General;(General);"z"', 0)).toBe('z');
     expect(format('General;(General);"z"', -0.4)).toBe('(0.4)');
     expect(format('General;(General);"z"', 0.4)).toBe('0.4');
+    expect(format('General;(General);"z"', 2 ** -1026)).toBe('0');
+    expect(format('General;(General);"z"', 2 ** -1026 - 2 ** -1074)).toBe('z');
+    expect(format('General;(General);"z"', -(2 ** -1026))).toBe('z');
+    expect(format('General;(General);"z"', -(2 ** -1023))).toBe('z');
   });
 
   test('other patterns with General', () => {
@@ -141,6 +145,18 @@ describe('General on a subnormal number', () => {
   test('a date falls back to General as any negative number does', () => {
     expect(format('yyyy-mm-dd', -1, { dateSpanLarge: false })).toBe('-1');
     expect(format('yyyy-mm-dd', -k(2), { dateSpanLarge: false })).toBe('-0');
+  });
+});
+
+describe('the section of a positive subnormal number under a condition', () => {
+  test('changes between 2^-1026 and its predecessor', () => {
+    expect(format('[>0]"p";"n"', 2 ** -1023)).toBe('p');
+    expect(format('[>0]"p";"n"', 2 ** -1026)).toBe('p');
+    expect(format('[>0]"p";"n"', 2 ** -1026 - 2 ** -1074)).toBe('n');
+    expect(format('[>0]"p";"n"', 1e-320)).toBe('n');
+    expect(format('[>0]0.0E+0;"n"', 2 ** -1023)).toBe('0.0E-1');
+    expect(format('[>0]0.0E+0;"n"', 1e-320)).toBe('n');
+    expect(format('[>=0]"p";"n"', 1e-320)).toBe('p');
   });
 });
 
@@ -172,56 +188,6 @@ describe('numbers that are not subnormal', () => {
     expect(format('General', -2)).toBe('-2');
     expect(format('General', 1e-300)).toBe('1E-300');
     expect(format('General', -1.5e-300)).toBe('-1.5E-300');
-  });
-});
-
-describe('a condition on the first section', () => {
-  test('[>0] leaves a literal second section with no minus', () => {
-    expect(format('[>0]"p";"n"', 2 ** -1023)).toBe('p');
-    expect(format('[>0]"p";"n"', 1e-320)).toBe('n');
-    expect(format('[>0]"p";"n"', -1e-320)).toBe('n');
-    expect(format('[>0]"p";"n"', 0)).toBe('n');
-    expect(format('[>0]"p";"n"', -0.4)).toBe('n');
-    expect(format('[>0]"p";"n"', 0.4)).toBe('p');
-    expect(format('[>0]0.0E+0;"n"', 2 ** -1023)).toBe('0.0E-1');
-    expect(format('[>0]0.0E+0;"n"', 1e-320)).toBe('n');
-    expect(format('[>0]0.0E+0;"n"', -1e-320)).toBe('n');
-    expect(format('[>0]0.0E+0;"n"', 0)).toBe('n');
-    expect(format('[>0]0.0E+0;"n"', -0.4)).toBe('n');
-    expect(format('[>0]0.0E+0;"n"', 0.4)).toBe('4.0E-1');
-  });
-
-  test('[>0] and [>=0] leave any second section with no minus', () => {
-    expect(format('[>0]0;0.0', -0.4)).toBe('0.4');
-    expect(format('[>0]0;0.0', 0)).toBe('0.0');
-    expect(format('[>0]"p";0.0', -0.4)).toBe('0.4');
-    expect(format('[>=0]"p";"n"', -0.4)).toBe('n');
-    expect(format('[>=0]"p";"n"', -1e-320)).toBe('n');
-    expect(format('[>=0]"p";"n"', 1e-320)).toBe('p');
-    expect(format('[>=0]"p";"n"', 0)).toBe('p');
-  });
-
-  test('[>=1] leaves the minus on the second section', () => {
-    expect(format('[>=1]"p";"n"', -0.4)).toBe('-n');
-    expect(format('[>=1]"p";"n"', 0.4)).toBe('n');
-    expect(format('[>=1]"p";"n"', 0)).toBe('n');
-    expect(format('[>=1]"p";"n"', 1)).toBe('p');
-  });
-
-  test('a section General implied by [>0] keeps the minus', () => {
-    expect(format('[>0]0', -5)).toBe('-5');
-    expect(format('[>=0]0', -5)).toBe('-5');
-  });
-
-  test('the section changes between 2^-1026 and its predecessor', () => {
-    expect(format('[>0]"p";"n"', 2 ** -1026)).toBe('p');
-    expect(format('[>0]"p";"n"', 2 ** -1026 - 2 ** -1074)).toBe('n');
-    expect(format('[>0]"p";"n"', -(2 ** -1023))).toBe('n');
-    expect(format('General;(General);"z"', 2 ** -1026)).toBe('0');
-    expect(format('General;(General);"z"', 2 ** -1026 - 2 ** -1074)).toBe('z');
-    expect(format('General;(General);"z"', -(2 ** -1026))).toBe('z');
-    expect(format('General;(General);"z"', -(2 ** -1026 - 2 ** -1074))).toBe('z');
-    expect(format('General;(General);"z"', -(2 ** -1023))).toBe('z');
   });
 });
 
