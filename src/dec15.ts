@@ -10,8 +10,11 @@ for (let i = 0; i <= 22; i++) {
 
 const CHAR_0 = 48;
 
-/** Smallest normal double. Values below this are subnormal. */
+/** Smallest normal double, 2^-1022. Values below this are subnormal. */
 const MIN_NORMAL = 2.2250738585072014e-308;
+
+/** Excel formats a positive number below this as 0. */
+const READS_AS_ZERO_BELOW = 2 ** -1026;
 
 // Veltkamp splitter for doubles: 2^27 + 1
 const SPLIT = 134217729;
@@ -123,6 +126,28 @@ export function toDec15 (a: number): [ number, number ] {
 }
 
 /**
+ * Tell whether a number is subnormal.
+ *
+ * @internal
+ * @param a A number.
+ * @returns Whether `a` is non-zero and of smaller magnitude than the smallest normal double.
+ */
+export function isSubnormal (a: number): boolean {
+  return a !== 0 && Math.abs(a) < MIN_NORMAL;
+}
+
+/**
+ * Tell whether Excel formats a number as 0, though it does not equal 0.
+ *
+ * @internal
+ * @param a A number.
+ * @returns Whether `a` is positive and below 2^-1026.
+ */
+export function readsAsZero (a: number): boolean {
+  return a > 0 && a < READS_AS_ZERO_BELOW;
+}
+
+/**
  * Convert a decimal `q × 10^k` back to a number, the reverse of `toDec15`.
  *
  * @internal
@@ -225,6 +250,21 @@ export function roundSignificand (
     N = 1e14;
     e++;
   }
+}
+
+/**
+ * Get the exponent Excel writes for a subnormal number under a scientific pattern, whose
+ * significand it writes as 0. A number that reads as 0 gets 0, and any other the exponent that the
+ * pattern gives 0.4.
+ *
+ * @internal
+ * @param a A subnormal number.
+ * @param intMax The pattern's number of integer digits.
+ * @param hasInt Whether the pattern has integer digits.
+ * @returns The exponent.
+ */
+export function subnormalExponent (a: number, intMax: number, hasInt: boolean): number {
+  return readsAsZero(a) ? 0 : roundSignificand(0.4, 0, intMax, hasInt)[2];
 }
 
 /**

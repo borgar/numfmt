@@ -1,4 +1,5 @@
 import type { LocaleData } from './locale.ts';
+import { isSubnormal } from './dec15.ts';
 import { getExponent, getSignificand } from './numberProps.ts';
 import numdec from './numdec.ts';
 import { round } from './round.ts';
@@ -40,6 +41,9 @@ export function general (ret: (string | number)[], value: number | string, l10n:
     const int = value | 0;
     if (value === int) {
       ret.push(Math.abs(int));
+    }
+    else if (isSubnormal(value)) {
+      ret.push(0);
     }
     else {
       const v = Math.abs(value);
