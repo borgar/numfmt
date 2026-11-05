@@ -122,6 +122,15 @@ describe('General on a subnormal number', () => {
     expect(format('General;(General)', -k(2))).toBe('0');
   });
 
+  test('a section for 0', () => {
+    expect(format('General;(General);"z"', 2 ** -1023)).toBe('0');
+    expect(format('General;(General);"z"', 1e-320)).toBe('z');
+    expect(format('General;(General);"z"', -1e-320)).toBe('z');
+    expect(format('General;(General);"z"', 0)).toBe('z');
+    expect(format('General;(General);"z"', -0.4)).toBe('(0.4)');
+    expect(format('General;(General);"z"', 0.4)).toBe('0.4');
+  });
+
   test('other patterns with General', () => {
     expect(format('@', -k(2))).toBe('0');
     expect(format('"x"General', -k(2))).toBe('x0');
