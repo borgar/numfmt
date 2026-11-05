@@ -48,7 +48,7 @@ import {
   TOKEN_CURRENCY
 } from './constants.ts';
 import { pad } from './pad.ts';
-import { decToText, pow10, roundPlaces, roundSignificand } from './dec15.ts';
+import { decToText, isSubnormal, pow10, roundPlaces, roundSignificand, subnormalExponent } from './dec15.ts';
 import type { Partition } from './types.ts';
 import type { FormatOptions } from './options.ts';
 
@@ -71,6 +71,7 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
   let fraction = '';
   let integer = '';
   let exp = 0;
+  let negative_subnormal = false;
 
   let date = 0;
   if (typeof value === 'bigint') {
@@ -120,7 +121,14 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
     let q: number;
     let k: number;
     if (part.exponential) {
-      [ q, k, exp ] = roundSignificand(Math.abs(value), part.frac_max, part.int_max, !!part.integer);
+      // engineering notation (more than one integer digit) has not been checked in Excel
+      if (part.int_max <= 1 && isSubnormal(value)) {
+        [ q, k, exp ] = [ 0, 0, subnormalExponent(value) ];
+        negative_subnormal = value < 0;
+      }
+      else {
+        [ q, k, exp ] = roundSignificand(Math.abs(value), part.frac_max, part.int_max, !!part.integer);
+      }
       mantissa += Math.abs(exp);
       value = (value < 0 ? -q : q) * pow10(k);
     }
@@ -329,7 +337,11 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
       ret.push(l10n.exponent);
     }
     else if (tokenType === TOKEN_MINUS) {
-      if (tok.volatile && part.date) {
+      if (negative_subnormal) {
+        // the significand is 0, and Excel writes the minus nonetheless
+        ret.push(l10n.negative);
+      }
+      else if (tok.volatile && part.date) {
         // don't emit the prepended minus if this is a date
       }
       else if (tok.volatile && (typeof value !== 'number' || value >= 0)) {

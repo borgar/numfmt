@@ -272,7 +272,7 @@ test('Comma resolution test:', () => {
 
 test('Issue #64 (very small number):', () => {
   expect(numfmt('0.000E+000', 2.33e-32)).toBe('2.330E-032');
-  expect(numfmt('0.000E+000', 2.33e-321)).toBe('2.330E-321');
+  expect(numfmt('0.000E+000', 2.33e-321)).toBe('0.000E+000');
   expect(numfmt('0.000E+000', 2.33e+307)).toBe('2.330E+307');
   expect(numfmt('0.000E+000', 2.33e+309)).toBe('∞');
 
@@ -380,9 +380,9 @@ test('Engineering notation moves to the next exponent when rounding carries', ()
 });
 
 test('Subnormal numbers are rounded from their shortest representation', () => {
-  expect(numfmt('0.00E+00', 1e-320)).toBe('1.00E-320');
-  expect(numfmt('0E+00', 5e-324)).toBe('5E-324');
-  expect(numfmt('0.00000000000000E+00', 2.225073858507201e-308)).toBe('2.22507385850720E-308');
+  expect(numfmt('##0.00E+00', 1e-320)).toBe('10.00E-321');
+  expect(numfmt('##0E+00', 5e-324)).toBe('5E-324');
+  expect(numfmt('##0.00000000000000E+00', 2.225073858507201e-308)).toBe('22.25073858507200E-309');
 });
 
 test('General rounds a tie at the tenth digit as Excel does', () => {

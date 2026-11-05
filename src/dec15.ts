@@ -10,8 +10,11 @@ for (let i = 0; i <= 22; i++) {
 
 const CHAR_0 = 48;
 
-/** Smallest normal double. Values below this are subnormal. */
+/** Smallest normal double, 2^-1022. Values below this are subnormal. */
 const MIN_NORMAL = 2.2250738585072014e-308;
+
+/** From here up, Excel's exponent for a positive subnormal number is -1 rather than 0. */
+const SUBNORMAL_EXP_CUT = 2 ** -1026;
 
 // Veltkamp splitter for doubles: 2^27 + 1
 const SPLIT = 134217729;
@@ -120,6 +123,30 @@ export function toDec15 (a: number): [ number, number ] {
     return [ N / 10, e + 1 ];
   }
   return [ N, e ];
+}
+
+/**
+ * Tell whether a number is subnormal. Excel shows none of a subnormal number's digits.
+ *
+ * @internal
+ * @param a A number.
+ * @returns Whether `a` is non-zero and of smaller magnitude than the smallest normal double.
+ */
+export function isSubnormal (a: number): boolean {
+  return a !== 0 && Math.abs(a) < MIN_NORMAL;
+}
+
+/**
+ * Get the exponent Excel writes for a subnormal number under a scientific pattern, whose
+ * significand it writes as 0. It treats a positive number below 2^-1026 as 0, and writes -1 for
+ * any other subnormal number.
+ *
+ * @internal
+ * @param a A subnormal number.
+ * @returns The exponent: 0 or -1.
+ */
+export function subnormalExponent (a: number): number {
+  return (a < 0 || a >= SUBNORMAL_EXP_CUT) ? -1 : 0;
 }
 
 /**
