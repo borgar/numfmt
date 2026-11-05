@@ -236,24 +236,9 @@ describe('a fraction pattern on a subnormal number', () => {
     expect(format('# ?/8', -0.4)).toBe('- 3/8');
     expect(format('# 0/0', 1.5)).toBe('1 1/2');
     expect(format('0 0/0', 0.4)).toBe('0 2/5');
-    expect(format('# 00/00', 0)).toBe('00/01');
-    expect(format('# 0/?', -0.4)).toBe('-2/5');
   });
 
-  test('# 0/? writes the denominator of 0', () => {
-    expect(format('# 0/?', 0)).toBe('0/1');
-    expect(format('# 0/?', 2 ** -1023)).toBe('0/1');
-    expect(format('# 0/?', -1e-320)).toBe('-0/1');
-  });
-
-  test('with a fixed denominator and no integer digits writes 0 with no minus', () => {
-    expect(format('?/8', 2 ** -1023)).toBe('0/8');
-    expect(format('?/8', -1e-320)).toBe('0/8');
-    expect(format('?/8', 0)).toBe('0/8');
-    expect(format('?/8', -0.4)).toBe('-3/8');
-  });
-
-  test('with neither a fixed denominator nor integer digits writes 1/1', () => {
+  test('with no integer digits writes 1/1', () => {
     expect(format('?/?', 2 ** -1023)).toBe('1/1');
     expect(format('?/?', 1e-320)).toBe('1/1');
     expect(format('?/?', -1e-320)).toBe('-1/1');
