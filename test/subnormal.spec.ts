@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { format } from '../src/index.ts';
+import { format, formatColor } from '../src/index.ts';
 
 const SCI = '0.000E+000';
 
@@ -66,15 +66,18 @@ describe('a one-digit scientific pattern on a subnormal number', () => {
 
   test('a negative number in its own section', () => {
     expect(format('0.000E+000;-0.000E+000', -k(2))).toBe('-0.000E-001');
-    expect(format('0.000E+000;(0.000E+000);"zero"', k(2))).toBe('0.000E+000');
+    expect(format('0.000E+000;(0.000E+000);"zero"', 2 ** -1023)).toBe('0.000E-001');
+    expect(format('0.000E+000;(0.000E+000);"zero"', k(2))).toBe('zero');
+    expect(formatColor('[Red]0;[Blue]0;[Green]0', k(2))).toBe('green');
+    expect(formatColor('[Red]0;[Blue]0;[Green]0', 2 ** -1023)).toBe('red');
     expect(format('0.000E+000;(0.000E+000);"zero"', -k(2))).toBe('(0.000E-001)');
     expect(format('0.000E+000;(0.000E+000)', -(2 ** -1022))).toBe('(2.225E-308)');
   });
 
   test('engineering patterns write digits, and scaled patterns are not scaled', () => {
-    expect(format('##0.0E+0', 1e-320)).toBe('10.0E-321');
+    expect(format('##0.0E+0', 1e-320)).toBe('000.0E+0');
     expect(format('##0.0E+0', -1e-320)).toBe('-10.0E-321');
-    expect(format('#0.0E+0', 1e-320)).toBe('1.0E-320');
+    expect(format('#0.0E+0', 1e-320)).toBe('00.0E+0');
     expect(format('#0.0E+0', -1e-320)).toBe('-1.0E-320');
     expect(format('0.000E+000%', 2 ** -1023)).toBe('0.000E-001%');
     expect(format('0.000E+000%', 1e-310)).toBe('0.000E+000%');

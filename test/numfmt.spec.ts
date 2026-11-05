@@ -379,12 +379,6 @@ test('Engineering notation moves to the next exponent when rounding carries', ()
   expect(numfmt('##0.0E+0', 99.96)).toBe('100.0E+0');
 });
 
-test('Subnormal numbers are rounded from their shortest representation', () => {
-  expect(numfmt('##0.00E+00', 1e-320)).toBe('10.00E-321');
-  expect(numfmt('##0E+00', 5e-324)).toBe('5E-324');
-  expect(numfmt('##0.00000000000000E+00', 2.225073858507201e-308)).toBe('22.25073858507200E-309');
-});
-
 test('General rounds a tie at the tenth digit as Excel does', () => {
   expect(numfmt('General', 4.2394791745)).toBe('4.239479175');
   expect(numfmt('General', 19147467.115)).toBe('19147467.12');

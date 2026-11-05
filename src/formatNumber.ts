@@ -1,4 +1,5 @@
 import { TOKEN_TEXT, indexColors } from './constants.ts';
+import { readsAsZero } from './dec15.ts';
 import { defaultLocale, getLocale } from './locale.ts';
 import type { FormatOptions } from './options.ts';
 import { parseFormatSection } from './parseFormatSection.ts';
@@ -37,6 +38,22 @@ function getPart (value: string | number | bigint, parts: Partition[]): Partitio
   return undefined;
 }
 
+/**
+ * Get the value that a number is formatted as, and the section that applies to it. Excel formats a
+ * positive number below 2^-1026 as 0.
+ *
+ * @param value The value to format.
+ * @param parts The pattern's sections.
+ * @returns The value to format, and its section.
+ */
+function selectPart<T extends string | number | bigint> (
+  value: T,
+  parts: Partition[]
+): [ T | number, Partition | undefined ] {
+  const v = typeof value === 'number' && readsAsZero(value) ? 0 : value;
+  return [ v, getPart(v, parts) ];
+}
+
 export function formatColor (
   value: unknown,
   parseData: PatternParseData,
@@ -46,7 +63,7 @@ export function formatColor (
   let part: Partition | undefined = parts[3];
   let color: string | number | undefined;
   if ((typeof value === 'number' || typeof value === 'bigint') && Number.isFinite(value)) {
-    part = getPart(value, parts);
+    part = selectPart(value, parts)[1];
   }
   if (part?.color) {
     color = part.color;
@@ -86,8 +103,9 @@ export function formatValue (
     return ((value as number) < 0 ? l10n.negative : '') + l10n.infinity;
   }
   // find and run the pattern part that applies to this number
-  const v = value as number | string | bigint;
-  let part = getPart(v, parts);
+  const selected = selectPart(value as number | string | bigint, parts);
+  const v = selected[0];
+  let part = selected[1];
   if (part?.sysdate) {
     const syspattern = l10n.sysdate ?? 'dd mmmm yyyy';
     part = prepareFormatterData(syspattern, false).partitions[0];

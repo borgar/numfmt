@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { roundDigits, toDec15 } from '../src/dec15.ts';
+import { roundDigits, roundSignificand, toDec15 } from '../src/dec15.ts';
 
 describe('toDec15', () => {
   test('returns 15 digits and the decimal exponent', () => {
@@ -60,5 +60,14 @@ describe('roundDigits', () => {
     expect(roundDigits(500000000000000, 0)).toBe(1);
     expect(roundDigits(499999999999999, 0)).toBe(0);
     expect(roundDigits(999999999999999, -1)).toBe(0);
+  });
+});
+
+describe('roundSignificand', () => {
+  test('rounds subnormal numbers from their shortest representation', () => {
+    expect(roundSignificand(1e-320, 2, 1, true)).toEqual([ 100, -2, -320 ]);
+    expect(roundSignificand(5e-324, 0, 1, true)).toEqual([ 5, -0, -324 ]);
+    expect(roundSignificand(2.225073858507201e-308, 14, 1, true))
+      .toEqual([ 222507385850720, -14, -308 ]);
   });
 });
