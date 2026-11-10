@@ -48,7 +48,7 @@ import {
   TOKEN_CURRENCY
 } from './constants.ts';
 import { pad } from './pad.ts';
-import { decToText, pow10, roundPlaces, roundSignificand } from './dec15.ts';
+import { MIN_NORMAL, decToText, pow10, roundPlaces, roundSignificand } from './dec15.ts';
 import type { Partition } from './types.ts';
 import type { FormatOptions } from './options.ts';
 
@@ -120,9 +120,18 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
     let q: number;
     let k: number;
     if (part.exponential) {
-      [ q, k, exp ] = roundSignificand(Math.abs(value), part.frac_max, part.int_max, !!part.integer);
+      const a = Math.abs(value);
+      // Excel shows a subnormal number as zero digits, but keeps its sign and
+      // uses the same exponent as 0.4 would get.
+      const subnormal = a > 0 && a < MIN_NORMAL;
+      [ q, k, exp ] = roundSignificand(subnormal ? 0.4 : a, part.frac_max, part.int_max, !!part.integer);
       mantissa += Math.abs(exp);
-      value = (value < 0 ? -q : q) * pow10(k);
+      if (subnormal) {
+        q = 0;
+      }
+      else {
+        value = (value < 0 ? -q : q) * pow10(k);
+      }
     }
     else {
       [ q, k ] = roundPlaces(Math.abs(value), part.frac_max);
@@ -335,7 +344,7 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
       else if (tok.volatile && (typeof value !== 'number' || value >= 0)) {
         // don't emit volatile minus for positive numbers
       }
-      else if (tok.volatile && !part.fractions && (part.integer || part.dec_fractions)) {
+      else if (tok.volatile && !part.fractions && !part.exponential && (part.integer || part.dec_fractions)) {
         // minus is only shown if there is a non-zero digit present
         if (typeof value === 'number' && value < 0 && (integer && integer !== '0') || fraction) {
           ret.push(l10n.negative);
@@ -385,7 +394,7 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
       // number isn't fragmented
       if (part.int_pattern.length === 1) {
         const pt = part.int_p;
-        const special_case_zero = part.exponential && !value;
+        const special_case_zero = part.exponential && !integer;
         const l = special_case_zero
           ? Math.max(part.int_min, part.int_max, integer.length)
           : Math.max(part.int_min, integer.length);

@@ -2,6 +2,7 @@ import type { LocaleData } from './locale.ts';
 import { getExponent, getSignificand } from './numberProps.ts';
 import numdec from './numdec.ts';
 import { round } from './round.ts';
+import { MIN_NORMAL } from './dec15.ts';
 
 const fixLocale = (s: string, l10n: LocaleData): string => {
   return s.replace(/\./, l10n.decimal);
@@ -38,7 +39,8 @@ export function general (ret: (string | number)[], value: number | string, l10n:
   }
   else {
     const int = value | 0;
-    if (value === int) {
+    // Excel writes a subnormal number as 0
+    if (value === int || Math.abs(value) < MIN_NORMAL) {
       ret.push(Math.abs(int));
     }
     else {

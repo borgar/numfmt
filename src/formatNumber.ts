@@ -4,6 +4,7 @@ import type { FormatOptions } from './options.ts';
 import { parseFormatSection } from './parseFormatSection.ts';
 import { prepareFormatterData } from './prepareFormatterData.ts';
 import { runPart } from './runPart.ts';
+import { MIN_NORMAL } from './dec15.ts';
 import type { Partition, PatternParseData } from './types.ts';
 
 const default_text = parseFormatSection([
@@ -37,6 +38,23 @@ function getPart (value: string | number | bigint, parts: Partition[]): Partitio
   return undefined;
 }
 
+// Excel reads a positive number below 2^-1026 as 0. A negative subnormal number
+// is negative, unless its section is General.
+function pickPart (
+  value: number | string | bigint,
+  parts: Partition[]
+): [ number | string | bigint, Partition | undefined ] {
+  if (typeof value === 'number' && value > 0 && value < 2 ** -1026) {
+    value = 0;
+  }
+  let part = getPart(value, parts);
+  if (part?.general && typeof value === 'number' && value < 0 && value > -MIN_NORMAL) {
+    value = 0;
+    part = pickPart(value, parts)[1];
+  }
+  return [ value, part ];
+}
+
 export function formatColor (
   value: unknown,
   parseData: PatternParseData,
@@ -46,7 +64,7 @@ export function formatColor (
   let part: Partition | undefined = parts[3];
   let color: string | number | undefined;
   if ((typeof value === 'number' || typeof value === 'bigint') && Number.isFinite(value)) {
-    part = getPart(value, parts);
+    part = pickPart(value, parts)[1];
   }
   if (part?.color) {
     color = part.color;
@@ -86,8 +104,9 @@ export function formatValue (
     return ((value as number) < 0 ? l10n.negative : '') + l10n.infinity;
   }
   // find and run the pattern part that applies to this number
-  const v = value as number | string | bigint;
-  let part = getPart(v, parts);
+  const picked = pickPart(value as number | string | bigint, parts);
+  const v = picked[0];
+  let part = picked[1];
   if (part?.sysdate) {
     const syspattern = l10n.sysdate ?? 'dd mmmm yyyy';
     part = prepareFormatterData(syspattern, false).partitions[0];
