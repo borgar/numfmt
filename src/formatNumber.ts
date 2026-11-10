@@ -4,37 +4,44 @@ import type { FormatOptions } from './options.ts';
 import { parseFormatSection } from './parseFormatSection.ts';
 import { prepareFormatterData } from './prepareFormatterData.ts';
 import { runPart } from './runPart.ts';
+import { MIN_NORMAL } from './dec15.ts';
 import type { Partition, PatternParseData } from './types.ts';
 
 const default_text = parseFormatSection([
   { type: TOKEN_TEXT, value: '@', raw: '@' }
 ]);
 
-function getPart (value: string | number | bigint, parts: Partition[]): Partition | undefined {
-  for (let pi = 0; pi < 3; pi++) {
-    const part = parts[pi];
-    if (part) {
-      let cond = false;
-      if (part.condition) {
-        const operator = part.condition[0];
-        const operand = part.condition[1];
-        if (operator === '=') { cond = (value === operand); }
-        else if (operator === '<>') { cond = (value !== operand); }
-        else if (typeof value === 'string') { cond = false; }
-        else if (operator === '>') { cond = (value > operand); }
-        else if (operator === '<') { cond = (value < operand); }
-        else if (operator === '>=') { cond = (value >= operand); }
-        else if (operator === '<=') { cond = (value <= operand); }
-      }
-      else {
-        cond = true;
-      }
-      if (cond) {
-        return part;
-      }
-    }
+function meetsCondition (part: Partition, value: string | number | bigint): boolean {
+  if (!part.condition) {
+    return true;
   }
-  return undefined;
+  const [ operator, operand ] = part.condition;
+  if (operator === '=') { return value === operand; }
+  if (operator === '<>') { return value !== operand; }
+  if (typeof value === 'string') { return false; }
+  if (operator === '>') { return value > operand; }
+  if (operator === '<') { return value < operand; }
+  if (operator === '>=') { return value >= operand; }
+  if (operator === '<=') { return value <= operand; }
+  return false;
+}
+
+// Excel reads a positive number below 2^-1026 as 0. A negative subnormal number
+// is negative, unless its section is General.
+function getPart (
+  value: number | string | bigint,
+  parts: Partition[]
+): [ number | string | bigint, Partition | undefined ] {
+  const sections = parts.slice(0, 3);
+  if (typeof value === 'number' && value > 0 && value < 2 ** -1026) {
+    value = 0;
+  }
+  let part = sections.find(p => p && meetsCondition(p, value));
+  if (part?.general && typeof value === 'number' && value < 0 && value > -MIN_NORMAL) {
+    value = 0;
+    part = sections.find(p => p && meetsCondition(p, 0));
+  }
+  return [ value, part ];
 }
 
 export function formatColor (
@@ -46,7 +53,7 @@ export function formatColor (
   let part: Partition | undefined = parts[3];
   let color: string | number | undefined;
   if ((typeof value === 'number' || typeof value === 'bigint') && Number.isFinite(value)) {
-    part = getPart(value, parts);
+    part = getPart(value, parts)[1];
   }
   if (part?.color) {
     color = part.color;
@@ -86,8 +93,9 @@ export function formatValue (
     return ((value as number) < 0 ? l10n.negative : '') + l10n.infinity;
   }
   // find and run the pattern part that applies to this number
-  const v = value as number | string | bigint;
-  let part = getPart(v, parts);
+  const picked = getPart(value as number | string | bigint, parts);
+  const v = picked[0];
+  let part = picked[1];
   if (part?.sysdate) {
     const syspattern = l10n.sysdate ?? 'dd mmmm yyyy';
     part = prepareFormatterData(syspattern, false).partitions[0];

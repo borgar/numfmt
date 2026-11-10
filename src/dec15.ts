@@ -11,7 +11,7 @@ for (let i = 0; i <= 22; i++) {
 const CHAR_0 = 48;
 
 /** Smallest normal double. Values below this are subnormal. */
-const MIN_NORMAL = 2.2250738585072014e-308;
+export const MIN_NORMAL = 2.2250738585072014e-308;
 
 // Veltkamp splitter for doubles: 2^27 + 1
 const SPLIT = 134217729;
