@@ -158,9 +158,8 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
     if (_dec) {
       have_fraction = true;
       if (part.denominator && isFinite(part.denominator)) {
-        // predefined denominator
         denominator += part.denominator;
-        numerator += roundBinary(_dec * part.denominator);
+        numerator += roundBinary(_dec * (1 + Number.EPSILON) * part.denominator);
         if (numerator === '0') {
           numerator = '';
           denominator = '';

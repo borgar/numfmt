@@ -389,10 +389,42 @@ test('Fixed denominator fractions round the numerator as Excel does', () => {
   expect(numfmt('# ?/100', 36.305)).toBe('36 30/100');
 });
 
-// 0.285 * 100 is stored as 28.4999999999999964, but Excel rounds it up.
-// Remove .fails once vulgar fractions round as Excel does.
-test.fails('Fixed denominator fractions round a near tie up as Excel does', () => {
+test('Fixed denominator fractions round a near tie up as Excel does', () => {
+  expect(numfmt('# ?/100', 2.865)).toBe('2 87/100');
+  expect(numfmt('# ?/100', 1.235)).toBe('1 24/100');
+  expect(numfmt('# ?/100', 0.275)).toBe(' 28/100');
+  expect(numfmt('# ?/100', 0.145)).toBe(' 15/100');
+  expect(numfmt('# ?/100', 1.105)).toBe('1 11/100');
   expect(numfmt('# ?/100', 0.285)).toBe(' 29/100');
+  expect(numfmt('# ?/100', 1.075)).toBe('1 7/100');
+  expect(numfmt('# ?/100', 1.065)).toBe('1 6/100');
+  expect(numfmt('# ?/100', 1.055)).toBe('1 5/100');
+  expect(numfmt('# ?/100', 0.565)).toBe(' 57/100');
+  expect(numfmt('# ?/100', 1.035)).toBe('1 3/100');
+  expect(numfmt('# ?/100', 1.025)).toBe('1 2/100');
+  expect(numfmt('# ?/100', 1.015)).toBe('1 1/100');
+  expect(numfmt('# ?/100', 1.005)).toBe('1      ');
+  expect(numfmt('# ?/100', 1.505)).toBe('1 51/100');
+  expect(numfmt('# ?/100', 2.175)).toBe('2 17/100');
+  expect(numfmt('# ?/100', 2.155)).toBe('2 15/100');
+  expect(numfmt('# ?/100', 4.095)).toBe('4 9/100');
+  expect(numfmt('# ?/100', 36.305)).toBe('36 30/100');
+  expect(numfmt('# ?/100', 4.225)).toBe('4 22/100');
+  expect(numfmt('# ?/100', 8.065)).toBe('8 6/100');
+  expect(numfmt('# ?/100', 16.005)).toBe('16      ');
+  expect(numfmt('# ?/100', 1.085)).toBe('1 8/100');
+  expect(numfmt('# ?/100', 2.505)).toBe('2 51/100');
+  expect(numfmt('# ?/100', 3.465)).toBe('3 47/100');
+  expect(numfmt('# ?/100', 1.255)).toBe('1 25/100');
+  expect(numfmt('# ?/100', 3.405)).toBe('3 40/100');
+  expect(numfmt('# ?/100', 4.935)).toBe('4 93/100');
+  expect(numfmt('# ?/100', 7.385)).toBe('7 38/100');
+  expect(numfmt('# ?/100', 2.195)).toBe('2 19/100');
+  expect(numfmt('# ?/100', 4.515)).toBe('4 51/100');
+  expect(numfmt('# ?/100', 7.555)).toBe('7 55/100');
+  expect(numfmt('# ?/100', 8.985)).toBe('8 98/100');
+  expect(numfmt('# ?/100', 6.475)).toBe('6 47/100');
+  expect(numfmt('# ?/100', 10.825)).toBe('10 82/100');
 });
 
 test('Issue #90 ([$]0 incorrectly throws)', () => {
