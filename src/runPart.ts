@@ -105,10 +105,9 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
   }
 
   if (typeof value === 'number' && part.fractions) {
-    // vulgar fractions round like the stored double, which matches Excel better
     if (part.integer) {
-      const i = Math.abs(roundBinary(value, 1));
-      integer += (i < 1) ? '' : Math.floor(i);
+      const i = Math.floor(Math.abs(value));
+      integer += (i < 1) ? '' : i;
     }
   }
   else if (
@@ -184,7 +183,14 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
       numerator = '0';
       denominator = '1';
     }
-    if (part.integer && !have_fraction && !Math.trunc(value)) {
+    // a fraction that rounds up to a whole carries into the integer
+    if (part.integer && numerator && numerator === denominator) {
+      integer = String(Number(integer) + 1);
+      numerator = '';
+      denominator = '';
+      have_fraction = fixed_slash;
+    }
+    if (part.integer && !have_fraction && !integer) {
       integer = '0';
     }
   }

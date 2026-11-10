@@ -3,6 +3,8 @@ import { format } from '../src/index.ts';
 
 test('SSF-fractions tests', () => {
   expect(format('# ?/?', 1)).toBe('1    ');
+  expect(format('# ??/16', 2.96)).toBe('2 15/16');
+  expect(format('# ?/2', 1.75)).toBe('2    ');
   expect(format('# ?/?', -1.2)).toBe('-1 1/5');
   expect(format('# ?/?', 12.3)).toBe('12 1/3');
   expect(format('# ?/?', -12.34)).toBe('-12 1/3');
