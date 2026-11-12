@@ -106,6 +106,20 @@ test('dateSpanLarge: ON', () => {
   expect(format(ISODATETIME, -694324.1, { leap1900: false, dateSpanLarge: true, dateErrorNumber: true })).toBe('-694324.1');
 });
 
+test('weekday names before day 0', () => {
+  const opts = { leap1900: false, dateSpanLarge: true };
+  expect(format('dddd', -1, opts)).toBe('Friday');
+  expect(format('dddd', -6, opts)).toBe('Sunday');
+  expect(format('dddd', -7, opts)).toBe('Saturday');
+  expect(format('ddd', -8, opts)).toBe('Fri');
+  // Google Sheets: TEXT(-141639, "dddd") is Friday, TEXT(-141500, "yyyy-mm-dd dddd") is 1512-08-01 Thursday
+  expect(format('ddd d mmm yyyy', -141639, opts)).toBe('Fri 15 Mar 1512');
+  expect(format('yyyy-mm-dd dddd', -141500, opts)).toBe('1512-08-01 Thursday');
+  // a time before day 0 has the weekday of the date it is shown with
+  expect(format('yyyy-mm-dd hh:mm ddd', -0.25, opts)).toBe('1899-12-29 18:00 Fri');
+  expect(format('yyyy-mm-dd hh:mm ddd', -1.25, opts)).toBe('1899-12-28 18:00 Thu');
+});
+
 test('Excel leap 1900 bug: ON', () => {
   expect(format(ISODATE, 61, { leap1900: true })).toBe('1900-03-01');
   expect(format(ISODATE, 60, { leap1900: true })).toBe('1900-02-29');
