@@ -443,3 +443,16 @@ test('A time within the epsilon of midnight carries the date once (#104)', () =>
   expect(numfmt('yyyy-mm-dd', 45000.99999999999)).toBe('2023-03-16');
   expect(numfmt('yyyy-mm-dd hh:mm:ss', 45000.99999999999)).toBe('2023-03-16 00:00:00');
 });
+
+test('AM/PM and A/P are read in any case', () => {
+  // Excel: TEXT(0.52, "h:mm AM/pm") is "12:28 PM", TEXT(0.02, "hh:mm a/p") is "12:28 a",
+  // TEXT(0.52, "h:mm a/P") is "12:28 P"
+  expect(numfmt('h:mm AM/pm', 0.52)).toBe('12:28 PM');
+  expect(numfmt('h:mm Am/Pm', 0.02)).toBe('12:28 AM');
+  expect(numfmt('h:mm am/pm', 0.52)).toBe('12:28 PM');
+  expect(numfmt('hh:mm a/p', 0.02)).toBe('12:28 a');
+  expect(numfmt('h:mm a/P', 0.52)).toBe('12:28 P');
+  expect(numfmt('h:mm a/P', 0.02)).toBe('12:28 a');
+  expect(numfmt('h:mm A/p', 0.52)).toBe('12:28 p');
+  expect(numfmt('h:mm A/P', 0.52)).toBe('12:28 P');
+});

@@ -106,7 +106,7 @@ export type RenderToken =
   { type: typeof TOKEN_SPACE, rule?: RenderRule } |
   { type: typeof TOKEN_FILL, value: string } |
   { type: typeof TOKEN_SKIP, value: string } |
-  { type: typeof TOKEN_AMPM, short?: boolean } |
+  { type: typeof TOKEN_AMPM, short?: string } |
   { type: typeof T_TYPE_DIV } |
   { type: typeof T_TYPE_FRAC, num: string } |
   { type: typeof T_TYPE_INT, num: string } |

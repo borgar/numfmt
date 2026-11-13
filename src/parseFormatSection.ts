@@ -315,7 +315,8 @@ export function parseFormatSection (inputTokens: Token[]) {
       part.clock = 12;
       part.date = part.date | u_HOUR;
       part.date_eval = true;
-      add({ type, short: token.value === 'A/P' }, outputTokens);
+      // A/P emits its letters in the case they are written
+      add({ type, short: token.value.length === 3 ? token.value[0] + token.value[2] : '' }, outputTokens);
     }
 
     // escaped character, string
