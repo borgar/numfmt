@@ -120,6 +120,17 @@ test('weekday names before day 0', () => {
   expect(format('yyyy-mm-dd hh:mm ddd', -1.25, opts)).toBe('1899-12-28 18:00 Thu');
 });
 
+test('Hijri has no day 60', () => {
+  expect(format('B2yyyy-mm-dd', 60)).toBe('60');
+  expect(format('B2yyyy-mm-dd', 60.5)).toBe('60.5');
+  expect(format('B2yyyy-mm-dd', 59.99999999999, { dateErrorNumber: false })).toBe('######');
+  expect(format('B2yyyy-mm-dd', 60, { dateErrorNumber: false })).toBe('######');
+  expect(() => format('B2yyyy-mm-dd', 60, { dateErrorThrows: true })).toThrow('Date out of bounds');
+  expect(format('B2yyyy-mm-dd', 59)).toBe('1317-10-28');
+  expect(format('B2yyyy-mm-dd', 61)).toBe('1317-10-29');
+  expect(format('yyyy-mm-dd', 60)).toBe('1900-02-29');
+});
+
 test('Excel leap 1900 bug: ON', () => {
   expect(format(ISODATE, 61, { leap1900: true })).toBe('1900-03-01');
   expect(format(ISODATE, 60, { leap1900: true })).toBe('1900-02-29');

@@ -36,9 +36,6 @@ export function toYMD_1904 (ord: number) {
 // > operating systems that support Arabic locales, Microsoft Office,
 // > COM, Visual Basic, VBA, and SQL Server 2000.
 export function toYMD_1317 (ord: number) {
-  if (ord === 60) {
-    throw new Error('#VALUE!');
-  }
   if (ord <= 1) {
     return [ 1317, 8, 29 ];
   }
