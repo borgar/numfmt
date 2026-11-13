@@ -5,7 +5,7 @@ import { general } from './general.ts';
 import { toYMD } from './toYMD.ts';
 import { defaultLocale, type LocaleData } from './locale.ts';
 import {
-  u_HOUR, u_MIN, u_SEC, u_DSEC, u_CSEC, u_MSEC,
+  u_DSEC, u_CSEC, u_MSEC,
   EPOCH_1317,
   MIN_S_DATE, MAX_S_DATE,
   MIN_L_DATE, MAX_L_DATE,
@@ -226,8 +226,8 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
         subsec = 0;
       }
     }
-    // a time shown as midnight belongs to the next day; a date alone ignores the time
-    if (time === DAYSIZE && part.date & (u_HOUR | u_MIN | u_SEC | u_DSEC | u_CSEC | u_MSEC)) {
+    // a time that rounds to midnight belongs to the next day
+    if (time === DAYSIZE) {
       time = 0;
       date += 1;
     }
