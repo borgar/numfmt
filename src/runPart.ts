@@ -232,8 +232,9 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
       date += 1;
     }
     // serial date/time to gregorian calendar
+    const ord = Math.floor(value) + date - Math.trunc(value);
     if (date || part.date_system) {
-      const dout = toYMD(Math.floor(value) + date - Math.trunc(value), part.date_system, opts.leap1900);
+      const dout = toYMD(ord, part.date_system, opts.leap1900);
       year = dout[0];
       month = dout[1];
       day = dout[2];
@@ -244,7 +245,8 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
       minute = Math.floor(x / 60) % 60;
       hour = Math.floor((x / 60) / 60) % 60;
     }
-    weekday = (6 + date) % 7;
+    // the weekday of the day shown, with a remainder that is never negative
+    weekday = (((6 + ord) % 7) + 7) % 7;
     if (part.date_eval && dateOverflows(value, date + (time / DAYSIZE), opts.dateSpanLarge)) {
       // if value is out of bounds and formatting is date Excel emits a
       // stream of "######" that fills the cell width.
