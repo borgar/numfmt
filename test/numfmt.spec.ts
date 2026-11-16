@@ -319,8 +319,13 @@ test('A time that rounds up to midnight shows the next day', () => {
   expect(numfmt('m/d/yy h:mm', 45292.9999999)).toBe('1/2/24 0:00');
   expect(numfmt('yyyy-mm-dd hh:mm:ss', 45292.999995)).toBe('2024-01-02 00:00:00');
   expect(numfmt('dddd h:mm', 45292.9999999)).toBe('Tuesday 0:00');
-  expect(numfmt('m/d/yy', 45292.9999999)).toBe('1/1/24');
-  expect(numfmt('m/d/yy', 45292.99999999)).toBe('1/1/24');
+  expect(numfmt('m/d/yy', 45292.9999999)).toBe('1/2/24');
+  expect(numfmt('m/d/yy', 45292.99999999)).toBe('1/2/24');
+});
+
+test('A date-only format shows the next day when the time rounds up to midnight', () => {
+  expect(numfmt('yyyy-mm-dd', 45000.9999942130)).toBe('2023-03-16');
+  expect(numfmt('yyyy-mm-dd', 45000.9999942129)).toBe('2023-03-15');
 });
 
 test('General rounds 10 and 11 digit numbers with a fraction', () => {
