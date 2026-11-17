@@ -43,3 +43,17 @@ test('Correct handling of the comma operator', () => {
   expect(() => format('0/0,0', '')).toThrow();
   // expect(() => format('0 0/0,', '')).toThrow(); // "1234 4/7" gets emitted, same as Sheets
 });
+
+test('The comma scale combines with a percent', () => {
+  expect(format('0,%', 12345)).toBe('1235%');
+  expect(format('0.0,%', 12345)).toBe('1234.5%');
+  expect(format('0.00,%', 1)).toBe('0.10%');
+  expect(format('#,##0,%', 12345)).toBe('1,235%');
+  expect(format('0.0,,%', 12345)).toBe('1.2%');
+  expect(format('0,"x"%', 12345)).toBe('1235x%');
+  // the order of the percent and the scale does not matter
+  expect(format('%0.0,', 12345)).toBe('%1234.5');
+  // a percent alone is unchanged
+  expect(format('0%', 12345)).toBe('1234500%');
+  expect(format('0,', 12345)).toBe('12');
+});

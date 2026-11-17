@@ -58,6 +58,8 @@ export function parseFormatSection (inputTokens: Token[]) {
   let partOver = false;
   let patternSource = '';
   let haveSlash = false;
+  // a percent and a thousands scale combine: "0.0,%" is value / 1000 * 100
+  let commaScales = 0;
 
   const getPattern = (p: SectionType) => {
     if (p === T_TYPE_DEN) { return part.den_pattern; }
@@ -132,7 +134,8 @@ export function parseFormatSection (inputTokens: Token[]) {
       add(',', outputTokens);
     }
     else if (type === TOKEN_SCALE) {
-      part.scale = 0.001 ** token.raw.length;
+      commaScales = token.raw.length;
+      part.scale = part.percent ? 100 / 1000 ** commaScales : 0.001 ** commaScales;
     }
     else if (type === TOKEN_GROUP) {
       if (currentPattern === T_TYPE_INT) {
@@ -373,7 +376,7 @@ export function parseFormatSection (inputTokens: Token[]) {
 
     // percentage
     else if (type === TOKEN_PERCENT) {
-      part.scale = 100;
+      part.scale = 100 / 1000 ** commaScales;
       part.percent = true;
       add('%', outputTokens);
     }
