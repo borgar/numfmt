@@ -1,4 +1,12 @@
-// tests converted from SSF
+// SPDX-License-Identifier: Apache-2.0
+//
+// Adapted from https://github.com/SheetJS/ssf
+// Copyright 2004 SheetJS
+// Modified and adapted for numfmt in 2020.
+//
+// Original code licensed under the Apache License, Version 2.0.
+// See LICENSES/Apache-2.0.txt.
+
 import { expect, test } from 'vitest';
 import { format } from '../src/index.ts';
 

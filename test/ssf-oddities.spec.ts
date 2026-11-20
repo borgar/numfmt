@@ -1,5 +1,14 @@
-// Tests originally converted from SSF but have been reviewed
-// and corrected and conformed to Excel for Mac version 16.35
+// SPDX-License-Identifier: Apache-2.0
+//
+// Adapted from https://github.com/SheetJS/ssf
+// Copyright 2004 SheetJS
+// Modified and adapted for numfmt in 2020.
+//
+// Tests have been reviewed, corrected and conformed to Excel for Mac version 16.35
+//
+// Original code licensed under the Apache License, Version 2.0.
+// See LICENSES/Apache-2.0.txt.
+
 import { expect, test } from 'vitest';
 import { format } from '../src/index.ts';
 
