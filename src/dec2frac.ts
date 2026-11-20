@@ -37,6 +37,8 @@ export function dec2frac (
     r = [ 1e+19 * sign, 1 ];
   }
   else {
+    // the first convergent is the whole part over 1
+    curr_n = Math.floor(number);
     do {
       z = 1 / (z - Math.floor(z));
       tmp = curr_d;
