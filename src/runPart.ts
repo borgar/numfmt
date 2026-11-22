@@ -247,7 +247,9 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
     }
     // the weekday of the day shown, with a remainder that is never negative
     weekday = (((6 + ord) % 7) + 7) % 7;
-    if (part.date_eval && dateOverflows(value, date + (time / DAYSIZE), opts.dateSpanLarge)) {
+    // day 60 is the 29 February 1900 of the leap year bug, which has no Hijri date
+    const noHijriDay = part.date_system === EPOCH_1317 && date === 60;
+    if (part.date_eval && (noHijriDay || dateOverflows(value, date + (time / DAYSIZE), opts.dateSpanLarge))) {
       // if value is out of bounds and formatting is date Excel emits a
       // stream of "######" that fills the cell width.
       // This doesn't happen, if the only date tokens are "elapsed time" tokens.

@@ -490,7 +490,7 @@ test('Oddity: b', () => {
 test('Oddity: B2yyyy-mm-dd', () => {
   expect(format('B2yyyy-mm-dd', 0)).toBe('1317-08-29');
   expect(format('B2yyyy-mm-dd', 59)).toBe('1317-10-28');
-  expect(() => format('B2yyyy-mm-dd', 60)).toThrow();
+  expect(() => format('B2yyyy-mm-dd', 60, { dateErrorThrows: true })).toThrow();
   expect(format('B2yyyy-mm-dd', 61)).toBe('1317-10-29');
   expect(format('B2yyyy-mm-dd', 1000)).toBe('1320-06-23');
   expect(format('B2yyyy-mm-dd', 10000)).toBe('1345-11-17');
