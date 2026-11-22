@@ -546,7 +546,7 @@ export function runPart (value: number | string | bigint, part: Partition, opts:
     else if (tokenType === TOKEN_AMPM) {
       const idx = hour < 12 ? 0 : 1;
       if (tok.short) {
-        ret.push('AP'[idx]);
+        ret.push(tok.short[idx]);
       }
       else {
         ret.push(l10n.ampm[idx]);

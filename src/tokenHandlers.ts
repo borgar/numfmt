@@ -73,7 +73,7 @@ export function getTokenHandlers (l10n: LocaleData): [ TokenType, RegExp, number
     [ TOKEN_POINT, /^\./, 0 ],
     [ TOKEN_SPACE, /^ /, 0 ],
     [ TOKEN_PERCENT, /^%/, 0 ],
-    [ TOKEN_AMPM, /^(?:AM\/PM|am\/pm|A\/P)/, 0 ],
+    [ TOKEN_AMPM, /^(?:AM\/PM|A\/P)/i, 0 ],
     [ TOKEN_CURRENCY, reCurrencySymbol, 0 ],
     [ TOKEN_DIGIT, /^[1-9]/, 0 ],
     [ TOKEN_CALENDAR, /^(?:B[12])/i, 0 ],
