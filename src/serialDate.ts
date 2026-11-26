@@ -93,7 +93,7 @@ export function dateFromSerial (
     leap1900?: boolean;
   }
 ): [ number, number, number, number, number, number ] {
-  let date = (serialDate | 0);
+  let date = floor(serialDate);
   const t = DAYSIZE * (serialDate - date);
   let time = floor(t); // in seconds
   // date "epsilon" correction
@@ -105,11 +105,10 @@ export function dateFromSerial (
     }
   }
   // serial date/time to gregorian calendar
-  const x = (time < 0) ? DAYSIZE + time : time;
-  const [ y, m, d ] = toYMD(serialDate, 0, options?.leap1900);
-  const hh = floor((x / 60) / 60) % 60;
-  const mm = floor(x / 60) % 60;
-  const ss = floor(x) % 60;
+  const [ y, m, d ] = toYMD(date, 0, options?.leap1900);
+  const hh = floor((time / 60) / 60) % 60;
+  const mm = floor(time / 60) % 60;
+  const ss = floor(time) % 60;
   // return the parts
   return [ y, m, d, hh, mm, ss ];
 }
