@@ -81,6 +81,15 @@ test('dateFromSerial', () => {
   ).toEqual([ 2015, 12, 3, 0, 0, 0 ]);
 });
 
+test('dateFromSerial carries a time that rounds up to midnight into the next day', () => {
+  expect(dateFromSerial(28627.99999999942)).toEqual([ 1978, 5, 18, 0, 0, 0 ]);
+  expect(dateFromSerial(45000.99999999999)).toEqual([ 2023, 3, 16, 0, 0, 0 ]);
+  expect(dateFromSerial(59.9999999999)).toEqual([ 1900, 2, 29, 0, 0, 0 ]);
+  expect(dateFromSerial(0.99999999999)).toEqual([ 1900, 1, 1, 0, 0, 0 ]);
+  // just below the cut-off, the time is kept on the same day
+  expect(dateFromSerial(28627.99999999)).toEqual([ 1978, 5, 17, 23, 59, 59 ]);
+});
+
 const opts = { ignoreTimezone: true };
 type Numbers = [ number, number, number, number, number, number, number ];
 const utcDate = (y: number, m: number, ...args: number[]): Date => new Date(Date.UTC(y, m - 1, ...args));
