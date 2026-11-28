@@ -44,6 +44,26 @@ test('Correct handling of the comma operator', () => {
   // expect(() => format('0 0/0,', '')).toThrow(); // "1234 4/7" gets emitted, same as Sheets
 });
 
+test('A comma before the decimal point scales the number', () => {
+  // Excel saves these as "0.0,", "#,##0.00," and so on
+  expect(format('0,.0', 1234567.89)).toBe('1234.6');
+  expect(format('0,,.0', 1234567.89)).toBe('1.2');
+  expect(format('#,##0,.00', 1234567.89)).toBe('1,234.57');
+  expect(format('#,##0,,.0', 1234567890)).toBe('1,234.6');
+  expect(format('#,.#', 1234567.89)).toBe('1234.6');
+  expect(format('0,.0,0', 1234567.89)).toBe('1234.57');
+  expect(format('#,##0,.0,', 1234567.89)).toBe('1.2');
+  expect(format('0,.0%', 1234567.89)).toBe('123456.8%');
+  expect(format('0,.0 "k"', 1234567.89)).toBe('1234.6 k');
+  expect(format('0,.0;(0,.0)', -98765)).toBe('(98.8)');
+});
+
+test('The comma scale does not apply to scientific notation', () => {
+  expect(format('0,.0E+0', 1234567.89)).toBe('1.2E+6');
+  expect(format('0.0E+0,', 1234567.89)).toBe('1.2E+6');
+  expect(format('0.00E+00,,', 1234567.89)).toBe('1.23E+06');
+});
+
 test('The comma scale combines with a percent', () => {
   expect(format('0,%', 12345)).toBe('1235%');
   expect(format('0.0,%', 12345)).toBe('1234.5%');
