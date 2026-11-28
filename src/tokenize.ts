@@ -1,4 +1,4 @@
-import { TOKEN_GROUP, TOKEN_SCALE, TOKEN_COMMA, TOKEN_CHAR } from './constants.ts';
+import { TOKEN_GROUP, TOKEN_SCALE, TOKEN_COMMA, TOKEN_CHAR, TOKEN_POINT } from './constants.ts';
 import { defaultLocale } from './locale.ts';
 import { getTokenHandlers } from './tokenHandlers.ts';
 import type { Token, TokenType } from './types.ts';
@@ -16,6 +16,9 @@ export function lexer (pattern: string, handlers: [ TokenType, RegExp, number ][
   let i = 0;
   const tokens: Token[] = [];
   const unresolvedCommas = [];
+  const pointCommas: Token[] = [];
+  let inPointRun = false;
+  let seenPoint = false;
   while (i < pattern.length) {
     const curr = pattern.slice(i);
     let step = 0;
@@ -76,8 +79,32 @@ export function lexer (pattern: string, handlers: [ TokenType, RegExp, number ][
         }
       }
       // if we just matched a break, then deal with any unresolved commas
-      if (unresolvedCommas.length && token?.raw === ';') {
+      if (token?.raw === ';') {
         unresolvedCommas.length = 0;
+        pointCommas.length = 0;
+        seenPoint = false;
+      }
+      // the commas before a decimal point only scale the number if no digits
+      // or points follow the decimal digits: "0,.0x0" does not scale, "0,.0x" does
+      const isNum = !!token && isNumOp(token.raw);
+      if (!inPointRun || !isNum) {
+        if (pointCommas.length && (isNum || token?.type === TOKEN_POINT)) {
+          pointCommas.forEach(d => (d.type = TOKEN_GROUP));
+          pointCommas.length = 0;
+        }
+        inPointRun = false;
+      }
+      // commas right before a decimal point followed by digits scale the
+      // number: Excel reads "#,##0,.00" as "#,##0.00,"
+      if (token?.type === TOKEN_POINT) {
+        const prev = tokens[tokens.length - 2];
+        if (!seenPoint && unresolvedCommas.length && prev === unresolvedCommas[unresolvedCommas.length - 1] &&
+            isNumOp(pattern[i + 1])) {
+          pointCommas.push(...unresolvedCommas);
+          unresolvedCommas.length = 0;
+          inPointRun = true;
+        }
+        seenPoint = true;
       }
       // if we just matched a num operator, then deal with any unresolved commas
       if (token && unresolvedCommas.length && isNumOp(token.raw)) {

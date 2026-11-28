@@ -134,7 +134,7 @@ export function parseFormatSection (inputTokens: Token[]) {
       add(',', outputTokens);
     }
     else if (type === TOKEN_SCALE) {
-      commaScales = token.raw.length;
+      commaScales += token.raw.length;
       part.scale = part.percent ? 100 / 1000 ** commaScales : 0.001 ** commaScales;
     }
     else if (type === TOKEN_GROUP) {
@@ -461,6 +461,11 @@ export function parseFormatSection (inputTokens: Token[]) {
     (part.exponential && ((part.int_pattern.length || part.frac_pattern.length) * part.man_pattern.length) === 0)
   ) {
     throw new SyntaxError(`Invalid pattern: ${patternSource}`);
+  }
+
+  // Excel does not apply the thousands scale to scientific notation
+  if (part.exponential && commaScales) {
+    part.scale = part.percent ? 100 : 1;
   }
 
   const intPattern = part.int_pattern.join('');
